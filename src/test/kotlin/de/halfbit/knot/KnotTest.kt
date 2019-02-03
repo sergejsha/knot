@@ -60,13 +60,13 @@ class KnotTest {
             on { reduce(any(), any()) }.thenReturn(stateReduced)
         }
 
-        val know = createKnot<State, Command> {
+        val knot = createKnot<State, Command> {
             state { initial = state }
             commands { reduceWith(loadCommandReducer) }
         }
 
-        know.command.accept(Command.Load)
-        val observer = know.state.test()
+        knot.command.accept(Command.Load)
+        val observer = knot.state.test()
 
         verify(loadCommandReducer, atLeast(1)).operator
         verify(loadCommandReducer).onCommand(Command.Load, state)
@@ -86,14 +86,14 @@ class KnotTest {
             on { reduce(any(), any()) }.thenReturn(stateReduced)
         }
 
-        val know = createKnot<State, Command> {
+        val knot = createKnot<State, Command> {
             state { initial = state }
             events { reduceWith(contentChangedEventReducer) }
         }
 
         verify(contentChangedEventReducer).observeEvent()
 
-        val observer = know.state.test()
+        val observer = knot.state.test()
 
         verify(contentChangedEventReducer).onEvent(event, state)
         verify(contentChangedEventReducer).reduce(action, state)
@@ -111,7 +111,7 @@ class KnotTest {
             on { onCommand(any(), any()) }.thenReturn(Observable.never())
         }
 
-        val know = createKnot<State, Command> {
+        createKnot<State, Command> {
             state { initial = state }
             events { transformWith(mediaRefreshedEventTransformer) }
             commands { reduceWith(loadCommandReducer) }
