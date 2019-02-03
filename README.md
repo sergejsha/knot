@@ -4,6 +4,8 @@
 # knot
 Reactive state container for Kotlin
 
+Ongoing...
+
 # License
 ```
 Copyright 2018-2019 Sergej Shafarenka, www.halfbit.de
