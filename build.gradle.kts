@@ -14,7 +14,10 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("io.reactivex.rxjava2:rxkotlin:2.3.0")
-    implementation("com.jakewharton.rxrelay2:rxrelay:2.1.0")
+    testImplementation("junit:junit:4.12")
+    testImplementation("com.google.truth:truth:0.42")
+    testImplementation("org.mockito:mockito-core:2.21.0")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0")
 }
 
 tasks.withType<KotlinCompile> {
