@@ -4,7 +4,7 @@
 # knot
 Reactive state container for Kotlin
 
-Ongoing...
+1 knot = 1.852 km/h
 
 # License
 ```
