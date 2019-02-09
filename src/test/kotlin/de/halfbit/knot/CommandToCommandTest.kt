@@ -1,6 +1,5 @@
 package de.halfbit.knot
 
-import de.halfbit.knot.dsl.tieKnot
 import org.junit.Test
 
 class CommandToCommandTest {
@@ -13,12 +12,12 @@ class CommandToCommandTest {
         knot = tieKnot {
             state { initial = State.Unknown }
             on<Command.Start> {
-                toCommand {
+                issueCommand {
                     it.map { Command.Load }
                 }
             }
             on<Command.Load> {
-                reduceState {
+                updateState {
                     it.map { State.Loaded }
                 }
             }

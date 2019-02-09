@@ -1,6 +1,5 @@
 package de.halfbit.knot
 
-import de.halfbit.knot.dsl.tieKnot
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
@@ -16,7 +15,7 @@ class EventReduceStateTest {
         knot = tieKnot {
             state { initial = State.Unknown }
             on(eventSource.event) {
-                reduceState { event ->
+                updateState { event ->
                     event.flatMap<State> {
                         Observable.just(it)
                             .map<State> { ev -> State.Loaded(ev) }
@@ -42,7 +41,7 @@ class EventReduceStateTest {
         knot = tieKnot {
             state { initial = State.Loading }
             on(eventSource.event) {
-                reduceState { event ->
+                updateState { event ->
                     event
                         .filter { state == State.Loading }
                         .map { State.Loaded(it) }
@@ -65,7 +64,7 @@ class EventReduceStateTest {
         knot = tieKnot {
             state { initial = State.Unknown }
             on(eventSource.event) {
-                reduceState { event ->
+                updateState { event ->
                     event.flatMap<State> {
                         Observable.just(it)
                             .map<State> {

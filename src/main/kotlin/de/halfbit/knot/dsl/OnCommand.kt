@@ -4,27 +4,27 @@ import io.reactivex.Observable
 import kotlin.reflect.KClass
 
 @KnotDsl
-class CommandBuilder<State : Any, Command : Any, OutCommand : Any>
+class OnCommand<State : Any, Command : Any, OutCommand : Any>
 constructor(
     private val type: KClass<Command>,
-    private val commandReduceStateTransformers: MutableList<TypedCommandReduceStateTransformer<Command, State>>,
+    private val commandUpdateStateTransformers: MutableList<TypedCommandUpdateStateTransformer<Command, State>>,
     private val commandToCommandTransformers: MutableList<TypedCommandToCommandTransformer<Command, OutCommand, State>>
 ) {
-    fun reduceState(transform: CommandReduceStateTransform<Command, State>) {
-        commandReduceStateTransformers += TypedCommandReduceStateTransformer(type, transform)
+    fun updateState(transform: CommandUpdateStateTransform<Command, State>) {
+        commandUpdateStateTransformers += TypedCommandUpdateStateTransformer(type, transform)
     }
 
-    fun toCommand(transform: CommandToCommandTransform<Command, OutCommand, State>) {
+    fun issueCommand(transform: CommandToCommandTransform<Command, OutCommand, State>) {
         commandToCommandTransformers += TypedCommandToCommandTransformer(type, transform)
     }
 }
 
-typealias CommandReduceStateTransform<Command, State> =
+typealias CommandUpdateStateTransform<Command, State> =
         WithState<State>.(command: Observable<Command>) -> Observable<State>
 
-class TypedCommandReduceStateTransformer<Command : Any, State : Any>(
+class TypedCommandUpdateStateTransformer<Command : Any, State : Any>(
     val type: KClass<Command>,
-    val transform: CommandReduceStateTransform<Command, State>
+    val transform: CommandUpdateStateTransform<Command, State>
 )
 
 typealias CommandToCommandTransform<Command, OutCommand, State> =

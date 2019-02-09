@@ -1,6 +1,5 @@
 package de.halfbit.knot
 
-import de.halfbit.knot.dsl.tieKnot
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -15,12 +14,12 @@ class EventToCommandTest {
         knot = tieKnot {
             state { initial = State.Unknown }
             on(eventSource.event) {
-                toCommand {
+                issueCommand {
                     it.map { Command.Load }
                 }
             }
             on<Command.Load> {
-                reduceState {
+                updateState {
                     it.map { State.Loaded }
                 }
             }

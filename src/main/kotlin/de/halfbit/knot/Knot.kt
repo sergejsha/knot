@@ -16,9 +16,9 @@ interface Knot<State : Any, Command : Any> {
 @Suppress("UNCHECKED_CAST")
 internal class DefaultKnot<State : Any, Command : Any>(
     initialState: State,
-    commandReduceStateTransformers: List<TypedCommandReduceStateTransformer<Command, State>>,
+    commandUpdateStateTransformers: List<TypedCommandUpdateStateTransformer<Command, State>>,
     commandToCommandTransformers: List<TypedCommandToCommandTransformer<Command, Command, State>>,
-    eventReduceStateTransformers: List<SourcedEventReduceStateTransformer<*, State>>,
+    eventUpdateStateTransformers: List<SourcedEventUpdateStateTransformer<*, State>>,
     eventToCommandTransformers: List<SourcedEventToCommandTransformer<*, Command, State>>,
     private val disposables: CompositeDisposable = CompositeDisposable()
 ) : Knot<State, Command> {
@@ -30,7 +30,7 @@ internal class DefaultKnot<State : Any, Command : Any>(
 
     private val _command = PublishSubject.create<Command>()
     private val _state = Observable
-        .merge(transformers(commandReduceStateTransformers, eventReduceStateTransformers))
+        .merge(transformers(commandUpdateStateTransformers, eventUpdateStateTransformers))
         .serialize()
         .startWith(initialState)
         .distinctUntilChanged()
@@ -65,19 +65,19 @@ internal class DefaultKnot<State : Any, Command : Any>(
     }
 
     private fun transformers(
-        commandReduceStateTransformers: List<TypedCommandReduceStateTransformer<Command, State>>,
-        eventReduceStateTransformers: List<SourcedEventReduceStateTransformer<*, State>>
+        commandUpdateStateTransformers: List<TypedCommandUpdateStateTransformer<Command, State>>,
+        eventUpdateStateTransformers: List<SourcedEventUpdateStateTransformer<*, State>>
     ): List<Observable<State>> =
         mutableListOf<Observable<State>>().also { list ->
-            for (transformer in commandReduceStateTransformers) {
+            for (transformer in commandUpdateStateTransformers) {
                 list += _command
                     .ofType(transformer.type.javaObjectType)
                     .compose<State> { transformer.transform(withState, it) }
             }
-            for (transformer in eventReduceStateTransformers) {
+            for (transformer in eventUpdateStateTransformers) {
                 list += transformer.source
                     .compose<State> {
-                        val transform = transformer.transform as EventReduceStateTransform<*, State>
+                        val transform = transformer.transform as EventUpdateStateTransform<*, State>
                         transform(withState, it)
                     }
             }
@@ -87,3 +87,11 @@ internal class DefaultKnot<State : Any, Command : Any>(
         disposables.clear()
     }
 }
+
+fun <State : Any, Command : Any> tieKnot(
+    block: KnotBuilder<State, Command>.() -> Unit
+): Knot<State, Command> =
+    KnotBuilder<State, Command>()
+        .also(block)
+        .build()
+

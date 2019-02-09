@@ -1,7 +1,6 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
-import de.halfbit.knot.dsl.tieKnot
 import org.junit.Test
 
 class KnotDslTest {
