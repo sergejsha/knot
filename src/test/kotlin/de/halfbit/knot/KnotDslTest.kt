@@ -1,18 +1,19 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
+import de.halfbit.knot.dsl.tieKnot
 import org.junit.Test
 
 class KnotDslTest {
 
     @Test(expected = IllegalStateException::class)
     fun `DSL requires initial state`() {
-        knot<State, Command> { }
+        tieKnot<State, Command> { }
     }
 
     @Test
     fun `DSL builder creates Knot`() {
-        val knot = knot<State, Command> {
+        val knot = tieKnot<State, Command> {
             state { initial = State() }
         }
         assertThat(knot).isNotNull()
@@ -20,7 +21,7 @@ class KnotDslTest {
 
     @Test
     fun `DSL builder creates Knot with 'state'`() {
-        val knot = knot<State, Command> {
+        val knot = tieKnot<State, Command> {
             state { initial = State() }
         }
         assertThat(knot.state).isNotNull()
@@ -28,7 +29,7 @@ class KnotDslTest {
 
     @Test
     fun `DSL builder creates Knot with 'command'`() {
-        val knot = knot<State, Command> {
+        val knot = tieKnot<State, Command> {
             state { initial = State() }
         }
         assertThat(knot.command).isNotNull()
@@ -37,7 +38,7 @@ class KnotDslTest {
     @Test
     fun `Knot dispatches initial state`() {
         val state = State()
-        val knot = knot<State, Command> {
+        val knot = tieKnot<State, Command> {
             state { initial = state }
         }
         val observer = knot.state.test()

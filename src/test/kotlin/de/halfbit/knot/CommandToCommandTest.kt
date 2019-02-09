@@ -1,12 +1,10 @@
 package de.halfbit.knot
 
 import de.halfbit.knot.dsl.tieKnot
-import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
-class EventToCommandTest {
+class CommandToCommandTest {
 
-    private val eventSource = EventSource()
     private lateinit var knot: Knot<State, Command>
 
     @Test
@@ -14,7 +12,7 @@ class EventToCommandTest {
 
         knot = tieKnot {
             state { initial = State.Unknown }
-            on(eventSource.event) {
+            on<Command.Start> {
                 toCommand {
                     it.map { Command.Load }
                 }
@@ -27,7 +25,7 @@ class EventToCommandTest {
         }
 
         val observer = knot.state.test()
-        eventSource.event.onNext(Event)
+        knot.command.accept(Command.Start)
 
         observer.assertValues(
             State.Unknown,
@@ -36,17 +34,13 @@ class EventToCommandTest {
     }
 
     private sealed class Command {
+        object Start : Command()
         object Load : Command()
     }
 
     private sealed class State {
         object Unknown : State()
         object Loaded : State()
-    }
-
-    private object Event
-    private class EventSource {
-        val event: PublishSubject<Event> = PublishSubject.create()
     }
 
 }

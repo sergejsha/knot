@@ -1,9 +1,10 @@
-package de.halfbit.knot
+package de.halfbit.knot.dsl
 
+import de.halfbit.knot.DefaultKnot
+import de.halfbit.knot.Knot
 import io.reactivex.Observable
-import kotlin.reflect.KClass
 
-fun <State : Any, Command : Any> knot(
+fun <State : Any, Command : Any> tieKnot(
     block: KnotBuilder<State, Command>.() -> Unit
 ): Knot<State, Command> =
     KnotBuilder<State, Command>()
@@ -18,23 +19,27 @@ class KnotBuilder<State : Any, Command : Any> {
 
     private var initialState: State? = null
     val commandReduceStateTransformers = mutableListOf<TypedCommandReduceStateTransformer<Command, State>>()
+    val commandToCommandTransformers = mutableListOf<TypedCommandToCommandTransformer<Command, Command, State>>()
     val eventReduceStateTransformers = mutableListOf<SourcedEventReduceStateTransformer<*, State>>()
     val eventToCommandTransformers = mutableListOf<SourcedEventToCommandTransformer<*, Command, State>>()
 
     fun build(): Knot<State, Command> = DefaultKnot(
         checkNotNull(initialState) { "state { initial } must be set" },
         commandReduceStateTransformers,
+        commandToCommandTransformers,
         eventReduceStateTransformers,
         eventToCommandTransformers
     )
 
     @Suppress("UNCHECKED_CAST")
     inline fun <reified C : Command> on(
-        commandBuilderBlock: CommandBuilder<State, C>.() -> Unit
+        commandBuilderBlock: CommandBuilder<State, C, Command>.() -> Unit
     ) {
-        val reducers = mutableListOf<TypedCommandReduceStateTransformer<C, State>>()
-        CommandBuilder(C::class, reducers).also(commandBuilderBlock)
-        commandReduceStateTransformers += reducers as List<TypedCommandReduceStateTransformer<Command, State>>
+        val transformers1 = mutableListOf<TypedCommandReduceStateTransformer<C, State>>()
+        val transformers2 = mutableListOf<TypedCommandToCommandTransformer<C, Command, State>>()
+        CommandBuilder(C::class, transformers1, transformers2).also(commandBuilderBlock)
+        commandReduceStateTransformers += transformers1 as List<TypedCommandReduceStateTransformer<Command, State>>
+        commandToCommandTransformers += transformers2 as List<TypedCommandToCommandTransformer<Command, Command, State>>
     }
 
     inline fun <Event : Any> on(
@@ -62,25 +67,6 @@ class StateBuilder<State : Any>
 internal constructor() {
     var initial: State? = null
 }
-
-@KnotDsl
-class CommandBuilder<State : Any, Command : Any>
-constructor(
-    private val type: KClass<Command>,
-    private val transformers: MutableList<TypedCommandReduceStateTransformer<Command, State>>
-) {
-    fun reduceState(reducer: CommandReduceStateTransform<Command, State>) {
-        transformers.add(TypedCommandReduceStateTransformer(type, reducer))
-    }
-}
-
-typealias CommandReduceStateTransform<Command, State> =
-        WithState<State>.(command: Observable<Command>) -> Observable<State>
-
-class TypedCommandReduceStateTransformer<Command : Any, State : Any>(
-    val type: KClass<Command>,
-    val transform: CommandReduceStateTransform<Command, State>
-)
 
 @KnotDsl
 class EventBuilder<State : Any, Event : Any, Command : Any>(

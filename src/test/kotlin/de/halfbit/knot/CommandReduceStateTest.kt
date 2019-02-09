@@ -1,5 +1,6 @@
 package de.halfbit.knot
 
+import de.halfbit.knot.dsl.tieKnot
 import io.reactivex.Observable
 import org.junit.Test
 
@@ -10,7 +11,7 @@ class CommandReduceStateTest {
     @Test
     fun `Command reduces state`() {
 
-        knot = knot {
+        knot = tieKnot {
             state { initial = State.Unknown }
             on<Command.Load> {
                 reduceState { command ->
@@ -36,7 +37,7 @@ class CommandReduceStateTest {
     @Test
     fun `Command provides initial state`() {
 
-        knot = knot {
+        knot = tieKnot {
             state { initial = State.Loading }
             on<Command.Load> {
                 reduceState { command ->
@@ -59,7 +60,7 @@ class CommandReduceStateTest {
     @Test
     fun `Command provides updated state`() {
 
-        knot = knot {
+        knot = tieKnot {
             state { initial = State.Unknown }
             on<Command.Load> {
                 reduceState { command ->

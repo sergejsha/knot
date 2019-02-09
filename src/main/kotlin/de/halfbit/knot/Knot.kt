@@ -1,5 +1,6 @@
 package de.halfbit.knot
 
+import de.halfbit.knot.dsl.*
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
@@ -16,6 +17,7 @@ interface Knot<State : Any, Command : Any> {
 internal class DefaultKnot<State : Any, Command : Any>(
     initialState: State,
     commandReduceStateTransformers: List<TypedCommandReduceStateTransformer<Command, State>>,
+    commandToCommandTransformers: List<TypedCommandToCommandTransformer<Command, Command, State>>,
     eventReduceStateTransformers: List<SourcedEventReduceStateTransformer<*, State>>,
     eventToCommandTransformers: List<SourcedEventToCommandTransformer<*, Command, State>>,
     private val disposables: CompositeDisposable = CompositeDisposable()
@@ -44,9 +46,14 @@ internal class DefaultKnot<State : Any, Command : Any>(
             Observable
                 .merge(
                     mutableListOf<Observable<Command>>().also { list ->
+                        for (transformer in commandToCommandTransformers) {
+                            list += _command
+                                .ofType(transformer.type.javaObjectType)
+                                .compose<Command> { transformer.transform(withState, it) }
+                        }
                         for (transformer in eventToCommandTransformers) {
                             list += transformer.source
-                                .compose {
+                                .compose<Command> {
                                     val transform = transformer.transform as EventToCommandTransform<*, Command, State>
                                     transform(withState, it)
                                 }
