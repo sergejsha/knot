@@ -3,7 +3,6 @@ package de.halfbit.knot
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
-import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.atomic.AtomicReference
 
@@ -35,25 +34,27 @@ internal class DefaultKnot<State : Any, Command : Any>(
         .distinctUntilChanged()
         .doOnNext { stateValue.set(it) }
         .replay(1)
-        .also { disposables += it.connect() }
+        .also { disposables.add(it.connect()) }
 
     override val state: Observable<State> = _state
     override val command: Consumer<Command> = Consumer { _command.onNext(it) }
 
     init {
-        disposables += Observable
-            .merge(
-                mutableListOf<Observable<Command>>().also { list ->
-                    for (transformer in eventToCommandTransformers) {
-                        list += transformer.source
-                            .compose {
-                                val transform = transformer.transform as EventToCommandTransform<*, Command, State>
-                                transform(withState, it)
-                            }
+        disposables.add(
+            Observable
+                .merge(
+                    mutableListOf<Observable<Command>>().also { list ->
+                        for (transformer in eventToCommandTransformers) {
+                            list += transformer.source
+                                .compose {
+                                    val transform = transformer.transform as EventToCommandTransform<*, Command, State>
+                                    transform(withState, it)
+                                }
+                        }
                     }
-                }
-            )
-            .subscribe { _command.onNext(it) }
+                )
+                .subscribe { _command.onNext(it) }
+        )
     }
 
     private fun transformers(

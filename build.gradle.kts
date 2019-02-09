@@ -14,7 +14,8 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("io.reactivex.rxjava2:rxkotlin:2.3.0")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.6")
+
     testImplementation("junit:junit:4.12")
     testImplementation("com.google.truth:truth:0.42")
     testImplementation("org.mockito:mockito-core:2.21.0")
@@ -26,7 +27,7 @@ tasks.withType<KotlinCompile> {
 }
 
 group = "de.halfbit"
-version = "0.1-alpha01"
+version = "0.1-alpha2"
 
 publishing {
 
