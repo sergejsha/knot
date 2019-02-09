@@ -9,3 +9,4 @@ local.properties
 .idea/
 build/
 captures/
+out/
