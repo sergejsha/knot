@@ -17,33 +17,34 @@ annotation class KnotDsl
 class KnotBuilder<State : Any, Command : Any> {
 
     private var initialState: State? = null
-    val commandToStateTransformers = mutableListOf<TypedCommandToStateTransformer<Command, State>>()
-    val eventToStateTransformers = mutableListOf<SourcedEventToStateTransformer<*, State>>()
+    val commandReduceStateTransformers = mutableListOf<TypedCommandReduceStateTransformer<Command, State>>()
+    val eventReduceStateTransformers = mutableListOf<SourcedEventReduceStateTransformer<*, State>>()
     val eventToCommandTransformers = mutableListOf<SourcedEventToCommandTransformer<*, Command, State>>()
 
     fun build(): Knot<State, Command> = DefaultKnot(
         checkNotNull(initialState) { "state { initial } must be set" },
-        commandToStateTransformers,
-        eventToStateTransformers,
+        commandReduceStateTransformers,
+        eventReduceStateTransformers,
         eventToCommandTransformers
     )
 
-    inline fun <reified C : Command> onCommand(
+    @Suppress("UNCHECKED_CAST")
+    inline fun <reified C : Command> on(
         commandBuilderBlock: CommandBuilder<State, C>.() -> Unit
     ) {
-        val reducers = mutableListOf<TypedCommandToStateTransformer<C, State>>()
+        val reducers = mutableListOf<TypedCommandReduceStateTransformer<C, State>>()
         CommandBuilder(C::class, reducers).also(commandBuilderBlock)
-        commandToStateTransformers += reducers as List<TypedCommandToStateTransformer<Command, State>>
+        commandReduceStateTransformers += reducers as List<TypedCommandReduceStateTransformer<Command, State>>
     }
 
-    inline fun <Event : Any> onEvent(
+    inline fun <Event : Any> on(
         source: Observable<Event>, eventBuilder: EventBuilder<State, Event, Command>.() -> Unit
     ) {
-        val reducers1 = mutableListOf<SourcedEventToStateTransformer<Event, State>>()
-        val reducers2 = mutableListOf<SourcedEventToCommandTransformer<Event, Command, State>>()
-        EventBuilder(source, reducers1, reducers2).also(eventBuilder)
-        eventToStateTransformers += reducers1 as SourcedEventToStateTransformer<*, State>
-        eventToCommandTransformers += reducers2 as SourcedEventToCommandTransformer<*, Command, State>
+        val transformers1 = mutableListOf<SourcedEventReduceStateTransformer<Event, State>>()
+        val transformers2 = mutableListOf<SourcedEventToCommandTransformer<Event, Command, State>>()
+        EventBuilder(source, transformers1, transformers2).also(eventBuilder)
+        eventReduceStateTransformers += transformers1 as List<SourcedEventReduceStateTransformer<*, State>>
+        eventToCommandTransformers += transformers2 as List<SourcedEventToCommandTransformer<*, Command, State>>
     }
 
     fun state(state: StateBuilder<State>.() -> Unit) {
@@ -66,29 +67,29 @@ internal constructor() {
 class CommandBuilder<State : Any, Command : Any>
 constructor(
     private val type: KClass<Command>,
-    private val transformers: MutableList<TypedCommandToStateTransformer<Command, State>>
+    private val transformers: MutableList<TypedCommandReduceStateTransformer<Command, State>>
 ) {
-    fun toState(reducer: CommandToStateTransform<Command, State>) {
-        transformers.add(TypedCommandToStateTransformer(type, reducer))
+    fun reduceState(reducer: CommandReduceStateTransform<Command, State>) {
+        transformers.add(TypedCommandReduceStateTransformer(type, reducer))
     }
 }
 
-typealias CommandToStateTransform<Command, State> =
+typealias CommandReduceStateTransform<Command, State> =
         WithState<State>.(command: Observable<Command>) -> Observable<State>
 
-class TypedCommandToStateTransformer<Command : Any, State : Any>(
+class TypedCommandReduceStateTransformer<Command : Any, State : Any>(
     val type: KClass<Command>,
-    val transform: CommandToStateTransform<Command, State>
+    val transform: CommandReduceStateTransform<Command, State>
 )
 
 @KnotDsl
 class EventBuilder<State : Any, Event : Any, Command : Any>(
     private val source: Observable<Event>,
-    private val eventToStateTransformers: MutableList<SourcedEventToStateTransformer<Event, State>>,
+    private val eventReduceStateTransformers: MutableList<SourcedEventReduceStateTransformer<Event, State>>,
     private val eventToCommandTransformers: MutableList<SourcedEventToCommandTransformer<Event, Command, State>>
 ) {
-    fun toState(transform: EventToStateTransform<Event, State>) {
-        eventToStateTransformers += SourcedEventToStateTransformer(source, transform)
+    fun reduceState(transform: EventReduceStateTransform<Event, State>) {
+        eventReduceStateTransformers += SourcedEventReduceStateTransformer(source, transform)
     }
 
     fun toCommand(transform: EventToCommandTransform<Event, Command, State>) {
@@ -96,16 +97,16 @@ class EventBuilder<State : Any, Event : Any, Command : Any>(
     }
 }
 
-typealias EventToStateTransform<Event, State> =
+typealias EventReduceStateTransform<Event, State> =
         WithState<State>.(event: Observable<Event>) -> Observable<State>
 
 interface WithState<State : Any> {
     val state: State
 }
 
-class SourcedEventToStateTransformer<Event : Any, State : Any>(
+class SourcedEventReduceStateTransformer<Event : Any, State : Any>(
     val source: Observable<Event>,
-    val transform: EventToStateTransform<Event, State>
+    val transform: EventReduceStateTransform<Event, State>
 )
 
 typealias EventToCommandTransform<Event, Command, State> =

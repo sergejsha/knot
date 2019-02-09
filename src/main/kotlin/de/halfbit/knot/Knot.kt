@@ -13,10 +13,11 @@ interface Knot<State : Any, Command : Any> {
     fun dispose()
 }
 
+@Suppress("UNCHECKED_CAST")
 internal class DefaultKnot<State : Any, Command : Any>(
     initialState: State,
-    commandToStateTransformers: List<TypedCommandToStateTransformer<Command, State>>,
-    eventToStateTransformers: List<SourcedEventToStateTransformer<*, State>>,
+    commandReduceStateTransformers: List<TypedCommandReduceStateTransformer<Command, State>>,
+    eventReduceStateTransformers: List<SourcedEventReduceStateTransformer<*, State>>,
     eventToCommandTransformers: List<SourcedEventToCommandTransformer<*, Command, State>>,
     private val disposables: CompositeDisposable = CompositeDisposable()
 ) : Knot<State, Command> {
@@ -28,7 +29,7 @@ internal class DefaultKnot<State : Any, Command : Any>(
 
     private val _command = PublishSubject.create<Command>()
     private val _state = Observable
-        .merge(transformers(commandToStateTransformers, eventToStateTransformers))
+        .merge(transformers(commandReduceStateTransformers, eventReduceStateTransformers))
         .serialize()
         .startWith(initialState)
         .distinctUntilChanged()
@@ -56,19 +57,19 @@ internal class DefaultKnot<State : Any, Command : Any>(
     }
 
     private fun transformers(
-        commandToStateTransformers: List<TypedCommandToStateTransformer<Command, State>>,
-        eventToStateTransformers: List<SourcedEventToStateTransformer<*, State>>
+        commandReduceStateTransformers: List<TypedCommandReduceStateTransformer<Command, State>>,
+        eventReduceStateTransformers: List<SourcedEventReduceStateTransformer<*, State>>
     ): List<Observable<State>> =
         mutableListOf<Observable<State>>().also { list ->
-            for (transformer in commandToStateTransformers) {
+            for (transformer in commandReduceStateTransformers) {
                 list += _command
                     .ofType(transformer.type.javaObjectType)
                     .compose<State> { transformer.transform(withState, it) }
             }
-            for (transformer in eventToStateTransformers) {
+            for (transformer in eventReduceStateTransformers) {
                 list += transformer.source
                     .compose<State> {
-                        val transform = transformer.transform as EventToStateTransform<*, State>
+                        val transform = transformer.transform as EventReduceStateTransform<*, State>
                         transform(withState, it)
                     }
             }
@@ -78,72 +79,3 @@ internal class DefaultKnot<State : Any, Command : Any>(
         disposables.clear()
     }
 }
-
-/*
-lateinit var eventSource: EventSource
-lateinit var userProfileRepository: AnotherEventSource
-
-val knot = knot<State, Command> {
-
-    state {
-        initial = State()
-    }
-
-    onCommand<Command.FetchPaymentMethod> {
-        toState { fetchPaymentMethod ->
-            fetchPaymentMethod
-                .filter { !state.fetching }
-                .map { state.copy() }
-        }
-    }
-
-    onEvent(eventSource.events) {
-        toCommand {
-            it.map { Command.FetchPaymentMethod }
-        }
-    }
-
-    onEvent(userProfileRepository.userProfile) {
-
-        toCommand { userProfile ->
-            userProfile
-                .filter { it.isRegistered }
-                .map { Command.FetchPaymentMethod }
-        }
-
-        toCommand { userProfile ->
-            userProfile
-                .filter { !it.isRegistered }
-                .map { Command.InvalidateCustomer }
-        }
-
-        toState { userProfile ->
-            userProfile
-                .filter { it.isRegistered }
-                .map { state.copy(fetching = false) }
-        }
-
-    }
-
-}
-
-interface EventSource {
-    val events: Observable<EventType>
-}
-
-interface AnotherEventSource {
-    val userProfile: Observable<UserProfile>
-}
-
-data class State(
-    val fetching: Boolean = false
-)
-
-sealed class Command {
-    object FetchPaymentMethod : Command()
-    object InvalidateCustomer : Command()
-}
-
-class EventType
-class UserProfile(val isRegistered: Boolean = false)
-*/
