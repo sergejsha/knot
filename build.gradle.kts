@@ -23,11 +23,11 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "1.6"
 }
 
 group = "de.halfbit"
-version = "0.1-alpha2"
+version = "0.1-alpha3"
 
 publishing {
 
