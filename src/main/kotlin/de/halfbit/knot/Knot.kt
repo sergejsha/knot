@@ -16,10 +16,10 @@ interface Knot<State : Any, Command : Any> {
 @Suppress("UNCHECKED_CAST")
 internal class DefaultKnot<State : Any, Command : Any>(
     initialState: State,
-    commandUpdateStateTransformers: List<TypedCommandUpdateStateTransformer<Command, State>>,
+    commandUpdateStateTransformers: List<OnCommandUpdateStateTransformer<Command, State>>,
     commandToCommandTransformers: List<TypedCommandToCommandTransformer<Command, Command, State>>,
-    eventUpdateStateTransformers: List<SourcedEventUpdateStateTransformer<*, State>>,
-    eventToCommandTransformers: List<SourcedEventToCommandTransformer<*, Command, State>>,
+    eventUpdateStateTransformers: List<OnEventUpdateStateTransformer<*, State>>,
+    eventToCommandTransformers: List<OnEventToCommandTransformer<*, Command, State>>,
     private val disposables: CompositeDisposable = CompositeDisposable()
 ) : Knot<State, Command> {
 
@@ -65,8 +65,8 @@ internal class DefaultKnot<State : Any, Command : Any>(
     }
 
     private fun transformers(
-        commandUpdateStateTransformers: List<TypedCommandUpdateStateTransformer<Command, State>>,
-        eventUpdateStateTransformers: List<SourcedEventUpdateStateTransformer<*, State>>
+        commandUpdateStateTransformers: List<OnCommandUpdateStateTransformer<Command, State>>,
+        eventUpdateStateTransformers: List<OnEventUpdateStateTransformer<*, State>>
     ): List<Observable<State>> =
         mutableListOf<Observable<State>>().also { list ->
             for (transformer in commandUpdateStateTransformers) {
@@ -77,7 +77,7 @@ internal class DefaultKnot<State : Any, Command : Any>(
             for (transformer in eventUpdateStateTransformers) {
                 list += transformer.source
                     .compose<State> {
-                        val transform = transformer.transform as EventUpdateStateTransform<*, State>
+                        val transform = transformer.transform as OnEventUpdateState<*, State>
                         transform(withState, it)
                     }
             }

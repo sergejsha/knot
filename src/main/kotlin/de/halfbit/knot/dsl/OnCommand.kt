@@ -7,30 +7,30 @@ import kotlin.reflect.KClass
 class OnCommand<State : Any, Command : Any, OutCommand : Any>
 constructor(
     private val type: KClass<Command>,
-    private val commandUpdateStateTransformers: MutableList<TypedCommandUpdateStateTransformer<Command, State>>,
-    private val commandToCommandTransformers: MutableList<TypedCommandToCommandTransformer<Command, OutCommand, State>>
+    private val onCommandUpdateStateTransformers: MutableList<OnCommandUpdateStateTransformer<Command, State>>,
+    private val onCommandToCommandTransformers: MutableList<TypedCommandToCommandTransformer<Command, OutCommand, State>>
 ) {
-    fun updateState(transform: CommandUpdateStateTransform<Command, State>) {
-        commandUpdateStateTransformers += TypedCommandUpdateStateTransformer(type, transform)
+    fun updateState(transform: OnCommandUpdateState<Command, State>) {
+        onCommandUpdateStateTransformers += OnCommandUpdateStateTransformer(type, transform)
     }
 
-    fun issueCommand(transform: CommandToCommandTransform<Command, OutCommand, State>) {
-        commandToCommandTransformers += TypedCommandToCommandTransformer(type, transform)
+    fun issueCommand(transform: OnCommandIssueCommand<Command, OutCommand, State>) {
+        onCommandToCommandTransformers += TypedCommandToCommandTransformer(type, transform)
     }
 }
 
-typealias CommandUpdateStateTransform<Command, State> =
+typealias OnCommandUpdateState<Command, State> =
         WithState<State>.(command: Observable<Command>) -> Observable<State>
 
-class TypedCommandUpdateStateTransformer<Command : Any, State : Any>(
+class OnCommandUpdateStateTransformer<Command : Any, State : Any>(
     val type: KClass<Command>,
-    val transform: CommandUpdateStateTransform<Command, State>
+    val transform: OnCommandUpdateState<Command, State>
 )
 
-typealias CommandToCommandTransform<Command, OutCommand, State> =
+typealias OnCommandIssueCommand<Command, OutCommand, State> =
         WithState<State>.(command: Observable<Command>) -> Observable<OutCommand>
 
 class TypedCommandToCommandTransformer<Command : Any, OutCommand : Any, State : Any>(
     val type: KClass<Command>,
-    val transform: CommandToCommandTransform<Command, OutCommand, State>
+    val transform: OnCommandIssueCommand<Command, OutCommand, State>
 )
