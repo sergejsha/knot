@@ -13,7 +13,6 @@ interface Knot<State : Any, Command : Any> {
     fun dispose()
 }
 
-@Suppress("UNCHECKED_CAST")
 internal class DefaultKnot<State : Any, Command : Any>(
     initialState: State,
     commandUpdateStateTransformers: List<OnCommandUpdateStateTransformer<Command, State>>,
@@ -33,11 +32,7 @@ internal class DefaultKnot<State : Any, Command : Any>(
     private val _state: Observable<State> = Observable
         .merge(transformers(commandUpdateStateTransformers, eventUpdateStateTransformers))
         .serialize()
-        .map {
-            val state = it.invoke(withState)
-            stateValue.set(state)
-            state
-        }
+        .map { it.invoke(withState).also { state -> stateValue.set(state) } }
         .startWith(initialState)
         .distinctUntilChanged()
         .replay(1)
@@ -59,6 +54,7 @@ internal class DefaultKnot<State : Any, Command : Any>(
                         for (transformer in eventToCommandTransformers) {
                             list += transformer.source
                                 .compose<Command> {
+                                    @Suppress("UNCHECKED_CAST")
                                     val transform = transformer.transform as EventToCommandTransform<*, Command, State>
                                     transform(withState, it)
                                 }
@@ -82,6 +78,7 @@ internal class DefaultKnot<State : Any, Command : Any>(
             for (transformer in eventUpdateStateTransformers) {
                 list += transformer.source
                     .compose<Reducer<State>> {
+                        @Suppress("UNCHECKED_CAST")
                         val transform = transformer.transform as OnEventUpdateState<*, State>
                         transform(withState, it)
                     }
