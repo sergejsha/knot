@@ -1,5 +1,6 @@
 package de.halfbit.knot
 
+import de.halfbit.knot.dsl.Reducer
 import io.reactivex.Observable
 import org.junit.Test
 
@@ -14,11 +15,12 @@ class CommandReduceStateTest {
             state { initial = State.Unknown }
             on<Command.Load> {
                 updateState { command ->
-                    command.flatMap<State> {
-                        Observable.just(it)
-                            .map<State> { State.Loaded }
-                            .startWith(State.Loading)
-                    }
+                    command
+                        .flatMap<Reducer<State>> {
+                            Observable.just(it)
+                                .map { reduce { State.Loaded } }
+                                .startWith(reduce { State.Loading })
+                        }
                 }
             }
         }
@@ -42,7 +44,7 @@ class CommandReduceStateTest {
                 updateState { command ->
                     command
                         .filter { state == State.Loading }
-                        .map { State.Loaded }
+                        .map<Reducer<State>> { reduce { State.Loaded } }
                 }
             }
         }
@@ -63,13 +65,15 @@ class CommandReduceStateTest {
             state { initial = State.Unknown }
             on<Command.Load> {
                 updateState { command ->
-                    command.flatMap<State> {
+                    command.flatMap<Reducer<State>> {
                         Observable.just(it)
-                            .map<State> {
-                                if (state == State.Loading) State.Loaded
-                                else State.Unknown
+                            .map {
+                                reduce {
+                                    if (state == State.Loading) State.Loaded
+                                    else State.Unknown
+                                }
                             }
-                            .startWith(State.Loading)
+                            .startWith { State.Loading }
                     }
                 }
             }

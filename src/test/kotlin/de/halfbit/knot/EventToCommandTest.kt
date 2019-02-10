@@ -1,5 +1,6 @@
 package de.halfbit.knot
 
+import de.halfbit.knot.dsl.Reducer
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -20,7 +21,7 @@ class EventToCommandTest {
             }
             on<Command.Load> {
                 updateState {
-                    it.map { State.Loaded }
+                    it.map<Reducer<State>> { reduce { State.Loaded } }
                 }
             }
         }

@@ -11,6 +11,20 @@ interface WithState<State : Any> {
     val state: State
 }
 
+interface WithStateReduce<State : Any> : WithState<State> {
+    fun reduce(reducer: Reducer<State>): Reducer<State>
+
+    fun <Input : Any> Observable<Input>.mapState(reducer: MapStateReducer<State, Input>):
+            Observable<Reducer<State>> = this.map<Reducer<State>> { { reducer(it) } }
+
+    fun Observable<Reducer<State>>.onErrorReturnState(reducer: ErrorStateReducer<State>):
+            Observable<Reducer<State>> = this.onErrorReturn { { reducer(it) } }
+}
+
+typealias MapStateReducer<State, Input> = WithState<State>.(input: Input) -> State
+typealias ErrorStateReducer<State> = WithState<State>.(error: Throwable) -> State
+typealias Reducer<State> = WithState<State>.() -> State
+
 @KnotDsl
 class KnotBuilder<State : Any, Command : Any> {
 

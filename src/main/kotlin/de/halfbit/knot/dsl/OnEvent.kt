@@ -18,7 +18,7 @@ class OnEvent<State : Any, Event : Any, Command : Any>(
 }
 
 typealias OnEventUpdateState<Event, State> =
-        WithState<State>.(event: Observable<Event>) -> Observable<State>
+        WithStateReduce<State>.(event: Observable<Event>) -> Observable<Reducer<State>>
 
 class OnEventUpdateStateTransformer<Event : Any, State : Any>(
     val source: Observable<Event>,

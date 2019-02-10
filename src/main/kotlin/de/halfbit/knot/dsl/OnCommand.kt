@@ -20,7 +20,7 @@ constructor(
 }
 
 typealias OnCommandUpdateState<Command, State> =
-        WithState<State>.(command: Observable<Command>) -> Observable<State>
+        WithStateReduce<State>.(command: Observable<Command>) -> Observable<Reducer<State>>
 
 class OnCommandUpdateStateTransformer<Command : Any, State : Any>(
     val type: KClass<Command>,

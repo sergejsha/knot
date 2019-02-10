@@ -1,5 +1,6 @@
 package de.halfbit.knot
 
+import de.halfbit.knot.dsl.Reducer
 import org.junit.Test
 
 class CommandToCommandTest {
@@ -18,7 +19,7 @@ class CommandToCommandTest {
             }
             on<Command.Load> {
                 updateState {
-                    it.map { State.Loaded }
+                    it.map<Reducer<State>> { reduce { State.Loaded } }
                 }
             }
         }

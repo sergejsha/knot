@@ -27,7 +27,7 @@ tasks.withType<KotlinCompile> {
 }
 
 group = "de.halfbit"
-version = "0.1-alpha6"
+version = "0.1-alpha7"
 
 publishing {
 

@@ -24,17 +24,22 @@ internal class DefaultKnot<State : Any, Command : Any>(
 ) : Knot<State, Command> {
 
     private val stateValue = AtomicReference(initialState)
-    private val withState = object : WithState<State> {
+    private val withState = object : WithStateReduce<State> {
         override val state: State get() = stateValue.get()
+        override fun reduce(reducer: Reducer<State>): Reducer<State> = reducer
     }
 
     private val _command = PublishSubject.create<Command>().toSerialized()
-    private val _state = Observable
+    private val _state: Observable<State> = Observable
         .merge(transformers(commandUpdateStateTransformers, eventUpdateStateTransformers))
         .serialize()
+        .map {
+            val state = it.invoke(withState)
+            stateValue.set(state)
+            state
+        }
         .startWith(initialState)
         .distinctUntilChanged()
-        .doOnNext { stateValue.set(it) }
         .replay(1)
         .also { disposables.add(it.connect()) }
 
@@ -67,16 +72,16 @@ internal class DefaultKnot<State : Any, Command : Any>(
     private fun transformers(
         commandUpdateStateTransformers: List<OnCommandUpdateStateTransformer<Command, State>>,
         eventUpdateStateTransformers: List<OnEventUpdateStateTransformer<*, State>>
-    ): List<Observable<State>> =
-        mutableListOf<Observable<State>>().also { list ->
+    ): List<Observable<Reducer<State>>> =
+        mutableListOf<Observable<Reducer<State>>>().also { list ->
             for (transformer in commandUpdateStateTransformers) {
                 list += _command
                     .ofType(transformer.type.javaObjectType)
-                    .compose<State> { transformer.transform(withState, it) }
+                    .compose<Reducer<State>> { transformer.transform(withState, it) }
             }
             for (transformer in eventUpdateStateTransformers) {
                 list += transformer.source
-                    .compose<State> {
+                    .compose<Reducer<State>> {
                         val transform = transformer.transform as OnEventUpdateState<*, State>
                         transform(withState, it)
                     }

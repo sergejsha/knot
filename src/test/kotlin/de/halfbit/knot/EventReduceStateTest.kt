@@ -1,5 +1,6 @@
 package de.halfbit.knot
 
+import de.halfbit.knot.dsl.Reducer
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
@@ -16,10 +17,10 @@ class EventReduceStateTest {
             state { initial = State.Unknown }
             on(eventSource.event) {
                 updateState { event ->
-                    event.flatMap<State> {
+                    event.flatMap<Reducer<State>> {
                         Observable.just(it)
-                            .map<State> { ev -> State.Loaded(ev) }
-                            .startWith(State.Loading)
+                            .map<Reducer<State>> { ev -> { State.Loaded(ev) } }
+                            .startWith { State.Loading }
                     }
                 }
             }
@@ -44,7 +45,7 @@ class EventReduceStateTest {
                 updateState { event ->
                     event
                         .filter { state == State.Loading }
-                        .map { State.Loaded(it) }
+                        .map<Reducer<State>> { reduce { State.Loaded(it) } }
                 }
             }
         }
@@ -65,13 +66,15 @@ class EventReduceStateTest {
             state { initial = State.Unknown }
             on(eventSource.event) {
                 updateState { event ->
-                    event.flatMap<State> {
+                    event.flatMap<Reducer<State>> {
                         Observable.just(it)
-                            .map<State> {
-                                if (state == State.Loading) State.Loaded(it)
-                                else State.Unknown
+                            .map<Reducer<State>> {
+                                reduce {
+                                    if (state == State.Loading) State.Loaded(it)
+                                    else State.Unknown
+                                }
                             }
-                            .startWith(State.Loading)
+                            .startWith { State.Loading }
                     }
                 }
             }
