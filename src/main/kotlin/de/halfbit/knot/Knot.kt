@@ -28,7 +28,7 @@ internal class DefaultKnot<State : Any, Command : Any>(
         override val state: State get() = stateValue.get()
     }
 
-    private val _command = PublishSubject.create<Command>()
+    private val _command = PublishSubject.create<Command>().toSerialized()
     private val _state = Observable
         .merge(transformers(commandUpdateStateTransformers, eventUpdateStateTransformers))
         .serialize()

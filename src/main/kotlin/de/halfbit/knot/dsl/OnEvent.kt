@@ -3,7 +3,7 @@ package de.halfbit.knot.dsl
 import io.reactivex.Observable
 
 @KnotDsl
-class EventBuilder<State : Any, Event : Any, Command : Any>(
+class OnEvent<State : Any, Event : Any, Command : Any>(
     private val source: Observable<Event>,
     private val onEventUpdateStateTransformers: MutableList<OnEventUpdateStateTransformer<Event, State>>,
     private val onEventToCommandTransformers: MutableList<OnEventToCommandTransformer<Event, Command, State>>

@@ -51,14 +51,13 @@ class KnotBuilder<State : Any, Command : Any> {
 
     @Suppress("UNCHECKED_CAST")
     inline fun <Event : Any> on(
-        source: Observable<Event>, eventBuilder: EventBuilder<State, Event, Command>.() -> Unit
-    ) {
-        EventBuilder(
-            source,
-            onEventUpdateStateTransformers as MutableList<OnEventUpdateStateTransformer<Event, State>>,
-            onEventToCommandTransformers as MutableList<OnEventToCommandTransformer<Event, Command, State>>
-        ).also(eventBuilder)
-    }
+        source: Observable<Event>,
+        onEvent: OnEvent<State, Event, Command>.() -> Unit
+    ) = OnEvent(
+        source,
+        onEventUpdateStateTransformers as MutableList<OnEventUpdateStateTransformer<Event, State>>,
+        onEventToCommandTransformers as MutableList<OnEventToCommandTransformer<Event, Command, State>>
+    ).also(onEvent)
 
     fun state(state: StateBuilder<State>.() -> Unit) {
         StateBuilder<State>()
