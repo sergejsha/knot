@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReference
 interface Knot<State : Any, Command : Any> {
     val state: Observable<State>
     val command: Consumer<Command>
+    val currentState: State
     fun dispose()
 }
 
@@ -29,7 +30,7 @@ internal class DefaultKnot<State : Any, Command : Any>(
     }
 
     private val _command = PublishSubject.create<Command>().toSerialized()
-    private val _state: Observable<State> = Observable
+    override val state: Observable<State> = Observable
         .merge(transformers(commandUpdateStateTransformers, eventUpdateStateTransformers))
         .serialize()
         .map { it.invoke(withState).also { state -> stateValue.set(state) } }
@@ -38,7 +39,7 @@ internal class DefaultKnot<State : Any, Command : Any>(
         .replay(1)
         .also { disposables.add(it.connect()) }
 
-    override val state: Observable<State> = _state
+    override val currentState: State get() = stateValue.get()
     override val command: Consumer<Command> = Consumer { _command.onNext(it) }
 
     init {

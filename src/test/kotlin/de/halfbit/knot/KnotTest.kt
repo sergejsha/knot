@@ -1,6 +1,7 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
+import de.halfbit.knot.dsl.Reducer
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -48,6 +49,29 @@ class KnotTest {
     }
 
     @Test
+    fun `Knot contains initial state`() {
+        val state = State()
+        knot = tieKnot {
+            state { initial = state }
+        }
+        assertThat(knot.currentState).isEqualTo(state)
+    }
+
+    @Test
+    fun `Knot updates current state`() {
+        knot = tieKnot {
+            state { initial = State() }
+            on<Command> {
+                updateState {
+                    it.map<Reducer<State>> { reduce { state.copy(value = 2) } }
+                }
+            }
+        }
+        knot.command.accept(Command)
+        assertThat(knot.currentState).isEqualTo(State(2))
+    }
+
+    @Test
     fun `Knot subscribes to events`() {
         val event = PublishSubject.create<Unit>()
 
@@ -78,7 +102,7 @@ class KnotTest {
         assertThat(event.hasObservers()).isFalse()
     }
 
-    private class State
+    private data class State(val value: Int = 0)
     private object Command
 }
 

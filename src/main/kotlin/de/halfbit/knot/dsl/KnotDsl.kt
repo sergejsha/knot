@@ -55,8 +55,8 @@ class KnotBuilder<State : Any, Command : Any> {
         onEventToCommandTransformers as MutableList<OnEventToCommandTransformer<Event, Command, State>>
     ).also(onEvent)
 
-    fun state(state: StateBuilder<State>.() -> Unit) {
-        StateBuilder<State>()
+    fun state(state: OnState<State>.() -> Unit) {
+        OnState<State>()
             .also(state)
             .let { initialState = it.initial }
     }

@@ -1,6 +1,8 @@
 package de.halfbit.knot
 
 import de.halfbit.knot.dsl.Reducer
+import io.reactivex.Completable
+import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -21,12 +23,32 @@ class WithStateReduceExtensions {
         knot = tieKnot {
             state { initial = State.Unknown }
             on<LoadCommand> {
-                updateState { it.reduceState { State.Loaded } }
+                updateState { it.mapReduceState { State.Loaded } }
             }
         }
 
         val observer = knot.state.test()
         knot.command.accept(LoadCommand)
+
+        observer.assertValues(
+            State.Unknown,
+            State.Loaded
+        )
+    }
+
+    @Test
+    fun `reduceState is available in onEvent`() {
+
+        val event: PublishSubject<Unit> = PublishSubject.create()
+        knot = tieKnot {
+            state { initial = State.Unknown }
+            on(event) {
+                updateState { it.mapReduceState { State.Loaded } }
+            }
+        }
+
+        val observer = knot.state.test()
+        event.onNext(Unit)
 
         observer.assertValues(
             State.Unknown,
@@ -44,7 +66,7 @@ class WithStateReduceExtensions {
                 updateState { command ->
                     command
                         .map<Reducer<State>> { throw error }
-                        .reduceStateOnError { State.Error }
+                        .onErrorReduceState { State.Error }
                 }
             }
         }
@@ -59,14 +81,67 @@ class WithStateReduceExtensions {
     }
 
     @Test
-    fun `reduceState is available in onEvent`() {
+    fun `reduceStateOnError is available in onEvent`() {
 
         val event: PublishSubject<Unit> = PublishSubject.create()
-
+        val error = IllegalStateException("Kaboom")
         knot = tieKnot {
             state { initial = State.Unknown }
             on(event) {
-                updateState { it.reduceState { State.Loaded } }
+                updateState { event ->
+                    event
+                        .map<Reducer<State>> { throw error }
+                        .onErrorReduceState { State.Error }
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        event.onNext(Unit)
+
+        observer.assertValues(
+            State.Unknown,
+            State.Error
+        )
+    }
+
+    @Test
+    fun `andThenReduceState is available in onCommand`() {
+
+        knot = tieKnot {
+            state { initial = State.Unknown }
+            on<LoadCommand> {
+                updateState {
+                    it.switchMap<Reducer<State>> {
+                        Completable.complete()
+                            .andThenReduceState { State.Loaded }
+                    }
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.command.accept(LoadCommand)
+
+        observer.assertValues(
+            State.Unknown,
+            State.Loaded
+        )
+    }
+
+    @Test
+    fun `andThenReduceState is available in onEvent`() {
+
+        val event: PublishSubject<Unit> = PublishSubject.create()
+        knot = tieKnot {
+            state { initial = State.Unknown }
+            on(event) {
+                updateState {
+                    it.switchMap<Reducer<State>> {
+                        Completable.complete()
+                            .andThenReduceState { State.Loaded }
+                    }
+                }
             }
         }
 
@@ -80,17 +155,41 @@ class WithStateReduceExtensions {
     }
 
     @Test
-    fun `reduceStateOnError is available in onEvent`() {
+    fun `switchMapReduceState is available in onCommand`() {
+
+        knot = tieKnot {
+            state { initial = State.Unknown }
+            on<LoadCommand> {
+                updateState {
+                    it.switchMapReduceState {
+                        Observable
+                            .just<Reducer<State>>(reduce { State.Loaded })
+                    }
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.command.accept(LoadCommand)
+
+        observer.assertValues(
+            State.Unknown,
+            State.Loaded
+        )
+    }
+
+    @Test
+    fun `switchMapReduceState is available in onEvent`() {
 
         val event: PublishSubject<Unit> = PublishSubject.create()
-        val error = IllegalStateException("Kaboom")
         knot = tieKnot {
             state { initial = State.Unknown }
             on(event) {
-                updateState { event ->
-                    event
-                        .map<Reducer<State>> { throw error }
-                        .reduceStateOnError { State.Error }
+                updateState {
+                    it.switchMapReduceState {
+                        Observable
+                            .just<Reducer<State>>(reduce { State.Loaded })
+                    }
                 }
             }
         }
@@ -100,7 +199,7 @@ class WithStateReduceExtensions {
 
         observer.assertValues(
             State.Unknown,
-            State.Error
+            State.Loaded
         )
     }
 
