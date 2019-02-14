@@ -1,6 +1,7 @@
 package de.halfbit.knot
 
 import de.halfbit.knot.dsl.Reducer
+import io.reactivex.Completable
 import io.reactivex.Observable
 import org.junit.Test
 
@@ -87,6 +88,76 @@ class CommandReduceStateTest {
             State.Loading,
             State.Loaded
         )
+    }
+
+    @Test
+    fun `Multiple command handlers are called in order`() {
+
+        knot = tieKnot {
+            state { initial = State.Unknown }
+            on<Command.Load> {
+                updateState { command ->
+                    command
+                        .map<Reducer<State>> {
+                            reduce { State.Loading }
+                        }
+                }
+            }
+            on<Command.Load> {
+                updateState { command ->
+                    command
+                        .map<Reducer<State>> {
+                            reduce { State.Loaded }
+                        }
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.command.accept(Command.Load)
+
+        observer.assertValues(
+            State.Unknown,
+            State.Loading,
+            State.Loaded
+        )
+
+    }
+
+    @Test
+    fun `Multiple command handlers are called in order 2`() {
+
+        knot = tieKnot {
+            state { initial = State.Unknown }
+            on<Command.Load> {
+                updateState { command ->
+                    command
+                        .switchMap<Reducer<State>> {
+                            Completable.complete()
+                                .andThenReduceState { State.Loading }
+                        }
+                }
+            }
+            on<Command.Load> {
+                updateState { command ->
+                    command
+                        .switchMap<Reducer<State>> {
+                            Completable.complete()
+                                .andThenReduceState { State.Loaded }
+                        }
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.command.accept(Command.Load)
+
+        observer.assertValues(
+            State.Unknown,
+            State.Loading,
+            State.Loaded
+        )
+
     }
 
     private sealed class Command {
