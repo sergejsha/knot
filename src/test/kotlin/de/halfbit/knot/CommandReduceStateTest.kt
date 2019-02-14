@@ -1,7 +1,6 @@
 package de.halfbit.knot
 
 import de.halfbit.knot.dsl.Reducer
-import io.reactivex.Completable
 import io.reactivex.Observable
 import org.junit.Test
 
@@ -125,25 +124,21 @@ class CommandReduceStateTest {
     }
 
     @Test
-    fun `Multiple command handlers are called in order 2`() {
+    fun `Multiple state reducers for same command are called in order`() {
 
         knot = tieKnot {
             state { initial = State.Unknown }
             on<Command.Load> {
                 updateState { command ->
                     command
-                        .switchMap<Reducer<State>> {
-                            Completable.complete()
-                                .andThenReduceState { State.Loading }
+                        .map<Reducer<State>> {
+                            reduce { State.Loading }
                         }
                 }
-            }
-            on<Command.Load> {
                 updateState { command ->
                     command
-                        .switchMap<Reducer<State>> {
-                            Completable.complete()
-                                .andThenReduceState { State.Loaded }
+                        .map<Reducer<State>> {
+                            reduce { State.Loaded }
                         }
                 }
             }
