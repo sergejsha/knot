@@ -45,7 +45,7 @@ class EventReduceStateTest {
                 updateState { event ->
                     event
                         .filter { state == State.Loading }
-                        .map<Reducer<State>> { reduce { State.Loaded(it) } }
+                        .map<Reducer<State>> { reduceState { State.Loaded(it) } }
                 }
             }
         }
@@ -69,7 +69,7 @@ class EventReduceStateTest {
                     event.flatMap<Reducer<State>> {
                         Observable.just(it)
                             .map<Reducer<State>> {
-                                reduce {
+                                reduceState {
                                     if (state == State.Loading) State.Loaded(it)
                                     else State.Unknown
                                 }

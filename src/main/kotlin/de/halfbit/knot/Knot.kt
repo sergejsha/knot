@@ -26,14 +26,14 @@ internal class DefaultKnot<State : Any, Command : Any>(
     private val stateValue = AtomicReference(initialState)
     private val withState = object : WithStateReduce<State> {
         override val state: State get() = stateValue.get()
-        override fun reduce(reducer: Reducer<State>): Reducer<State> = reducer
+        override fun reduceState(reducer: Reducer<State>): Reducer<State> = reducer
     }
 
     private val _command = PublishSubject.create<Command>().toSerialized()
     override val state: Observable<State> = Observable
         .merge(transformers(commandUpdateStateTransformers, eventUpdateStateTransformers))
         .serialize()
-        .map { it.invoke(withState).also { state -> stateValue.set(state) } }
+        .reduceState()
         .startWith(initialState)
         .distinctUntilChanged()
         .replay(1)
@@ -85,6 +85,9 @@ internal class DefaultKnot<State : Any, Command : Any>(
                     }
             }
         }
+
+    private fun Observable<Reducer<State>>.reduceState() =
+        this.map { it.invoke(withState).also { state -> stateValue.set(state) } }
 
     override fun dispose() {
         disposables.clear()

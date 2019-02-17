@@ -21,7 +21,7 @@ class EventToCommandTest {
             }
             on<Command.Load> {
                 updateState {
-                    it.map<Reducer<State>> { reduce { State.Loaded } }
+                    it.map<Reducer<State>> { reduceState { State.Loaded } }
                 }
             }
         }

@@ -46,7 +46,7 @@ class ConcurrentStateUpdate {
             on(countUpEmitter1) {
                 updateState {
                     it.map<Reducer<State>> {
-                        reduce { state.copy(counter = state.counter + 1) }
+                        reduceState { state.copy(counter = state.counter + 1) }
                     }
                 }
             }
@@ -54,7 +54,7 @@ class ConcurrentStateUpdate {
             on(countUpEmitter2) {
                 updateState {
                     it.map<Reducer<State>> {
-                        reduce { state.copy(counter = state.counter + 100) }
+                        reduceState { state.copy(counter = state.counter + 100) }
                     }
                 }
             }

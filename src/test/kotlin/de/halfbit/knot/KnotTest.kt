@@ -63,7 +63,7 @@ class KnotTest {
             state { initial = State() }
             on<Command> {
                 updateState {
-                    it.map<Reducer<State>> { reduce { state.copy(value = 2) } }
+                    it.map<Reducer<State>> { reduceState { state.copy(value = 2) } }
                 }
             }
         }

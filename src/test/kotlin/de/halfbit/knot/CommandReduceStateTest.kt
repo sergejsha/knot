@@ -18,8 +18,8 @@ class CommandReduceStateTest {
                     command
                         .flatMap<Reducer<State>> {
                             Observable.just(it)
-                                .map { reduce { State.Loaded } }
-                                .startWith(reduce { State.Loading })
+                                .map { reduceState { State.Loaded } }
+                                .startWith(reduceState { State.Loading })
                         }
                 }
             }
@@ -44,7 +44,7 @@ class CommandReduceStateTest {
                 updateState { command ->
                     command
                         .filter { state == State.Loading }
-                        .map<Reducer<State>> { reduce { State.Loaded } }
+                        .map<Reducer<State>> { reduceState { State.Loaded } }
                 }
             }
         }
@@ -68,7 +68,7 @@ class CommandReduceStateTest {
                     command.flatMap<Reducer<State>> {
                         Observable.just(it)
                             .map {
-                                reduce {
+                                reduceState {
                                     if (state == State.Loading) State.Loaded
                                     else State.Unknown
                                 }
@@ -98,7 +98,7 @@ class CommandReduceStateTest {
                 updateState { command ->
                     command
                         .map<Reducer<State>> {
-                            reduce { State.Loading }
+                            reduceState { State.Loading }
                         }
                 }
             }
@@ -106,7 +106,7 @@ class CommandReduceStateTest {
                 updateState { command ->
                     command
                         .map<Reducer<State>> {
-                            reduce { State.Loaded }
+                            reduceState { State.Loaded }
                         }
                 }
             }
@@ -120,7 +120,6 @@ class CommandReduceStateTest {
             State.Loading,
             State.Loaded
         )
-
     }
 
     @Test
@@ -132,13 +131,13 @@ class CommandReduceStateTest {
                 updateState { command ->
                     command
                         .map<Reducer<State>> {
-                            reduce { State.Loading }
+                            reduceState { State.Loading }
                         }
                 }
                 updateState { command ->
                     command
                         .map<Reducer<State>> {
-                            reduce { State.Loaded }
+                            reduceState { State.Loaded }
                         }
                 }
             }
@@ -152,7 +151,6 @@ class CommandReduceStateTest {
             State.Loading,
             State.Loaded
         )
-
     }
 
     private sealed class Command {
