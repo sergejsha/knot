@@ -59,6 +59,7 @@ internal class DefaultKnot<State : Any, Command : Any, Change : Any>(
                 .state
         }
         .let { state -> observeOn?.let { state.observeOn(it) } ?: state }
+        .startWith(initialState)
         .distinctUntilChanged()
         .replay(1)
         .also { disposable = it.connect() }

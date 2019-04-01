@@ -6,7 +6,7 @@ import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-class ConcurrentStateUpdate {
+class ConcurrentStateMutation {
 
     object CountUpCommand
     data class CountUpChange(val value: Int)
