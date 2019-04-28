@@ -63,7 +63,7 @@ internal constructor() {
 
 class Effect<State : Any, Change : Any>(
     val state: State,
-    val action: Single<Change>?
+    val action: Single<Change>? = null
 )
 
 typealias Reducer<State, Change> = WithEffect<State, Change>.(change: Change, state: State) -> Effect<State, Change>

@@ -67,7 +67,7 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
-                reduce { _, _ -> effect(State(value = 1)) }
+                reduce { _, _ -> effect(State(1)) }
             }
         }
         val observable = knot.state.test()
