@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.21"
+    kotlin("jvm") version "1.3.31"
     `maven-publish`
     id("org.gradle.signing")
     id("org.jetbrains.dokka") version "0.9.17"
@@ -27,7 +27,7 @@ tasks.withType<KotlinCompile> {
 }
 
 group = "de.halfbit"
-version = "0.1-alpha16"
+version = "0.1-alpha17"
 
 publishing {
 
