@@ -21,6 +21,18 @@ Knot helps managing application state, external events and asynchronous actions.
 
 `Effect` is a convenience wrapper class similar to `Pair` class. If contains a new `State` and an optional `Action` which, when present, will be executed.
 
+# Why Knot?
+
+* Simple - main Knot class is less than 50 lines of code.
+* Predictable - helps you write code with less bugs.
+* Modular - single knots can be combined together to build more complex application logic.
+* Testable - reducer is easy to test. 
+* DSL - provides declarative configuration.
+
+# Considerations
+
+* In contrast to the most of state container implementations out there, `Action` in Knot is a `Single<Change>` object and not a data class. This is done to reduce boilerplate code needed for writing an action creatior otherwise. This decision can be revisit in the future though.
+
 # License
 ```
 Copyright 2019 Sergej Shafarenka, www.halfbit.de
