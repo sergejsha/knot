@@ -23,11 +23,11 @@ Knot helps managing application state, external events and asynchronous actions 
 
 # Why Knot?
 
-* Simple - main Knot class has about 60 lines of code.
 * Predictable - helps writing better structured and less buggy code.
 * Modular - single knots can be combined together to build more complex application logic.
 * Testable - reducer function is easy to test. 
 * DSL - easy to read declarative configuration.
+* Why not?
 
 # Considerations
 
