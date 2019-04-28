@@ -1,7 +1,6 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import io.reactivex.Observable
@@ -10,10 +9,9 @@ import org.junit.Test
 class KnotTest {
 
     private data class State(val value: Int = 0)
-    private object Command
     private object Change
 
-    private lateinit var knot: Knot<State, Command, Change>
+    private lateinit var knot: Knot<State, Change>
 
     @Test(expected = IllegalStateException::class)
     fun `DSL requires initial state`() {
@@ -52,17 +50,6 @@ class KnotTest {
     }
 
     @Test
-    fun `'command' is not null`() {
-        knot = knot {
-            state {
-                initial = State()
-                reduce { _, state -> effect(state) }
-            }
-        }
-        assertThat(knot.command).isNotNull()
-    }
-
-    @Test
     fun `'state' contains initial state`() {
         val state = State()
         knot = knot {
@@ -76,41 +63,15 @@ class KnotTest {
     }
 
     @Test
-    fun `'currentState' contains initial state`() {
-        val state = State()
-        knot = knot {
-            state {
-                initial = state
-                reduce { _, state -> effect(state) }
-            }
-        }
-        assertThat(knot.currentState).isEqualTo(state)
-    }
-
-    @Test
-    fun `'currentState' is updated with the value 'reduce()' returns`() {
+    fun `'reduce()' updates 'state'`() {
         knot = knot {
             state {
                 initial = State()
                 reduce { _, _ -> effect(State(value = 1)) }
             }
-            onCommand { it.map { Change } }
-        }
-        knot.command.accept(Command)
-        assertThat(knot.currentState).isEqualTo(State(1))
-    }
-
-    @Test
-    fun `'state' is updated with the value 'reduce()' returns`() {
-        knot = knot {
-            state {
-                initial = State()
-                reduce { _, _ -> effect(State(value = 1)) }
-            }
-            onCommand { it.map { Change } }
         }
         val observable = knot.state.test()
-        knot.command.accept(Command)
+        knot.change.accept(Change)
         observable.assertValues(State(0), State(1))
     }
 
@@ -130,28 +91,4 @@ class KnotTest {
         verify(eventTransformer).invoke()
     }
 
-    @Test
-    fun `'onCommand' transformer gets invoked on initialization`() {
-        var command: Observable<Command>? = null
-        val commandTransformer: CommandTransformer<Command, Change> = mock {
-            on { invoke(any()) }.thenAnswer { invocation ->
-                invocation.arguments?.let { arguments ->
-                    @Suppress("UNCHECKED_CAST")
-                    command = arguments[0] as Observable<Command>
-                }
-                Observable.just(Change)
-            }
-        }
-
-        knot = knot {
-            state {
-                initial = State()
-                reduce { _, state -> effect(state) }
-            }
-            onCommand(commandTransformer)
-        }
-
-        assertThat(command).isNotNull()
-        verify(commandTransformer).invoke(checkNotNull(command))
-    }
 }

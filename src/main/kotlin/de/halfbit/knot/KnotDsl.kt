@@ -3,12 +3,11 @@ package de.halfbit.knot
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
-import kotlin.reflect.KClass
 
-fun <State : Any, Command : Any, Change : Any> knot(
-    block: KnotBuilder<State, Command, Change>.() -> Unit
-): Knot<State, Command, Change> =
-    KnotBuilder<State, Command, Change>()
+fun <State : Any, Change : Any> knot(
+    block: KnotBuilder<State, Change>.() -> Unit
+): Knot<State, Change> =
+    KnotBuilder<State, Change>()
         .also(block)
         .build()
 
@@ -16,14 +15,13 @@ fun <State : Any, Command : Any, Change : Any> knot(
 annotation class KnotDsl
 
 @KnotDsl
-class KnotBuilder<State : Any, Command : Any, Change : Any>
+class KnotBuilder<State : Any, Change : Any>
 internal constructor() {
     private var initialState: State? = null
     private var reducer: Reducer<State, Change>? = null
     private var observeOn: Scheduler? = null
     private var reduceOn: Scheduler? = null
     private val eventTransformers = mutableListOf<EventTransformer<Change>>()
-    private val commandTransformers = mutableListOf<CommandTransformer<Command, Change>>()
 
     fun state(block: OnState<State, Change>.() -> Unit) {
         OnState<State, Change>()
@@ -40,21 +38,12 @@ internal constructor() {
         eventTransformers += transformer
     }
 
-    fun onCommand(transformer: CommandTransformer<Command, Change>) {
-        commandTransformers += transformer
-    }
-
-    inline fun <reified T : Command> on(noinline transformer: CommandTransformer<T, Change>) {
-        onCommand(TypedCommandTransformer(T::class, transformer))
-    }
-
-    fun build(): Knot<State, Command, Change> = DefaultKnot(
+    fun build(): Knot<State, Change> = DefaultKnot(
         initialState = checkNotNull(initialState) { "knot { state { initialState } } must be set" },
         reducer = checkNotNull(reducer) { "knot { state { reducer } } must be set" },
         observeOn = observeOn,
         reduceOn = reduceOn,
-        eventTransformers = eventTransformers,
-        commandTransformers = commandTransformers
+        eventTransformers = eventTransformers
     )
 }
 
@@ -78,13 +67,4 @@ class Effect<State : Any, Change : Any>(
 )
 
 typealias Reducer<State, Change> = WithEffect<State, Change>.(change: Change, state: State) -> Effect<State, Change>
-typealias CommandTransformer<Command, Change> = (command: Observable<Command>) -> Observable<Change>
 typealias EventTransformer<Change> = () -> Observable<Change>
-
-class TypedCommandTransformer<Command : Any, Change : Any, C : Command>(
-    private val type: KClass<C>,
-    private val transform: CommandTransformer<C, Change>
-) : CommandTransformer<Command, Change> {
-    override fun invoke(command: Observable<Command>): Observable<Change> =
-        transform(command.ofType(type.javaObjectType))
-}

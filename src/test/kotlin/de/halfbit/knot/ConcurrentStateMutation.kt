@@ -8,33 +8,23 @@ import java.util.concurrent.TimeUnit
 
 class ConcurrentStateMutation {
 
-    object CountUpCommand
     data class CountUpChange(val value: Int)
 
     data class State(val counter: Int = 0) {
         override fun toString(): String = "State: $counter"
     }
 
-    private lateinit var knot: Knot<State, CountUpCommand, CountUpChange>
+    private lateinit var knot: Knot<State, CountUpChange>
 
     @Test
-    fun `Serialize concurrent state updates`() {
+    fun `Concurrent state updates are serialized`() {
 
         val latch = CountDownLatch(2 * COUNT)
-        val countUpEmitter1 = Observable
-            .create<CountUpCommand> { emitter ->
-                for (i in 1..COUNT) {
-                    Thread.sleep(10)
-                    emitter.onNext(CountUpCommand)
-                    latch.countDown()
-                }
-            }
-            .subscribeOn(Schedulers.newThread())
 
-        val countUpEmitter2 = Observable
+        val countUpEmitter = Observable
             .create<Unit> { emitter ->
                 for (i in 1..COUNT) {
-                    Thread.sleep(10)
+                    Thread.sleep(DELAY_EMITTER1)
                     emitter.onNext(Unit)
                     latch.countDown()
                 }
@@ -48,10 +38,19 @@ class ConcurrentStateMutation {
                     effect(state.copy(counter = state.counter + change.value))
                 }
             }
-
-            on<CountUpCommand> { countUpEmitter1.map { CountUpChange(1) } }
-            onEvent { countUpEmitter2.map { CountUpChange(100) } }
+            onEvent { countUpEmitter.map { CountUpChange(100) } }
         }
+
+        Observable
+            .create<CountUpChange> { emitter ->
+                for (i in 1..COUNT) {
+                    Thread.sleep(DELAY_EMITTER2)
+                    emitter.onNext(CountUpChange(1))
+                    latch.countDown()
+                }
+            }
+            .subscribeOn(Schedulers.newThread())
+            .subscribe(knot.change)
 
         latch.await(3, TimeUnit.SECONDS)
 
@@ -64,3 +63,5 @@ class ConcurrentStateMutation {
 }
 
 private const val COUNT = 30
+private const val DELAY_EMITTER1 = 11L
+private const val DELAY_EMITTER2 = 10L

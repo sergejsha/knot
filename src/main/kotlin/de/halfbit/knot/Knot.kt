@@ -6,12 +6,10 @@ import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
-import java.util.concurrent.atomic.AtomicReference
 
-interface Knot<State : Any, Command : Any, Change : Any> {
+interface Knot<State : Any, Change : Any> {
     val state: Observable<State>
-    val command: Consumer<Command>
-    val currentState: State
+    val change: Consumer<Change>
     fun dispose()
 }
 
@@ -19,47 +17,40 @@ interface WithEffect<State : Any, Change : Any> {
     fun effect(state: State, action: Single<Change>? = null): Effect<State, Change>
 }
 
-internal class DefaultKnot<State : Any, Command : Any, Change : Any>(
+internal class DefaultKnot<State : Any, Change : Any>(
     initialState: State,
     reducer: Reducer<State, Change>,
     observeOn: Scheduler?,
     reduceOn: Scheduler?,
-    eventTransformers: List<EventTransformer<Change>>,
-    commandTransformers: List<CommandTransformer<Command, Change>>
-) : Knot<State, Command, Change> {
+    eventTransformers: List<EventTransformer<Change>>
+) : Knot<State, Change> {
 
-    private val commandSubject = PublishSubject.create<Command>()
+    private val changeSubject = PublishSubject.create<Change>()
     private val actionSubject = PublishSubject.create<Single<Change>>()
-    private val stateValue = AtomicReference<State>(initialState)
     private var disposable: Disposable? = null
 
     private val withEffect = object : WithEffect<State, Change> {
         override fun effect(state: State, action: Single<Change>?) = Effect(state, action)
     }
 
-    override val command: Consumer<Command> = Consumer { commandSubject.onNext(it) }
-    override val currentState: State get() = stateValue.get()
+    override val change: Consumer<Change> = Consumer { changeSubject.onNext(it) }
     override val state: Observable<State> = Observable
         .merge(
             mutableListOf<Observable<Change>>().also { observables ->
+                observables.add(changeSubject)
                 eventTransformers.map { observables.add(it.invoke()) }
-                commandTransformers.map { observables.add(it.invoke(commandSubject)) }
                 observables.add(actionSubject.flatMapSingle { it })
             }
         )
         .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
         .serialize()
-        .map { change ->
+        .scan(initialState) { state, change ->
             reducer
-                .invoke(withEffect, change, stateValue.get())
-                .also { effect ->
-                    stateValue.set(effect.state)
-                    effect.action?.let { action -> actionSubject.onNext(action) }
-                }
+                .invoke(withEffect, change, state)
+                .also { effect -> effect.action?.let { action -> actionSubject.onNext(action) } }
                 .state
         }
         .let { state -> observeOn?.let { state.observeOn(it) } ?: state }
-        .startWith(initialState)
         .distinctUntilChanged()
         .replay(1)
         .also { disposable = it.connect() }
