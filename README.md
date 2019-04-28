@@ -5,7 +5,7 @@ Reactive state container for Android
 
 # Documentation
 
-<img src="docs/diagrams/workflow.png" width="300" />
+<img src="docs/diagrams/flowchart.png" width="500" />
 
 # License
 ```
