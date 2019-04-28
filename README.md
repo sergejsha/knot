@@ -19,7 +19,7 @@ Knot helps managing application state, external events and asynchronous actions.
 
 `Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns an `Effect`. 
 
-`Effect` is a convenience wrapper class similar to `Pair` class. If contains a new `State` and an optional `Action` which, when present, will be executed.
+`Effect` is a convenience wrapper class similar to `Pair` class. It contains a new `State` and an optional `Action` which, when present, will be executed.
 
 # Why Knot?
 
