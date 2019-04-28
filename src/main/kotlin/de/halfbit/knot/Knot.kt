@@ -3,6 +3,7 @@ package de.halfbit.knot
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
@@ -10,7 +11,7 @@ import io.reactivex.subjects.PublishSubject
 interface Knot<State : Any, Change : Any> {
     val state: Observable<State>
     val change: Consumer<Change>
-    fun dispose()
+    val disposable: Disposable
 }
 
 interface WithEffect<State : Any, Change : Any> {
@@ -27,12 +28,12 @@ internal class DefaultKnot<State : Any, Change : Any>(
 
     private val changeSubject = PublishSubject.create<Change>()
     private val actionSubject = PublishSubject.create<Single<Change>>()
-    private var disposable: Disposable? = null
 
     private val withEffect = object : WithEffect<State, Change> {
         override fun effect(state: State, action: Single<Change>?) = Effect(state, action)
     }
 
+    override val disposable = CompositeDisposable()
     override val change: Consumer<Change> = Consumer { changeSubject.onNext(it) }
     override val state: Observable<State> = Observable
         .merge(
@@ -53,10 +54,6 @@ internal class DefaultKnot<State : Any, Change : Any>(
         .let { state -> observeOn?.let { state.observeOn(it) } ?: state }
         .distinctUntilChanged()
         .replay(1)
-        .also { disposable = it.connect() }
-
-    override fun dispose() {
-        disposable?.dispose()
-    }
+        .also { disposable.add(it.connect()) }
 
 }
