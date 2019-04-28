@@ -7,7 +7,7 @@ Lightweight reactive state container library for Android applications.
 
 # Concept
 
-Knot helps managing application state, external events and asynchronous actions. There are five core concepts defined in Knot: `State`, `Change`, `Reducer`, `Effect` and `Action`.
+Knot helps managing application state, external events and asynchronous actions in a structured way. There are five core concepts Knot defines: `State`, `Change`, `Reducer`, `Effect` and `Action`.
 
 <img src="docs/diagrams/flowchart.png" width="500" />
 
@@ -15,15 +15,15 @@ Knot helps managing application state, external events and asynchronous actions.
 
 `Change` is an immutable data object with an optional payload intended for changing the `State`. A `Change` can be produced from an external event or be a result of execution of an `Action`.
 
-`Action` is a reactive single value respose which, when completed, emits a new `Change`.
+`Action` is an asynchronous operation which, when completed, can emit a new `Change`.
 
 `Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns an `Effect`. 
 
-`Effect` is a convenience wrapper class similar to `Pair` class. It contains a new `State` and an optional `Action` which, when is present in `Effect`, will be executed.
+`Effect` is a convenient wrapper class containing a new `State` and an optional `Action` which, when is present in `Effect`, will be executed.
 
 # Why Knot?
 
-* Simple - main Knot class has about 50 lines of code.
+* Simple - main Knot class has about 60 lines of code.
 * Predictable - helps writing better structured and less buggy code.
 * Modular - single knots can be combined together to build more complex application logic.
 * Testable - reducer function is easy to test. 
@@ -31,7 +31,7 @@ Knot helps managing application state, external events and asynchronous actions.
 
 # Considerations
 
-* In contrast to the most of state container implementations out there, `Action` in Knot is a `Single<Change>` object and not a data class. This is done to reduce boilerplate code needed for defining actions and writing an action creator class. This decision can be revisit in the future however.
+* In contrast to the most of state container implementations out there, `Action` in Knot is an executable object and not a data class. This is done to reduce boilerplate code needed for defining actions and writing an action creator class. This decision can be revisit in the future however.
 
 # License
 ```
