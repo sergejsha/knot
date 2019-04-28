@@ -7,31 +7,31 @@ Lightweight reactive state container library for Android applications.
 
 # Concept
 
-Knot helps managing application state, external events and asynchronous actions. It defines five core concepts for achiving this: `State`, `Change`, `Reducer`, `Effect` and `Action`.
+Knot helps managing application state, external events and asynchronous actions. There are five core concepts defined in Knot: `State`, `Change`, `Reducer`, `Effect` and `Action`.
 
 <img src="docs/diagrams/flowchart.png" width="500" />
 
-`State` represents an immutable partial state of an Android application. It can be a state of a screen or a state of an internal headless component.
+`State` represents an immutable partial state of an Android application. It can be a state of a screen or a state of an internal headless component, like repository.
 
 `Change` is an immutable data object with an optional payload intended for changing the `State`. A `Change` can be produced from an external event or be a result of execution of an `Action`.
 
-`Action` is a reactive single value respose which, when completed, emits a new `Change`. 
+`Action` is a reactive single value respose which, when completed, emits a new `Change`.
 
 `Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns an `Effect`. 
 
-`Effect` is a convenience wrapper class similar to `Pair` class. It contains a new `State` and an optional `Action` which, when present, will be executed.
+`Effect` is a convenience wrapper class similar to `Pair` class. It contains a new `State` and an optional `Action` which, when is present in `Effect`, will be executed.
 
 # Why Knot?
 
-* Simple - main Knot class is less than 50 lines of code.
-* Predictable - helps you write code with less bugs.
+* Simple - main Knot class has about 50 lines of code.
+* Predictable - helps writing better structured and less buggy code.
 * Modular - single knots can be combined together to build more complex application logic.
-* Testable - reducer is easy to test. 
-* DSL - provides declarative configuration.
+* Testable - reducer function is easy to test. 
+* DSL - easy to read declarative configuration.
 
 # Considerations
 
-* In contrast to the most of state container implementations out there, `Action` in Knot is a `Single<Change>` object and not a data class. This is done to reduce boilerplate code needed for writing an action creatior otherwise. This decision can be revisit in the future though.
+* In contrast to the most of state container implementations out there, `Action` in Knot is a `Single<Change>` object and not a data class. This is done to reduce boilerplate code needed for defining actions and writing an action creator class. This decision can be revisit in the future however.
 
 # License
 ```
