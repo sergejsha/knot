@@ -1,8 +1,8 @@
 package de.halfbit.knot
 
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Scheduler
-import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
@@ -14,10 +14,6 @@ interface Knot<State : Any, Change : Any> {
     val disposable: Disposable
 }
 
-interface WithEffect<State : Any, Change : Any> {
-    fun effect(state: State, action: Single<Change>? = null): Effect<State, Change>
-}
-
 internal class DefaultKnot<State : Any, Change : Any>(
     initialState: State,
     reducer: Reducer<State, Change>,
@@ -27,11 +23,7 @@ internal class DefaultKnot<State : Any, Change : Any>(
 ) : Knot<State, Change> {
 
     private val changeSubject = PublishSubject.create<Change>()
-    private val actionSubject = PublishSubject.create<Single<Change>>()
-
-    private val withEffect = object : WithEffect<State, Change> {
-        override fun effect(state: State, action: Single<Change>?) = Effect(state, action)
-    }
+    private val actionSubject = PublishSubject.create<Maybe<Change>>()
 
     override val disposable = CompositeDisposable()
     override val change: Consumer<Change> = Consumer { changeSubject.onNext(it) }
@@ -40,15 +32,15 @@ internal class DefaultKnot<State : Any, Change : Any>(
             mutableListOf<Observable<Change>>().also { observables ->
                 observables.add(changeSubject)
                 eventTransformers.map { observables.add(it.invoke()) }
-                observables.add(actionSubject.flatMapSingle { it })
+                observables.add(actionSubject.flatMapMaybe { it })
             }
         )
         .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
         .serialize()
         .scan(initialState) { state, change ->
             reducer
-                .invoke(withEffect, change, state)
-                .also { effect -> effect.action?.let { action -> actionSubject.onNext(action) } }
+                .invoke(change, state)
+                .also { effect -> actualFrom(effect.action)?.let { actionSubject.onNext(it) } }
                 .state
         }
         .let { state -> observeOn?.let { state.observeOn(it) } ?: state }
@@ -56,4 +48,12 @@ internal class DefaultKnot<State : Any, Change : Any>(
         .replay(1)
         .also { disposable.add(it.connect()) }
 
+    private fun actualFrom(action: Action<Change>?): Maybe<Change>? =
+        when (action) {
+            null -> null
+            is Action.Single<Change> -> action.actual.toMaybe()
+            is Action.Maybe<Change> -> action.actual
+            is Action.Completable<Change> -> action.actual.toMaybe()
+            is Action.Callback<Change> -> Maybe.fromAction(action.actual)
+        }
 }

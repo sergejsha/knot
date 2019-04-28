@@ -2,7 +2,6 @@ package de.halfbit.knot
 
 import io.reactivex.Observable
 import io.reactivex.Scheduler
-import io.reactivex.Single
 
 fun <State : Any, Change : Any> knot(
     block: KnotBuilder<State, Change>.() -> Unit
@@ -61,10 +60,5 @@ internal constructor() {
     }
 }
 
-class Effect<State : Any, Change : Any>(
-    val state: State,
-    val action: Single<Change>? = null
-)
-
-typealias Reducer<State, Change> = WithEffect<State, Change>.(change: Change, state: State) -> Effect<State, Change>
+typealias Reducer<State, Change> = (change: Change, state: State) -> Effect<State, Change>
 typealias EventTransformer<Change> = () -> Observable<Change>
