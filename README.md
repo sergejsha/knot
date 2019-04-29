@@ -3,7 +3,7 @@
 [![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.halfbit%22%20a%3A%22knot%22)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
-Lightweight reactive state container library for Android applications.
+Consice reactive state container library for Android applications.
 
 # Concept
 
@@ -17,14 +17,15 @@ Knot helps managing application state, external events and asynchronous actions 
 
 `Action` is an asynchronous operation which, when completed, can emit a new `Change`.
 
-`Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns an `Effect`. 
+`Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped into `Effect` class.
 
-`Effect` is a convenient wrapper class containing a new `State` and an optional `Action` which, when is present, will be performed.
+`Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to `Reducer`.
 
 # Why Knot?
 
 * Predictable - helps writing better structured and less buggy code.
 * Modular - single knots can be combined together to build more complex application logic.
+* Consice - it has minimalistic API and compact implementation.
 * Testable - reducer function is easy to test. 
 * DSL - easy to read declarative configuration.
 * Why not?
