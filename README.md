@@ -15,9 +15,9 @@ Knot helps managing application state, external events and asynchronous actions 
 
 `Change` is an immutable data object with an optional payload intended for changing the `State`. A `Change` can be produced from an external event or be a result of execution of an `Action`.
 
-`Action` is an asynchronous operation which, when completed, can emit a new `Change`.
+`Action` is a synchronous or an asynchronous operation which, when completed, can emit a new `Change`.
 
-`Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped into `Effect` class.
+`Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped by `Effect` class.
 
 `Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to `Reducer`.
 
