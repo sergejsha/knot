@@ -10,8 +10,9 @@ class KnotTest {
 
     private data class State(val value: Int = 0)
     private object Change
+    private object Action
 
-    private lateinit var knot: Knot<State, Change>
+    private lateinit var knot: Knot<State, Change, Action>
 
     @Test(expected = IllegalStateException::class)
     fun `DSL requires initial state`() {
@@ -32,7 +33,7 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
-                reduce { _, state -> effect(state) }
+                reduce { _, state -> Effect(state) }
             }
         }
         assertThat(knot).isNotNull()
@@ -43,7 +44,7 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
-                reduce { _, state -> effect(state) }
+                reduce { _, state -> Effect(state) }
             }
         }
         assertThat(knot.state).isNotNull()
@@ -55,7 +56,7 @@ class KnotTest {
         knot = knot {
             state {
                 initial = state
-                reduce { _, state -> effect(state) }
+                reduce { _, state -> Effect(state) }
             }
         }
         val observer = knot.state.test()
@@ -67,7 +68,7 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
-                reduce { _, _ -> effect(State(1)) }
+                reduce { _, _ -> Effect(State(1)) }
             }
         }
         val observable = knot.state.test()
@@ -84,7 +85,7 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
-                reduce { _, state -> effect(state) }
+                reduce { _, state -> Effect(state) }
             }
             onEvent(eventTransformer)
         }

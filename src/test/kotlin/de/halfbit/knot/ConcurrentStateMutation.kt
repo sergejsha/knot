@@ -14,7 +14,7 @@ class ConcurrentStateMutation {
         override fun toString(): String = "State: $counter"
     }
 
-    private lateinit var knot: Knot<State, CountUpChange>
+    private lateinit var knot: Knot<State, CountUpChange, Unit>
 
     @Test
     fun `Concurrent state updates are serialized`() {
@@ -35,7 +35,7 @@ class ConcurrentStateMutation {
             state {
                 initial = State()
                 reduce { change, state ->
-                    effect(state.copy(counter = state.counter + change.value))
+                    Effect(state.copy(counter = state.counter + change.value))
                 }
             }
             onEvent { countUpEmitter.map { CountUpChange(100) } }
