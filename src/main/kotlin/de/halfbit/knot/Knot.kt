@@ -20,7 +20,7 @@ class Effect<State : Any, Action : Any>(
 
 internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
     initialState: State,
-    reducer: Reducer<State, Change, Action>,
+    reduce: Reduce<State, Change, Action>,
     observeOn: Scheduler?,
     reduceOn: Scheduler?,
     eventTransformers: List<EventTransformer<Change>>,
@@ -44,7 +44,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
         .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
         .serialize()
         .scan(initialState) { state, change ->
-            reducer
+            reduce
                 .invoke(change, state)
                 .also { it.action?.let { action -> actionSubject.onNext(action) } }
                 .state

@@ -18,7 +18,7 @@ annotation class KnotDsl
 class KnotBuilder<State : Any, Change : Any, Action : Any>
 internal constructor() {
     private var initialState: State? = null
-    private var reducer: Reducer<State, Change, Action>? = null
+    private var reduce: Reduce<State, Change, Action>? = null
     private var observeOn: Scheduler? = null
     private var reduceOn: Scheduler? = null
     private val eventTransformers = mutableListOf<EventTransformer<Change>>()
@@ -29,7 +29,7 @@ internal constructor() {
             .also {
                 block(it)
                 initialState = it.initial
-                reducer = it.reducer
+                reduce = it.reduce
                 observeOn = it.observeOn
                 reduceOn = it.reduceOn
             }
@@ -49,7 +49,7 @@ internal constructor() {
 
     fun build(): Knot<State, Change, Action> = DefaultKnot(
         initialState = checkNotNull(initialState) { "knot { state { initialState } } must be set" },
-        reducer = checkNotNull(reducer) { "knot { state { reducer } } must be set" },
+        reduce = checkNotNull(reduce) { "knot { state { reduce } } must be set" },
         observeOn = observeOn,
         reduceOn = reduceOn,
         eventTransformers = eventTransformers,
@@ -60,18 +60,18 @@ internal constructor() {
 @KnotDsl
 class OnState<State : Any, Change : Any, Action : Any>
 internal constructor() {
-    internal var reducer: Reducer<State, Change, Action>? = null
+    internal var reduce: Reduce<State, Change, Action>? = null
 
     var initial: State? = null
     var observeOn: Scheduler? = null
     var reduceOn: Scheduler? = null
 
-    fun reduce(reducer: Reducer<State, Change, Action>) {
-        this.reducer = reducer
+    fun reduce(reduce: Reduce<State, Change, Action>) {
+        this.reduce = reduce
     }
 }
 
-typealias Reducer<State, Change, Action> = (change: Change, state: State) -> Effect<State, Action>
+typealias Reduce<State, Change, Action> = (change: Change, state: State) -> Effect<State, Action>
 typealias EventTransformer<Change> = () -> Observable<Change>
 typealias ActionTransformer<Action, Change> = (action: Observable<Action>) -> Maybe<Change>
 
