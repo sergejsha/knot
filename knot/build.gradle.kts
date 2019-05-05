@@ -2,22 +2,21 @@ plugins {
     kotlin("jvm")
     `maven-publish`
     id("org.gradle.signing")
-    id("org.jetbrains.dokka") version Deps.dokka
+    id("org.jetbrains.dokka") version Dep.Version.dokka
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = Dep.Version.jvmTarget
 }
 
 dependencies {
+    implementation(kotlin(Dep.kotlinJdk))
+    implementation(Dep.rxJava)
 
-    implementation(kotlin(Deps.kotlinJdk))
-    implementation(Deps.rxJava)
-
-    testImplementation(Deps.junit)
-    testImplementation(Deps.truth)
-    testImplementation(Deps.mockito)
-    testImplementation(Deps.mockitoKotlin)
+    testImplementation(Dep.junit)
+    testImplementation(Dep.truth)
+    testImplementation(Dep.mockito)
+    testImplementation(Dep.mockitoKotlin)
 }
 
 publishing {
@@ -28,11 +27,11 @@ publishing {
             url = uri("$buildDir/repository")
         }
         maven {
-            name = "central"
-            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+            name = Pom.MavenCentral.name
+            url = uri(Pom.MavenCentral.url)
             credentials {
-                username = project.findProperty("NEXUS_USERNAME") as? String ?: ""
-                password = project.findProperty("NEXUS_PASSWORD") as? String ?: ""
+                username = project.getNexusUser()
+                password = project.getNexusPassword()
             }
         }
     }
@@ -60,24 +59,24 @@ publishing {
             pom {
                 name.set("Knot")
                 description.set("Reactive state container library for Kotlin")
-                url.set("http://www.halfbit.de")
+                url.set(Pom.url)
                 licenses {
                     license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        name.set(Pom.License.name)
+                        url.set(Pom.License.url)
                     }
                 }
                 developers {
                     developer {
-                        id.set("beworker")
-                        name.set("Sergej Shafarenka")
-                        email.set("info@halfbit.de")
+                        id.set(Pom.Developer.id)
+                        name.set(Pom.Developer.name)
+                        email.set(Pom.Developer.email)
                     }
                 }
                 scm {
-                    connection.set("scm:git:git@github.com:beworker/knot.git")
-                    developerConnection.set("scm:git:ssh://github.com:beworker/knot.git")
-                    url.set("http://www.halfbit.de")
+                    connection.set(Pom.Github.url)
+                    developerConnection.set(Pom.Github.cloneUrl)
+                    url.set(Pom.Github.url)
                 }
             }
         }
@@ -85,7 +84,7 @@ publishing {
 
 }
 
-if (project.hasProperty("signing.keyId")) {
+if (project.hasSigningKey()) {
     signing {
         sign(publishing.publications["Knot"])
     }

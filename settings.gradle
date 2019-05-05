@@ -1,4 +1,3 @@
 rootProject.name = 'knot-root'
 include 'knot'
 include 'knot-composite'
-
