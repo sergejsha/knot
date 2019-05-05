@@ -1,5 +1,6 @@
 package de.halfbit.knot
 
+import de.halfbit.knot.internal.DefaultKnot
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Scheduler
