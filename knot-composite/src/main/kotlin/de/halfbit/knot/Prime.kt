@@ -3,7 +3,7 @@ package de.halfbit.knot
 import kotlin.reflect.KClass
 
 interface Prime<State : Any, Change : Any, Action : Any> {
-    fun compose(composite: Composition<State, Change, Action>)
+    fun addTo(composition: Composition<State, Change, Action>)
 }
 
 internal class DefaultPrime<State : Any, Change : Any, Action : Any>(
@@ -12,9 +12,9 @@ internal class DefaultPrime<State : Any, Change : Any, Action : Any>(
     private val actionTransformers: List<ActionTransformer<Action, Change>>
 ) : Prime<State, Change, Action> {
 
-    override fun compose(composite: Composition<State, Change, Action>) {
-        composite.reducers.putAll(reducers)
-        composite.eventTransformers.addAll(eventTransformers)
-        composite.actionTransformers.addAll(actionTransformers)
+    override fun addTo(composition: Composition<State, Change, Action>) {
+        composition.reducers.putAll(reducers)
+        composition.eventTransformers.addAll(eventTransformers)
+        composition.actionTransformers.addAll(actionTransformers)
     }
 }
