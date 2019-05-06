@@ -1,6 +1,5 @@
 package de.halfbit.knot
 
-import de.halfbit.knot.internal.DefaultKnot
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Scheduler
@@ -19,14 +18,14 @@ annotation class KnotDsl
 class KnotBuilder<State : Any, Change : Any, Action : Any>
 internal constructor() {
     private var initialState: State? = null
-    private var reduce: Reduce<State, Change, Action>? = null
     private var observeOn: Scheduler? = null
     private var reduceOn: Scheduler? = null
+    private var reduce: Reduce<State, Change, Action>? = null
     private val eventTransformers = mutableListOf<EventTransformer<Change>>()
     private val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
 
-    fun state(block: OnState<State, Change, Action>.() -> Unit) {
-        OnState<State, Change, Action>()
+    fun state(block: StateBuilder<State, Change, Action>.() -> Unit) {
+        StateBuilder<State, Change, Action>()
             .also {
                 block(it)
                 initialState = it.initial
@@ -36,39 +35,59 @@ internal constructor() {
             }
     }
 
-    fun onEvent(transformer: EventTransformer<Change>) {
-        eventTransformers += transformer
+    fun action(block: ActionBuilder<Change, Action>.() -> Unit) {
+        ActionBuilder(actionTransformers).also(block)
     }
 
-    fun onAnyAction(transformer: ActionTransformer<Action, Change>) {
-        actionTransformers += transformer
-    }
-
-    inline fun <reified A : Action> onAction(noinline transformer: ActionTransformer<A, Change>) {
-        onAnyAction(TypedActionTransformer(A::class.java, transformer))
+    fun event(block: EventBuilder<Change>.() -> Unit) {
+        EventBuilder(eventTransformers).also(block)
     }
 
     fun build(): Knot<State, Change, Action> = DefaultKnot(
-        initialState = checkNotNull(initialState) { "knot { state { initialState } } must be set" },
-        reduce = checkNotNull(reduce) { "knot { state { reduce } } must be set" },
+        initialState = checkNotNull(initialState) { "knot { state { initial } } must be set" },
         observeOn = observeOn,
         reduceOn = reduceOn,
+        reduce = checkNotNull(reduce) { "knot { state { reduce } } must be set" },
         eventTransformers = eventTransformers,
         actionTransformers = actionTransformers
     )
-}
 
-@KnotDsl
-class OnState<State : Any, Change : Any, Action : Any>
-internal constructor() {
-    internal var reduce: Reduce<State, Change, Action>? = null
+    @KnotDsl
+    class StateBuilder<State : Any, Change : Any, Action : Any>
+    internal constructor() {
+        internal var reduce: Reduce<State, Change, Action>? = null
 
-    var initial: State? = null
-    var observeOn: Scheduler? = null
-    var reduceOn: Scheduler? = null
+        var initial: State? = null
+        var observeOn: Scheduler? = null
+        var reduceOn: Scheduler? = null
 
-    fun reduce(reduce: Reduce<State, Change, Action>) {
-        this.reduce = reduce
+        fun reduce(reduce: Reduce<State, Change, Action>) {
+            this.reduce = reduce
+        }
+    }
+
+    @KnotDsl
+    class ActionBuilder<Change : Any, Action : Any>
+    internal constructor(
+        private val actionTransformers: MutableList<ActionTransformer<Action, Change>>
+    ) {
+        fun performAction(transformer: ActionTransformer<Action, Change>) {
+            actionTransformers += transformer
+        }
+
+        inline fun <reified A : Action> perform(noinline transformer: ActionTransformer<A, Change>) {
+            performAction(TypedActionTransformer(A::class.java, transformer))
+        }
+    }
+
+    @KnotDsl
+    class EventBuilder<Change : Any>
+    internal constructor(
+        private val eventTransformers: MutableList<EventTransformer<Change>>
+    ) {
+        fun transform(transformer: EventTransformer<Change>) {
+            eventTransformers += transformer
+        }
     }
 }
 

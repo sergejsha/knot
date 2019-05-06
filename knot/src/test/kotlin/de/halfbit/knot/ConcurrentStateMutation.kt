@@ -38,7 +38,9 @@ class ConcurrentStateMutation {
                     Effect(state.copy(counter = state.counter + change.value))
                 }
             }
-            onEvent { countUpEmitter.map { CountUpChange(100) } }
+            event {
+                transform { countUpEmitter.map { CountUpChange(100) } }
+            }
         }
 
         Observable

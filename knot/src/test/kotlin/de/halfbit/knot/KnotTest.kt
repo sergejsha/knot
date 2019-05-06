@@ -87,7 +87,9 @@ class KnotTest {
                 initial = State()
                 reduce { _, state -> Effect(state) }
             }
-            onEvent(eventTransformer)
+            event {
+                transform(eventTransformer)
+            }
         }
         verify(eventTransformer).invoke()
     }
