@@ -36,7 +36,7 @@ internal constructor() {
         reduceOn = reduceOn
     )
 
-    @KnotDsl
+    @CompositeKnotDsl
     class StateBuilder<State : Any>
     internal constructor() {
         var initial: State? = null
