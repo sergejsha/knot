@@ -21,18 +21,18 @@ Knot helps managing application state, external events and asynchronous actions 
 
 `Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to `Reducer`.
 
+# Composition
+To be added
+
 # Why Knot?
 
 * Predictable - helps writing better structured and less buggy code.
 * Modular - single knots can be combined together to build more complex application logic.
+* Decomposable - complex knots can be decomposed into primes by related functionality.
 * Consice - it has minimalistic API and compact implementation.
 * Testable - reducer function is easy to test. 
 * DSL - easy to read declarative configuration.
 * Why not?
-
-# Considerations
-
-* In contrast to the most of state container implementations out there, `Action` in Knot is an executable object and not a data class. This is done to reduce boilerplate code needed for defining actions and writing an action creator class. This decision can be revisit in the future however.
 
 # License
 ```
