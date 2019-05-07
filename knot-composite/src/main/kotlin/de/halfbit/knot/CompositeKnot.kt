@@ -34,7 +34,7 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
     override val disposable = CompositeDisposable()
     override val change = Consumer<Change> {
         if (!composed.get()) {
-            error("Call compose() before dispatching any Change.")
+            error("Call compose() before dispatching any change.")
         }
         changeSubject.onNext(it)
     }
