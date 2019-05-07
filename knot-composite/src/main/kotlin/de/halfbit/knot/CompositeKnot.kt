@@ -55,7 +55,7 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
             .serialize()
             .scan(initialState) { state, change ->
                 val reducer = composition.reducers[change::class] ?: error("Cannot find reducer for $change")
-                reducer(change, state)
+                reducer(state, change)
                     .also { it.action?.let { action -> actionSubject.onNext(action) } }
                     .state
             }

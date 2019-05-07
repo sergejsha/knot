@@ -43,7 +43,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
         .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
         .serialize()
         .scan(initialState) { state, change ->
-            reduce(change, state)
+            reduce(state, change)
                 .also { it.action?.let { action -> actionSubject.onNext(action) } }
                 .state
         }

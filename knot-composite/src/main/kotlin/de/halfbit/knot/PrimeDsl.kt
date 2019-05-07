@@ -46,9 +46,13 @@ internal constructor() {
             reducers[changeType] = reduce
         }
 
-        inline fun <reified C : Change> reduce(noinline reduce: Reduce<State, Change, Action>) {
-            this.reduce(C::class, reduce)
+        inline fun <reified C : Change> reduce(noinline reduce: Reduce<State, C, Action>) {
+            @Suppress("UNCHECKED_CAST")
+            this.reduce(C::class, reduce as Reduce<State, Change, Action>)
         }
+
+        fun State.only(): Effect<State, Action> = Effect(this)
+        infix fun State.and(action: Action) = Effect(this, action)
     }
 
     @PrimeDsl
