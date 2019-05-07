@@ -22,7 +22,12 @@ Knot helps managing application state by reacting on events and performing async
 `Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to `Reducer`.
 
 # Composition
-To be added
+
+If your knot becomes big and you want to improve its maintainability and extensibility you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Prime`'s. 
+
+<img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
+
+`Prime` defines its own `Change`'s, `Action`'s and reducers. It's only the `State`, what is shared between the `Prime`'s. In that respect each `Prime` can be considered to be a separate knot working on a shared `State`. Once all `Prime`'s are defined, they can be composed together and provided to `CompositeKnot` which implements standard knot interface. 
 
 # Why Knot?
 
@@ -30,8 +35,8 @@ To be added
 * Modular - single knots can be combined together to build more complex application logic.
 * Decomposable - complex knots can be decomposed into primes by related functionality.
 * Consice - it has minimalistic API and compact implementation.
-* Testable - reducer function is easy to test. 
-* DSL - easy to read declarative configuration.
+* Testable - reducers and transformers are easy to test. 
+* DSL - easy to read and write declarative configuration language.
 * Why not?
 
 # License
