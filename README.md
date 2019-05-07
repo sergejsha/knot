@@ -9,7 +9,7 @@ Consice reactive state container library for Android applications.
 
 Knot helps managing application state by reacting on events and performing asynchronous actions in a structured way. There are five core concepts Knot defines: `State`, `Change`, `Reducer`, `Effect` and `Action`.
 
-<img src="docs/diagrams/flowchart.png" width="500" />
+<img src="docs/diagrams/flowchart-knot.png" width="500" />
 
 `State` represents an immutable partial state of an Android application. It can be a state of a screen or a state of an internal headless component, like repository.
 
