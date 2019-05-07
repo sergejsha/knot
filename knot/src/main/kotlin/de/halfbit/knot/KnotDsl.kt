@@ -1,6 +1,5 @@
 package de.halfbit.knot
 
-import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 
@@ -64,6 +63,9 @@ internal constructor() {
         fun reduce(reduce: Reduce<State, Change, Action>) {
             this.reduce = reduce
         }
+
+        fun State.only(): Effect<State, Action> = Effect(this)
+        infix fun State.and(action: Action) = Effect(this, action)
     }
 
     @KnotDsl
@@ -93,14 +95,14 @@ internal constructor() {
 
 typealias Reduce<State, Change, Action> = (change: Change, state: State) -> Effect<State, Action>
 typealias EventTransformer<Change> = () -> Observable<Change>
-typealias ActionTransformer<Action, Change> = (action: Observable<Action>) -> Maybe<Change>
+typealias ActionTransformer<Action, Change> = (action: Observable<Action>) -> Observable<Change>
 
 class TypedActionTransformer<Action : Any, Change : Any, A : Action>(
     private val type: Class<A>,
     private val transform: ActionTransformer<A, Change>
 ) : ActionTransformer<Action, Change> {
 
-    override fun invoke(action: Observable<Action>): Maybe<Change> {
+    override fun invoke(action: Observable<Action>): Observable<Change> {
         return transform(action.ofType(type))
     }
 }

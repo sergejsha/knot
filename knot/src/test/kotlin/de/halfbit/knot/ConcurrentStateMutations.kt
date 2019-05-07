@@ -6,7 +6,7 @@ import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-class ConcurrentStateMutation {
+class ConcurrentStateMutations {
 
     data class CountUpChange(val value: Int)
 
@@ -64,6 +64,6 @@ class ConcurrentStateMutation {
 
 }
 
-private const val COUNT = 30
+private const val COUNT = 40
 private const val DELAY_EMITTER1 = 11L
 private const val DELAY_EMITTER2 = 10L

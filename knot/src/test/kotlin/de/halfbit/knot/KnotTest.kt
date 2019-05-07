@@ -1,6 +1,6 @@
 package de.halfbit.knot
 
-import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import io.reactivex.Observable
@@ -15,12 +15,12 @@ class KnotTest {
     private lateinit var knot: Knot<State, Change, Action>
 
     @Test(expected = IllegalStateException::class)
-    fun `DSL requires initial state`() {
+    fun `DSL builder requires initial state`() {
         knot = knot { }
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `DSL requires reducer`() {
+    fun `DSL builder requires reducer`() {
         knot = knot {
             state {
                 initial = State()
@@ -29,29 +29,7 @@ class KnotTest {
     }
 
     @Test
-    fun `DSL builder creates Knot`() {
-        knot = knot {
-            state {
-                initial = State()
-                reduce { _, state -> Effect(state) }
-            }
-        }
-        assertThat(knot).isNotNull()
-    }
-
-    @Test
-    fun `'state' is not null`() {
-        knot = knot {
-            state {
-                initial = State()
-                reduce { _, state -> Effect(state) }
-            }
-        }
-        assertThat(knot.state).isNotNull()
-    }
-
-    @Test
-    fun `'state' contains initial state`() {
+    fun `Initial state gets dispatched`() {
         val state = State()
         knot = knot {
             state {
@@ -64,7 +42,7 @@ class KnotTest {
     }
 
     @Test
-    fun `'reduce()' updates 'state'`() {
+    fun `Reduces updates state`() {
         knot = knot {
             state {
                 initial = State()
@@ -77,7 +55,7 @@ class KnotTest {
     }
 
     @Test
-    fun `'onEvent' transformer gets invoked on initialization`() {
+    fun `Event transformer gets invoked on initialization`() {
         val eventTransformer: EventTransformer<Change> = mock {
             on { invoke() }.thenAnswer { Observable.just(Change) }
         }
@@ -92,6 +70,24 @@ class KnotTest {
             }
         }
         verify(eventTransformer).invoke()
+    }
+
+    @Test
+    fun `Action transformer gets invoked on initialization`() {
+        val actionTransformer: ActionTransformer<Action, Change> = mock {
+            on { invoke(any()) }.thenAnswer { Observable.just(Change) }
+        }
+
+        knot = knot {
+            state {
+                initial = State()
+                reduce { _, state -> Effect(state) }
+            }
+            action {
+                perform(actionTransformer)
+            }
+        }
+        verify(actionTransformer).invoke(any())
     }
 
 }

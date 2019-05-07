@@ -37,7 +37,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
             mutableListOf<Observable<Change>>().apply {
                 add(changeSubject)
                 eventTransformers.map { add(it.invoke()) }
-                actionTransformers.map { add(it.invoke(actionSubject).toObservable()) }
+                actionTransformers.map { add(it.invoke(actionSubject)) }
             }
         )
         .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
