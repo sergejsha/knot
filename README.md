@@ -40,6 +40,11 @@ If your knot becomes big and you want to improve its maintainability and extensi
 * DSL - easy to read and write declarative configuration language.
 * Why not?
 
+# Inspiration
+Knot was inspired by two awesome projects
+* Krate https://github.com/gustavkarlsson/krate
+* Redux-loop https://github.com/redux-loop/redux-loop
+
 # License
 ```
 Copyright 2019 Sergej Shafarenka, www.halfbit.de
