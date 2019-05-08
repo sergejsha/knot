@@ -34,8 +34,8 @@ class ConcurrentStateMutations {
         knot = knot {
             state {
                 initial = State()
-                reduce { state, change ->
-                    Effect(state.copy(counter = state.counter + change.value))
+                reduce { change ->
+                    Effect(copy(counter = counter + change.value))
                 }
             }
             events {

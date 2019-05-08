@@ -93,7 +93,7 @@ internal constructor() {
     }
 }
 
-typealias Reduce<State, Change, Action> = (state: State, change: Change) -> Effect<State, Action>
+typealias Reduce<State, Change, Action> = State.(change: Change) -> Effect<State, Action>
 typealias EventTransformer<Change> = () -> Observable<Change>
 typealias ActionTransformer<Action, Change> = (action: Observable<Action>) -> Observable<Change>
 

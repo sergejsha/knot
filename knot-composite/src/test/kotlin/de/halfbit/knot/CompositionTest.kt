@@ -35,8 +35,8 @@ class CompositionTest {
     @Test
     fun `CompositeKnot picks reducers by change type`() {
         val composition = Composition<State, Change, Action>().apply {
-            reducers[Change.A::class] = { state, change -> Effect(state.copy(value = change.value)) }
-            reducers[Change.B::class] = { state, change -> Effect(state.copy(value = change.value)) }
+            reducers[Change.A::class] = { change -> Effect(copy(value = change.value)) }
+            reducers[Change.B::class] = { change -> Effect(copy(value = change.value)) }
         }
 
         val knot = compositeKnot<State, Change, Action> {
@@ -65,8 +65,8 @@ class CompositionTest {
             eventTransformers += { changeA.map { Change.A } }
             eventTransformers += { changeB.map { Change.B } }
 
-            reducers[Change.A::class] = { state, change -> Effect(state.copy(value = change.value)) }
-            reducers[Change.B::class] = { state, change -> Effect(state.copy(value = change.value)) }
+            reducers[Change.A::class] = { change -> Effect(copy(value = change.value)) }
+            reducers[Change.B::class] = { change -> Effect(copy(value = change.value)) }
         }
 
         val knot = compositeKnot<State, Change, Action> {
@@ -93,10 +93,10 @@ class CompositionTest {
             actionTransformers += { action -> action.filter { it is Action.A }.map { Change.ADone } }
             actionTransformers += { action -> action.filter { it is Action.B }.map { Change.BDone } }
 
-            reducers[Change.A::class] = { state, change -> Effect(state.copy(value = change.value), Action.A) }
-            reducers[Change.ADone::class] = { state, change -> Effect(state.copy(value = change.value)) }
-            reducers[Change.B::class] = { state, change -> Effect(state.copy(value = change.value), Action.B) }
-            reducers[Change.BDone::class] = { state, change -> Effect(state.copy(value = change.value)) }
+            reducers[Change.A::class] = { change -> Effect(copy(value = change.value), Action.A) }
+            reducers[Change.ADone::class] = { change -> Effect(copy(value = change.value)) }
+            reducers[Change.B::class] = { change -> Effect(copy(value = change.value), Action.B) }
+            reducers[Change.BDone::class] = { change -> Effect(copy(value = change.value)) }
         }
 
         val knot = compositeKnot<State, Change, Action> {

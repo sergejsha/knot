@@ -24,11 +24,11 @@ class KnotSingleActionTest {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
-                reduce { state, change ->
+                reduce { change ->
                     when (change) {
-                        is Change.Load -> state.copy(value = "loading") and Action.Load
-                        is Change.Load.Success -> state.copy(value = change.payload).only()
-                        is Change.Load.Failure -> state.copy(value = "failed").only()
+                        is Change.Load -> copy(value = "loading") and Action.Load
+                        is Change.Load.Success -> copy(value = change.payload).only()
+                        is Change.Load.Failure -> copy(value = "failed").only()
                     }
                 }
             }
@@ -57,11 +57,11 @@ class KnotSingleActionTest {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
-                reduce { state, change ->
+                reduce { change ->
                     when (change) {
-                        is Change.Load -> state.copy(value = "loading") and Action.Load
-                        is Change.Load.Success -> state.copy(value = change.payload).only()
-                        is Change.Load.Failure -> state.copy(value = "failed").only()
+                        is Change.Load -> copy(value = "loading") and Action.Load
+                        is Change.Load.Success -> copy(value = change.payload).only()
+                        is Change.Load.Failure -> copy(value = "failed").only()
                     }
                 }
             }
@@ -90,11 +90,11 @@ class KnotSingleActionTest {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
-                reduce { state, change ->
+                reduce { change ->
                     when (change) {
-                        is Change.Load -> state.copy(value = "loading") and Action.Load
-                        is Change.Load.Success -> state.copy(value = change.payload).only()
-                        is Change.Load.Failure -> state.copy(value = "failed").only()
+                        is Change.Load -> copy(value = "loading") and Action.Load
+                        is Change.Load.Success -> copy(value = change.payload).only()
+                        is Change.Load.Failure -> copy(value = "failed").only()
                     }
                 }
             }
@@ -129,10 +129,10 @@ class KnotSingleActionTest {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
-                reduce { state, change ->
+                reduce { change ->
                     when (change) {
-                        is Change.Load -> state.copy(value = "loading") and Action.Load
-                        else -> error("unexpected $change in $state")
+                        is Change.Load -> copy(value = "loading") and Action.Load
+                        else -> error("unexpected $change in $this")
                     }
                 }
             }

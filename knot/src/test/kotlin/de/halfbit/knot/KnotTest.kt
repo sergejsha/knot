@@ -34,7 +34,7 @@ class KnotTest {
         knot = knot {
             state {
                 initial = state
-                reduce { state, _ -> state.only() }
+                reduce { this.only() }
             }
         }
         val observer = knot.state.test()
@@ -46,7 +46,7 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
-                reduce { _, _ -> State(1).only() }
+                reduce { State(1).only() }
             }
         }
         val observable = knot.state.test()
@@ -63,7 +63,7 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
-                reduce { state, _ -> state.only() }
+                reduce { this.only() }
             }
             events {
                 transform(eventTransformer)
@@ -81,7 +81,7 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
-                reduce { state, _ -> state.only() }
+                reduce { this.only() }
             }
             actions {
                 perform(actionTransformer)

@@ -25,12 +25,12 @@ class KnotMultipleActionsTest {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
-                reduce { state, change ->
+                reduce { change ->
                     when (change) {
-                        is Change.Launch -> state.copy(value = "zero") and Action.One
-                        is Change.OneDone -> state.copy(value = "one") and Action.Two
-                        is Change.TwoDone -> state.copy(value = "two") and Action.Three
-                        is Change.ThreeDone -> state.copy(value = "three").only()
+                        is Change.Launch -> copy(value = "zero") and Action.One
+                        is Change.OneDone -> copy(value = "one") and Action.Two
+                        is Change.TwoDone -> copy(value = "two") and Action.Three
+                        is Change.ThreeDone -> copy(value = "three").only()
                     }
                 }
             }
