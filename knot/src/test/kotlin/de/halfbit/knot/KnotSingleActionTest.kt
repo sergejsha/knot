@@ -26,7 +26,7 @@ class KnotSingleActionTest {
                 initial = State("empty")
                 reduce { change ->
                     when (change) {
-                        is Change.Load -> copy(value = "loading") and Action.Load
+                        is Change.Load -> copy(value = "loading") + Action.Load
                         is Change.Load.Success -> copy(value = change.payload).only()
                         is Change.Load.Failure -> copy(value = "failed").only()
                     }
@@ -59,7 +59,7 @@ class KnotSingleActionTest {
                 initial = State("empty")
                 reduce { change ->
                     when (change) {
-                        is Change.Load -> copy(value = "loading") and Action.Load
+                        is Change.Load -> copy(value = "loading") + Action.Load
                         is Change.Load.Success -> copy(value = change.payload).only()
                         is Change.Load.Failure -> copy(value = "failed").only()
                     }
@@ -92,7 +92,7 @@ class KnotSingleActionTest {
                 initial = State("empty")
                 reduce { change ->
                     when (change) {
-                        is Change.Load -> copy(value = "loading") and Action.Load
+                        is Change.Load -> copy(value = "loading") + Action.Load
                         is Change.Load.Success -> copy(value = change.payload).only()
                         is Change.Load.Failure -> copy(value = "failed").only()
                     }
@@ -131,7 +131,7 @@ class KnotSingleActionTest {
                 initial = State("empty")
                 reduce { change ->
                     when (change) {
-                        is Change.Load -> copy(value = "loading") and Action.Load
+                        is Change.Load -> copy(value = "loading") + Action.Load
                         else -> error("unexpected $change in $this")
                     }
                 }

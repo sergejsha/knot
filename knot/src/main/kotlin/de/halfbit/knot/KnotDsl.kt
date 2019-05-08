@@ -66,6 +66,7 @@ internal constructor() {
 
         fun State.only(): Effect<State, Action> = Effect(this)
         infix fun State.and(action: Action) = Effect(this, action)
+        operator fun State.plus(action: Action) = Effect(this, action)
     }
 
     @KnotDsl
