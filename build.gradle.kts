@@ -1,11 +1,11 @@
 plugins {
     base
-    kotlin("jvm") version Dep.Version.kotlin apply false
+    kotlin("jvm") version Deps.Version.kotlin apply false
 }
 
 allprojects {
     group = "de.halfbit"
-    version = "1.0-beta8"
+    version = "1.0-beta10"
 
     repositories {
         mavenCentral()

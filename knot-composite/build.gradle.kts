@@ -2,22 +2,22 @@ plugins {
     kotlin("jvm")
     `maven-publish`
     id("org.gradle.signing")
-    id("org.jetbrains.dokka") version Dep.Version.dokka
+    id("org.jetbrains.dokka") version Deps.Version.dokka
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = Dep.Version.jvmTarget
+    kotlinOptions.jvmTarget = Deps.Version.jvmTarget
 }
 
 dependencies {
     implementation(project(":knot"))
-    implementation(kotlin(Dep.kotlinJdk))
-    implementation(Dep.rxJava)
+    implementation(kotlin(Deps.kotlinJdk))
+    implementation(Deps.rxJava)
 
-    testImplementation(Dep.junit)
-    testImplementation(Dep.truth)
-    testImplementation(Dep.mockito)
-    testImplementation(Dep.mockitoKotlin)
+    testImplementation(Deps.junit)
+    testImplementation(Deps.truth)
+    testImplementation(Deps.mockito)
+    testImplementation(Deps.mockitoKotlin)
 }
 
 publishing {
