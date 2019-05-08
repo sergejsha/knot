@@ -65,7 +65,7 @@ class KnotTest {
                 initial = State()
                 reduce { state, _ -> state.only() }
             }
-            event {
+            events {
                 transform(eventTransformer)
             }
         }
@@ -83,7 +83,7 @@ class KnotTest {
                 initial = State()
                 reduce { state, _ -> state.only() }
             }
-            action {
+            actions {
                 perform(actionTransformer)
             }
         }

@@ -23,11 +23,11 @@ internal constructor() {
         StateBuilder(reducers).also(block)
     }
 
-    fun action(block: ActionBuilder<Change, Action>.() -> Unit) {
+    fun actions(block: ActionBuilder<Change, Action>.() -> Unit) {
         ActionBuilder(actionTransformers).also(block)
     }
 
-    fun event(block: EventBuilder<Change>.() -> Unit) {
+    fun events(block: EventBuilder<Change>.() -> Unit) {
         EventBuilder(eventTransformers).also(block)
     }
 
@@ -60,12 +60,12 @@ internal constructor() {
     internal constructor(
         private val actionTransformers: MutableList<ActionTransformer<Action, Change>>
     ) {
-        fun performAction(transformer: ActionTransformer<Action, Change>) {
+        fun performAny(transformer: ActionTransformer<Action, Change>) {
             actionTransformers += transformer
         }
 
         inline fun <reified A : Action> perform(noinline transformer: ActionTransformer<A, Change>) {
-            performAction(TypedActionTransformer(A::class.java, transformer))
+            performAny(TypedActionTransformer(A::class.java, transformer))
         }
     }
 

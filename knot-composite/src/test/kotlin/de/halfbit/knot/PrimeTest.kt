@@ -43,7 +43,7 @@ class PrimeTest {
     @Test
     fun `Prime adds action transformers to composition`() {
         val prime = prime<State, Change, Action> {
-            action {
+            actions {
                 perform { action: Observable<Action.One> -> action.map<Change> { Change.One } }
                 perform { action: Observable<Action.Two> -> action.map<Change> { Change.Two } }
             }
@@ -72,7 +72,7 @@ class PrimeTest {
         val sourceOne = PublishSubject.create<Unit>()
         val sourceTwo = PublishSubject.create<Unit>()
         val prime = prime<State, Change, Action> {
-            event {
+            events {
                 transform { sourceOne.map { Change.One } }
                 transform { sourceTwo.map { Change.Two } }
             }

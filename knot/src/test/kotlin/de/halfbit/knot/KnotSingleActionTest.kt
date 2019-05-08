@@ -32,7 +32,7 @@ class KnotSingleActionTest {
                     }
                 }
             }
-            action {
+            actions {
                 perform<Action.Load> { action ->
                     action
                         .flatMapSingle { Single.just("loaded") }
@@ -65,7 +65,7 @@ class KnotSingleActionTest {
                     }
                 }
             }
-            action {
+            actions {
                 perform<Action.Load> { action ->
                     action
                         .flatMapSingle<String> { Single.error(Exception()) }
@@ -98,7 +98,7 @@ class KnotSingleActionTest {
                     }
                 }
             }
-            action {
+            actions {
                 perform<Action.Load> { action ->
                     action
                         .flatMap {

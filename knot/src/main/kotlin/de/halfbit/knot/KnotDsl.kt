@@ -34,12 +34,12 @@ internal constructor() {
             }
     }
 
-    fun action(block: ActionBuilder<Change, Action>.() -> Unit) {
-        ActionBuilder(actionTransformers).also(block)
+    fun actions(block: ActionsBuilder<Change, Action>.() -> Unit) {
+        ActionsBuilder(actionTransformers).also(block)
     }
 
-    fun event(block: EventBuilder<Change>.() -> Unit) {
-        EventBuilder(eventTransformers).also(block)
+    fun events(block: EventsBuilder<Change>.() -> Unit) {
+        EventsBuilder(eventTransformers).also(block)
     }
 
     fun build(): Knot<State, Change, Action> = DefaultKnot(
@@ -69,21 +69,21 @@ internal constructor() {
     }
 
     @KnotDsl
-    class ActionBuilder<Change : Any, Action : Any>
+    class ActionsBuilder<Change : Any, Action : Any>
     internal constructor(
         private val actionTransformers: MutableList<ActionTransformer<Action, Change>>
     ) {
-        fun performAction(transformer: ActionTransformer<Action, Change>) {
+        fun performAny(transformer: ActionTransformer<Action, Change>) {
             actionTransformers += transformer
         }
 
         inline fun <reified A : Action> perform(noinline transformer: ActionTransformer<A, Change>) {
-            performAction(TypedActionTransformer(A::class.java, transformer))
+            performAny(TypedActionTransformer(A::class.java, transformer))
         }
     }
 
     @KnotDsl
-    class EventBuilder<Change : Any>
+    class EventsBuilder<Change : Any>
     internal constructor(
         private val eventTransformers: MutableList<EventTransformer<Change>>
     ) {
