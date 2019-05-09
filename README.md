@@ -36,6 +36,7 @@ If your knot becomes big and you want to improve its maintainability and extensi
 * Modular - single knots can be combined together to build more complex application logic.
 * Decomposable - complex knots can be decomposed into primes by related functionality.
 * Consice - it has minimalistic API and compact implementation.
+* Consistent - state is the single source of truth.
 * Testable - reducers and transformers are easy to test. 
 * DSL - easy to read and write declarative configuration language.
 * Why not?
