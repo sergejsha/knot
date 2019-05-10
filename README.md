@@ -37,7 +37,7 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Decomposable - complex knots can be decomposed into primes by related functionality.
 * Consice - it has minimalistic API and compact implementation.
 * Consistent - state is the single source of truth.
-* Side-effects free reducer - by desing.
+* Side-effect free reducer - by desing.
 * Testable - reducers and transformers are easy to test. 
 * DSL - easy to read and write declarative configuration language.
 * Why not?
