@@ -18,7 +18,7 @@ Knot helps managing application state by reacting on events and performing async
 
 `Action` is a synchronous or an asynchronous operation which, when completed, can emit a new `Change`.
 
-`Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped by `Effect` class.
+`Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped by `Effect` class. `Reducer` in Knot is designer to stays side-effects free because each side-effect can be turned into an `Action` and returned from reducer function together with a new state.
 
 `Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to `Reducer`.
 
