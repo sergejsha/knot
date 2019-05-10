@@ -39,6 +39,7 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Consistent - state is the single source of truth.
 * Testable - reducers and transformers are easy to test. 
 * DSL - easy to read and write declarative configuration language.
+* Side-effects free reducer - by desing.
 * Why not?
 
 # Inspiration
