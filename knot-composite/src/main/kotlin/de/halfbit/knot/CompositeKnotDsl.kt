@@ -20,6 +20,7 @@ internal constructor() {
     private var observeOn: Scheduler? = null
     private var reduceOn: Scheduler? = null
 
+    /** A section for [State] related declarations. */
     fun state(block: StateBuilder<State>.() -> Unit) {
         StateBuilder<State>()
             .also {
@@ -39,8 +40,14 @@ internal constructor() {
     @CompositeKnotDsl
     class StateBuilder<State : Any>
     internal constructor() {
+
+        /** Mandatory initial [State] of the [CompositeKnot]. */
         var initial: State? = null
+
+        /** An optional [Scheduler] used for dispatching state changes. */
         var observeOn: Scheduler? = null
+
+        /** An optional [Scheduler] used for reduce function. */
         var reduceOn: Scheduler? = null
     }
 }

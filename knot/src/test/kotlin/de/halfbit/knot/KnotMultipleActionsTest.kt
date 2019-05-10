@@ -27,10 +27,10 @@ class KnotMultipleActionsTest {
                 initial = State("empty")
                 reduce { change ->
                     when (change) {
-                        is Change.Launch -> copy(value = "zero") and Action.One
-                        is Change.OneDone -> copy(value = "one") and Action.Two
-                        is Change.TwoDone -> copy(value = "two") and Action.Three
-                        is Change.ThreeDone -> copy(value = "three").only()
+                        is Change.Launch -> copy(value = "zero") + Action.One
+                        is Change.OneDone -> copy(value = "one") + Action.Two
+                        is Change.TwoDone -> copy(value = "two") + Action.Three
+                        is Change.ThreeDone -> copy(value = "three").only
                     }
                 }
             }

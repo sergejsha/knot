@@ -7,12 +7,63 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 
+/**
+ * Knot helps managing application state by reacting on events and performing asynchronous
+ * actions in a structured way. There are five core concepts Knot defines: [State], [Change],
+ * *Reducer*, [Effect] and [Action].
+ *
+ * [Flowchart diagram](https://github.com/beworker/knot/raw/master/docs/diagrams/flowchart-knot.png)
+ *
+ * [State] represents an immutable partial state of an Android application. It can be a state
+ * of a screen or a state of an internal headless component, like repository.
+ *
+ * [Change] is an immutable data object with an optional payload intended for changing the [State].
+ * A [Change] can be produced from an external event or be a result of execution of an *Action*.
+ *
+ * [Action] is a synchronous or an asynchronous operation which, when completed, can emit a new [Change].
+ *
+ * *Reducer* is a pure function that takes the previous [State] and a [Change] as arguments and returns
+ * the new [State] and an optional [Action] wrapped by [Effect] class. *Reducer* in Knot is designer
+ * to stays side-effects free because each side-effect can be turned into an [Action] and returned from
+ * *Reducer* function together with a new [State].
+ *
+ * [Effect] is a convenient wrapper class containing the new [State] and an optional [Action]. If
+ * [Action] is present, Knot will perform it and provide resulting [Change] back to *Reducer*.
+ *
+ * Example:
+ * ```
+ *  val knot = knot {
+ *      state {
+ *          initial = State.Initial
+ *          reduce { change ->
+ *              when (change) {
+ *                  is Change.Load -> State.Loading.only + Action.Load
+ *                  is Change.Load.Success -> State.Content(data).only
+ *                  is Change.Load.Failure -> State.Error(error).only
+ *              }
+ *          }
+ *      }
+ *      actions {
+ *          perform<Action.Load> { action ->
+ *              action
+ *                  .flatMapSingle<Payload> { api.load() }
+ *                  .map<Change> { Change.Load.Success(it) }
+ *                  .onErrorReturn { Change.Load.Failure(it) }
+ *              }
+ *          }
+ *      }
+ *  }
+ *
+ *  knot.state.subscribe { println($it) }
+ * ```
+ */
 interface Knot<State : Any, Change : Any, Action : Any> {
     val state: Observable<State>
     val change: Consumer<Change>
     val disposable: Disposable
 }
 
+/** Convenience wrapper around [State] and optional [Action]. */
 class Effect<State : Any, Action : Any>(
     val state: State,
     val action: Action? = null

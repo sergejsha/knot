@@ -27,8 +27,8 @@ class KnotSingleActionTest {
                 reduce { change ->
                     when (change) {
                         is Change.Load -> copy(value = "loading") + Action.Load
-                        is Change.Load.Success -> copy(value = change.payload).only()
-                        is Change.Load.Failure -> copy(value = "failed").only()
+                        is Change.Load.Success -> copy(value = change.payload).only
+                        is Change.Load.Failure -> copy(value = "failed").only
                     }
                 }
             }
@@ -60,8 +60,8 @@ class KnotSingleActionTest {
                 reduce { change ->
                     when (change) {
                         is Change.Load -> copy(value = "loading") + Action.Load
-                        is Change.Load.Success -> copy(value = change.payload).only()
-                        is Change.Load.Failure -> copy(value = "failed").only()
+                        is Change.Load.Success -> copy(value = change.payload).only
+                        is Change.Load.Failure -> copy(value = "failed").only
                     }
                 }
             }
@@ -93,8 +93,8 @@ class KnotSingleActionTest {
                 reduce { change ->
                     when (change) {
                         is Change.Load -> copy(value = "loading") + Action.Load
-                        is Change.Load.Success -> copy(value = change.payload).only()
-                        is Change.Load.Failure -> copy(value = "failed").only()
+                        is Change.Load.Success -> copy(value = change.payload).only
+                        is Change.Load.Failure -> copy(value = "failed").only
                     }
                 }
             }

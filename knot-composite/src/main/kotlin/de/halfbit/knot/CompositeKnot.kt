@@ -9,6 +9,18 @@ import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.reflect.KClass
 
+/**
+ * If your [Knot] becomes big and you want to improve its maintainability and extensibility you
+ * may consider to decompose it. You start decomposition by grouping related functionality into,
+ * in a certain sense, indecomposable pieces called [Prime]'s.
+ *
+ * [Flowchart diagram](https://github.com/beworker/knot/raw/master/docs/diagrams/flowchart-composite-knot.png)
+ *
+ * [Prime] defines its own [Change]'s, [Action]'s and *Reducer* for own changes. It's only the [State], what
+ * is shared between the [Prime]'s. In that respect each [Prime] can be considered to be a separate knot
+ * working on a shared [State]. Once all [Prime]'s are defined, they can be composed together and provided
+ * though [compose] function to [CompositeKnot] which implements standard knot interface.
+ */
 interface CompositeKnot<State : Any, Change : Any, Action : Any> : Knot<State, Change, Action> {
     fun compose(composition: Composition<State, Change, Action>)
 }
