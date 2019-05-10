@@ -28,7 +28,7 @@ If your knot becomes big and you want to improve its maintainability and extensi
 
 <img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
 
-`Prime` defines its own `Change`'s, `Action`'s and reducer for own changes. It's only the `State`, what is shared between the `Prime`'s. In that respect each `Prime` can be considered to be a separate knot working on a shared `State`. Once all `Prime`'s are defined, they can be composed together and provided to `CompositeKnot` which implements standard knot interface. 
+Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can be considered to be a separate `Knot` working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided to `CompositeKnot` which implements standard knot interface.
 
 # Why Knot?
 
