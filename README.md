@@ -86,11 +86,11 @@ Notice how inside `reduce` function a new `State` can be combined with `Action` 
 
 # Composition
 
-If your knot becomes big and you want to improve its maintainability and extensibility you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
+If your knot becomes big and you want to improve its redability and maintainability you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
 
 <img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
 
-Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can be considered to be a separate `Knot` working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided to `CompositeKnot` which implements standard knot interface.
+Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can be seen as a separate `Knot` working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided to `CompositeKnot` which implements standard `Knot` interface.
 
 # Why Knot?
 
