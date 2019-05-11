@@ -9,10 +9,7 @@ fun <State : Any, Change : Any, Action : Any> compositeKnot(
         .also(block)
         .build()
 
-@DslMarker
-annotation class CompositeKnotDsl
-
-@CompositeKnotDsl
+@KnotDsl
 class CompositeKnotBuilder<State : Any, Change : Any, Action : Any>
 internal constructor() {
 
@@ -31,13 +28,13 @@ internal constructor() {
             }
     }
 
-    fun build(): CompositeKnot<State, Change, Action> = DefaultCompositeKnot(
+    internal fun build(): CompositeKnot<State, Change, Action> = DefaultCompositeKnot(
         initialState = checkNotNull(initialState) { "compositeKnot { state { initial } } must be set" },
         observeOn = observeOn,
         reduceOn = reduceOn
     )
 
-    @CompositeKnotDsl
+    @KnotDsl
     class StateBuilder<State : Any>
     internal constructor() {
 

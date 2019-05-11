@@ -142,7 +142,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
         .replay(1)
         .also { disposable.add(it.connect()) }
 
-    private fun <T> Observable<T>.intercept(interceptors: List<Interceptor<T>>): Observable<T> =
-        interceptors.fold(this) { state, intercept -> intercept(state) }
-
 }
+
+internal fun <T> Observable<T>.intercept(interceptors: List<Interceptor<T>>): Observable<T> =
+    interceptors.fold(this) { state, intercept -> intercept(state) }

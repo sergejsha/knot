@@ -34,7 +34,7 @@ class PrimeTest {
 
         val prime =
             prime<State, Change, Action> {
-                state {
+                changes {
                     reduce<Change.One>(reducerOne)
                     reduce<Change.Two>(reducerTwo)
                 }

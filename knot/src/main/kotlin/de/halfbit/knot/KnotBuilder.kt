@@ -20,7 +20,7 @@ internal constructor() {
     private var initialState: State? = null
     private var observeOn: Scheduler? = null
     private var reduceOn: Scheduler? = null
-    private var reduce: Reducer<State, Change, Action>? = null
+    private var reducer: Reducer<State, Change, Action>? = null
     private val eventTransformers = mutableListOf<EventTransformer<Change>>()
     private val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
     private val stateInterceptors = mutableListOf<Interceptor<State>>()
@@ -28,8 +28,8 @@ internal constructor() {
     private val actionInterceptors = mutableListOf<Interceptor<Action>>()
 
     /** A section for [State] and [Change] related declarations. */
-    fun state(block: StateBuilder<State, Change, Action>.() -> Unit) {
-        StateBuilder<State, Change, Action>(stateInterceptors)
+    fun state(block: StateBuilder<State>.() -> Unit) {
+        StateBuilder(stateInterceptors)
             .also {
                 block(it)
                 initialState = it.initial
@@ -42,7 +42,7 @@ internal constructor() {
         ChangesBuilder<State, Change, Action>(changeInterceptors)
             .also {
                 block(it)
-                reduce = it.reducer
+                reducer = it.reducer
                 reduceOn = it.reduceOn
             }
     }
@@ -57,19 +57,21 @@ internal constructor() {
         EventsBuilder(eventTransformers).also(block)
     }
 
+    /** A section for declaring interceptors for [State], [Change] or [Action]. */
     fun intercept(block: InterceptBuilder<State, Change, Action>.() -> Unit) {
         InterceptBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
     }
 
+    /** A section for declaring watchers for [State], [Change] or [Action]. */
     fun watch(block: WatchBuilder<State, Change, Action>.() -> Unit) {
         WatchBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
     }
 
-    fun build(): Knot<State, Change, Action> = DefaultKnot(
+    internal fun build(): Knot<State, Change, Action> = DefaultKnot(
         initialState = checkNotNull(initialState) { "knot { state { initial } } must be set" },
         observeOn = observeOn,
         reduceOn = reduceOn,
-        reducer = checkNotNull(reduce) { "knot { state { reduce } } must be set" },
+        reducer = checkNotNull(reducer) { "knot { state { reduce } } must be set" },
         eventTransformers = eventTransformers,
         actionTransformers = actionTransformers,
         stateInterceptors = stateInterceptors,
@@ -78,7 +80,7 @@ internal constructor() {
     )
 
     @KnotDsl
-    class StateBuilder<State : Any, Change : Any, Action : Any>
+    class StateBuilder<State : Any>
     internal constructor(
         private val stateInterceptors: MutableList<Interceptor<State>>
     ) {
@@ -146,116 +148,117 @@ internal constructor() {
         operator fun State.plus(action: Action) = Effect(this, action)
     }
 
-    @KnotDsl
-    class ActionsBuilder<Change : Any, Action : Any>
-    internal constructor(
-        private val actionTransformers: MutableList<ActionTransformer<Action, Change>>,
-        private val actionInterceptors: MutableList<Interceptor<Action>>
-    ) {
+}
 
-        /** A function used for declaring an [ActionTransformer] function. */
-        fun performAny(transformer: ActionTransformer<Action, Change>) {
-            actionTransformers += transformer
-        }
+@KnotDsl
+class ActionsBuilder<Change : Any, Action : Any>
+internal constructor(
+    private val actionTransformers: MutableList<ActionTransformer<Action, Change>>,
+    private val actionInterceptors: MutableList<Interceptor<Action>>
+) {
 
-        /**
-         * A function used for declaring an [ActionTransformer] function for given [Action] type.
-         *
-         * Example:
-         * ```
-         *  actions {
-         *      perform<Action.Load> { action ->
-         *          action
-         *              .flatMapSingle<Payload> { api.load() }
-         *              .map<Change> { Change.Load.Success(it) }
-         *              .onErrorReturn { Change.Load.Failure(it) }
-         *      }
-         *  }
-         * ```
-         */
-        inline fun <reified A : Action> perform(noinline transformer: ActionTransformer<A, Change>) {
-            performAny(TypedActionTransformer(A::class.java, transformer))
-        }
-
-        fun intercept(interceptor: Interceptor<Action>) {
-            actionInterceptors += interceptor
-        }
-
-        fun watch(watcher: Watcher<Action>) {
-            actionInterceptors += WatchingInterceptor(watcher)
-        }
+    /** A function used for declaring an [ActionTransformer] function. */
+    fun performAny(transformer: ActionTransformer<Action, Change>) {
+        actionTransformers += transformer
     }
 
-    @KnotDsl
-    class EventsBuilder<Change : Any>
-    internal constructor(
-        private val eventTransformers: MutableList<EventTransformer<Change>>
-    ) {
-
-        /**
-         * A function used for turning an external observable *Event* into a [Change].
-         *
-         * Example:
-         * ```
-         *  events {
-         *      transform {
-         *          userLocationObserver
-         *              .map { Change.UserLocationUpdated(it) }
-         *      }
-         *  }
-         * ```
-         */
-        fun transform(transformer: EventTransformer<Change>) {
-            eventTransformers += transformer
-        }
+    /**
+     * A function used for declaring an [ActionTransformer] function for given [Action] type.
+     *
+     * Example:
+     * ```
+     *  actions {
+     *      perform<Action.Load> { action ->
+     *          action
+     *              .flatMapSingle<Payload> { api.load() }
+     *              .map<Change> { Change.Load.Success(it) }
+     *              .onErrorReturn { Change.Load.Failure(it) }
+     *      }
+     *  }
+     * ```
+     */
+    inline fun <reified A : Action> perform(noinline transformer: ActionTransformer<A, Change>) {
+        performAny(TypedActionTransformer(A::class.java, transformer))
     }
 
-    @KnotDsl
-    class WatchBuilder<State : Any, Change : Any, Action : Any>
-    internal constructor(
-        private val stateInterceptors: MutableList<Interceptor<State>>,
-        private val changeInterceptors: MutableList<Interceptor<Change>>,
-        private val actionInterceptors: MutableList<Interceptor<Action>>
-    ) {
-
-        fun state(watcher: Watcher<State>) {
-            stateInterceptors += WatchingInterceptor(watcher)
-        }
-
-        fun change(watcher: Watcher<Change>) {
-            changeInterceptors += WatchingInterceptor(watcher)
-        }
-
-        fun action(watcher: Watcher<Action>) {
-            actionInterceptors += WatchingInterceptor(watcher)
-        }
-
-        fun any(watcher: Watcher<Any>) {
-            stateInterceptors += WatchingInterceptor(watcher as Watcher<State>)
-            changeInterceptors += WatchingInterceptor(watcher as Watcher<Change>)
-            actionInterceptors += WatchingInterceptor(watcher as Watcher<Action>)
-        }
+    fun intercept(interceptor: Interceptor<Action>) {
+        actionInterceptors += interceptor
     }
 
-    @KnotDsl
-    class InterceptBuilder<State : Any, Change : Any, Action : Any>
-    internal constructor(
-        private val stateInterceptors: MutableList<Interceptor<State>>,
-        private val changeInterceptors: MutableList<Interceptor<Change>>,
-        private val actionInterceptors: MutableList<Interceptor<Action>>
-    ) {
+    fun watch(watcher: Watcher<Action>) {
+        actionInterceptors += WatchingInterceptor(watcher)
+    }
+}
 
-        fun state(interceptor: Interceptor<State>) {
-            stateInterceptors += interceptor
-        }
+@KnotDsl
+class EventsBuilder<Change : Any>
+internal constructor(
+    private val eventTransformers: MutableList<EventTransformer<Change>>
+) {
 
-        fun change(interceptor: Interceptor<Change>) {
-            changeInterceptors += interceptor
-        }
+    /**
+     * A function used for turning an external observable *Event* into a [Change].
+     *
+     * Example:
+     * ```
+     *  events {
+     *      transform {
+     *          userLocationObserver
+     *              .map { Change.UserLocationUpdated(it) }
+     *      }
+     *  }
+     * ```
+     */
+    fun transform(transformer: EventTransformer<Change>) {
+        eventTransformers += transformer
+    }
+}
 
-        fun action(interceptor: Interceptor<Action>) {
-            actionInterceptors += interceptor
-        }
+@KnotDsl
+class WatchBuilder<State : Any, Change : Any, Action : Any>
+internal constructor(
+    private val stateInterceptors: MutableList<Interceptor<State>>,
+    private val changeInterceptors: MutableList<Interceptor<Change>>,
+    private val actionInterceptors: MutableList<Interceptor<Action>>
+) {
+
+    fun state(watcher: Watcher<State>) {
+        stateInterceptors += WatchingInterceptor(watcher)
+    }
+
+    fun change(watcher: Watcher<Change>) {
+        changeInterceptors += WatchingInterceptor(watcher)
+    }
+
+    fun action(watcher: Watcher<Action>) {
+        actionInterceptors += WatchingInterceptor(watcher)
+    }
+
+    fun any(watcher: Watcher<Any>) {
+        stateInterceptors += WatchingInterceptor(watcher as Watcher<State>)
+        changeInterceptors += WatchingInterceptor(watcher as Watcher<Change>)
+        actionInterceptors += WatchingInterceptor(watcher as Watcher<Action>)
+    }
+}
+
+@KnotDsl
+class InterceptBuilder<State : Any, Change : Any, Action : Any>
+internal constructor(
+    private val stateInterceptors: MutableList<Interceptor<State>>,
+    private val changeInterceptors: MutableList<Interceptor<Change>>,
+    private val actionInterceptors: MutableList<Interceptor<Action>>
+) {
+
+    fun state(interceptor: Interceptor<State>) {
+        stateInterceptors += interceptor
+    }
+
+    fun change(interceptor: Interceptor<Change>) {
+        changeInterceptors += interceptor
+    }
+
+    fun action(interceptor: Interceptor<Action>) {
+        actionInterceptors += interceptor
     }
 }
 
@@ -268,6 +271,6 @@ class TypedActionTransformer<Action : Any, Change : Any, A : Action>(
     }
 }
 
-class WatchingInterceptor<T>(private val watcher: Watcher<T>) : Interceptor<T> {
+internal class WatchingInterceptor<T>(private val watcher: Watcher<T>) : Interceptor<T> {
     override fun invoke(stream: Observable<T>): Observable<T> = stream.doOnNext(watcher)
 }

@@ -29,6 +29,9 @@ class Composition<State : Any, Change : Any, Action : Any> {
     val reducers = mutableMapOf<KClass<out Change>, Reducer<State, Change, Action>>()
     val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
     val eventTransformers = mutableListOf<EventTransformer<Change>>()
+    val stateInterceptors = mutableListOf<Interceptor<State>>()
+    val changeInterceptors = mutableListOf<Interceptor<Change>>()
+    val actionInterceptors = mutableListOf<Interceptor<Action>>()
 }
 
 internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
@@ -60,10 +63,15 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
                 mutableListOf<Observable<Change>>().apply {
                     add(changeSubject)
                     composition.eventTransformers.map { add(it.invoke()) }
-                    composition.actionTransformers.map { add(it.invoke(actionSubject)) }
+                    actionSubject
+                        .intercept(composition.actionInterceptors)
+                        .let { action ->
+                            composition.actionTransformers.map { transform -> add(transform(action)) }
+                        }
                 }
             )
             .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
+            .intercept(composition.changeInterceptors)
             .serialize()
             .scan(initialState) { state, change ->
                 val reducer = composition.reducers[change::class] ?: error("Cannot find reducer for $change")
@@ -72,6 +80,7 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
                     .state
             }
             .let { state -> observeOn?.let { state.observeOn(it) } ?: state }
+            .intercept(composition.stateInterceptors)
             .distinctUntilChanged()
             .doOnSubscribe { composed.set(true) }
             .subscribe(stateSubject)
