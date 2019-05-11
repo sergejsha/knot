@@ -37,7 +37,10 @@ class Composition<State : Any, Change : Any, Action : Any> {
 internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
     private val initialState: State,
     private val observeOn: Scheduler?,
-    private val reduceOn: Scheduler?
+    private val reduceOn: Scheduler?,
+    private val stateInterceptors: List<Interceptor<State>>,
+    private val changeInterceptors: List<Interceptor<Change>>,
+    private val actionInterceptors: List<Interceptor<Action>>
 ) : CompositeKnot<State, Change, Action> {
 
     private val stateSubject = BehaviorSubject.create<State>()
@@ -64,6 +67,7 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
                     add(changeSubject)
                     composition.eventTransformers.map { add(it.invoke()) }
                     actionSubject
+                        .intercept(actionInterceptors)
                         .intercept(composition.actionInterceptors)
                         .let { action ->
                             composition.actionTransformers.map { transform -> add(transform(action)) }
@@ -71,6 +75,7 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
                 }
             )
             .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
+            .intercept(changeInterceptors)
             .intercept(composition.changeInterceptors)
             .serialize()
             .scan(initialState) { state, change ->
@@ -80,6 +85,7 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
                     .state
             }
             .let { state -> observeOn?.let { state.observeOn(it) } ?: state }
+            .intercept(stateInterceptors)
             .intercept(composition.stateInterceptors)
             .distinctUntilChanged()
             .doOnSubscribe { composed.set(true) }

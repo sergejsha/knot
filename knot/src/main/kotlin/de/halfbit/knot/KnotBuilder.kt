@@ -17,6 +17,7 @@ annotation class KnotDsl
 @KnotDsl
 class KnotBuilder<State : Any, Change : Any, Action : Any>
 internal constructor() {
+
     private var initialState: State? = null
     private var observeOn: Scheduler? = null
     private var reduceOn: Scheduler? = null
@@ -80,26 +81,6 @@ internal constructor() {
     )
 
     @KnotDsl
-    class StateBuilder<State : Any>
-    internal constructor(
-        private val stateInterceptors: MutableList<Interceptor<State>>
-    ) {
-        /** Mandatory initial [State] of the [Knot]. */
-        var initial: State? = null
-
-        /** An optional [Scheduler] used for dispatching state changes. */
-        var observeOn: Scheduler? = null
-
-        fun intercept(interceptor: Interceptor<State>) {
-            stateInterceptors += interceptor
-        }
-
-        fun watch(watcher: Watcher<State>) {
-            stateInterceptors += WatchingInterceptor(watcher)
-        }
-    }
-
-    @KnotDsl
     class ChangesBuilder<State : Any, Change : Any, Action : Any>
     internal constructor(
         private val changeInterceptors: MutableList<Interceptor<Change>>
@@ -147,7 +128,26 @@ internal constructor() {
         /** Combines [State] and [Action] into [Effect]. */
         operator fun State.plus(action: Action) = Effect(this, action)
     }
+}
 
+@KnotDsl
+class StateBuilder<State : Any>
+internal constructor(
+    private val stateInterceptors: MutableList<Interceptor<State>>
+) {
+    /** Mandatory initial [State] of the [Knot]. */
+    var initial: State? = null
+
+    /** An optional [Scheduler] used for dispatching state changes. */
+    var observeOn: Scheduler? = null
+
+    fun intercept(interceptor: Interceptor<State>) {
+        stateInterceptors += interceptor
+    }
+
+    fun watch(watcher: Watcher<State>) {
+        stateInterceptors += WatchingInterceptor(watcher)
+    }
 }
 
 @KnotDsl
