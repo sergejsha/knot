@@ -82,6 +82,21 @@ class Effect<State : Any, Action : Any>(
     val action: Action? = null
 )
 
+/** A function accepting the *State* and a *Change* and returning a new *State*. */
+typealias Reducer<State, Change, Action> = State.(change: Change) -> Effect<State, Action>
+
+/** A function returning an [Observable] *Change*. */
+typealias EventTransformer<Change> = () -> Observable<Change>
+
+/** A function used for performing given *Action* and emitting resulting *Change* or *Changes*. */
+typealias ActionTransformer<Action, Change> = (action: Observable<Action>) -> Observable<Change>
+
+/** A function user for intercepting events of given type. */
+typealias Interceptor<Type> = (value: Observable<Type>) -> Observable<Type>
+
+/** A function user for consuming events of given type. */
+typealias Watcher<Type> = (value: Type) -> Unit
+
 internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
     initialState: State,
     observeOn: Scheduler?,

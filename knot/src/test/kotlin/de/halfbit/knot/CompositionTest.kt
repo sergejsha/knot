@@ -21,9 +21,10 @@ class CompositionTest {
 
     @Test
     fun `CompositeKnot terminates with IllegalStateException if reducer cannot be found`() {
-        val knot = compositeKnot<State, Change, Action> {
-            state { initial = State("empty") }
-        }
+        val knot =
+            compositeKnot<State, Change, Action> {
+                state { initial = State("empty") }
+            }
 
         val observer = knot.state.test()
         knot.compose(Composition())
@@ -34,14 +35,16 @@ class CompositionTest {
 
     @Test
     fun `CompositeKnot picks reducers by change type`() {
-        val composition = Composition<State, Change, Action>().apply {
+        val composition = Composition<State, Change, Action>()
+            .apply {
             reducers[Change.A::class] = { change -> Effect(copy(value = change.value)) }
             reducers[Change.B::class] = { change -> Effect(copy(value = change.value)) }
         }
 
-        val knot = compositeKnot<State, Change, Action> {
-            state { initial = State("empty") }
-        }
+        val knot =
+            compositeKnot<State, Change, Action> {
+                state { initial = State("empty") }
+            }
 
         val observer = knot.state.test()
         knot.compose(composition)
@@ -61,7 +64,8 @@ class CompositionTest {
         val changeA = PublishSubject.create<Unit>()
         val changeB = PublishSubject.create<Unit>()
 
-        val composition = Composition<State, Change, Action>().apply {
+        val composition = Composition<State, Change, Action>()
+            .apply {
             eventTransformers += { changeA.map { Change.A } }
             eventTransformers += { changeB.map { Change.B } }
 
@@ -69,9 +73,10 @@ class CompositionTest {
             reducers[Change.B::class] = { change -> Effect(copy(value = change.value)) }
         }
 
-        val knot = compositeKnot<State, Change, Action> {
-            state { initial = State("empty") }
-        }
+        val knot =
+            compositeKnot<State, Change, Action> {
+                state { initial = State("empty") }
+            }
 
         val observer = knot.state.test()
         knot.compose(composition)
@@ -89,19 +94,43 @@ class CompositionTest {
     @Test
     fun `CompositeKnot performs actions`() {
 
-        val composition = Composition<State, Change, Action>().apply {
+        val composition = Composition<State, Change, Action>()
+            .apply {
             actionTransformers += { action -> action.filter { it is Action.A }.map { Change.ADone } }
             actionTransformers += { action -> action.filter { it is Action.B }.map { Change.BDone } }
 
-            reducers[Change.A::class] = { change -> Effect(copy(value = change.value), Action.A) }
-            reducers[Change.ADone::class] = { change -> Effect(copy(value = change.value)) }
-            reducers[Change.B::class] = { change -> Effect(copy(value = change.value), Action.B) }
-            reducers[Change.BDone::class] = { change -> Effect(copy(value = change.value)) }
+            reducers[Change.A::class] = { change ->
+                Effect(
+                    copy(value = change.value),
+                    Action.A
+                )
+            }
+            reducers[Change.ADone::class] = { change ->
+                Effect(
+                    copy(
+                        value = change.value
+                    )
+                )
+            }
+            reducers[Change.B::class] = { change ->
+                Effect(
+                    copy(value = change.value),
+                    Action.B
+                )
+            }
+            reducers[Change.BDone::class] = { change ->
+                Effect(
+                    copy(
+                        value = change.value
+                    )
+                )
+            }
         }
 
-        val knot = compositeKnot<State, Change, Action> {
-            state { initial = State("empty") }
-        }
+        val knot =
+            compositeKnot<State, Change, Action> {
+                state { initial = State("empty") }
+            }
 
         val observer = knot.state.test()
         knot.compose(composition)

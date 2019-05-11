@@ -21,17 +21,27 @@ class PrimeTest {
 
     @Test
     fun `Prime adds reducers to composition`() {
-        val reducerOne = { state: State, _: Change -> Effect<State, Action>(state) }
-        val reducerTwo = { state: State, _: Change -> Effect<State, Action>(state) }
-
-        val prime = prime<State, Change, Action> {
-            state {
-                reduce<Change.One>(reducerOne)
-                reduce<Change.Two>(reducerTwo)
-            }
+        val reducerOne = { state: State, _: Change ->
+            Effect<State, Action>(
+                state
+            )
+        }
+        val reducerTwo = { state: State, _: Change ->
+            Effect<State, Action>(
+                state
+            )
         }
 
-        val composition = Composition<State, Change, Action>()
+        val prime =
+            prime<State, Change, Action> {
+                state {
+                    reduce<Change.One>(reducerOne)
+                    reduce<Change.Two>(reducerTwo)
+                }
+            }
+
+        val composition =
+            Composition<State, Change, Action>()
         prime.addTo(composition)
 
         assertThat(composition.reducers).containsExactly(
@@ -42,14 +52,16 @@ class PrimeTest {
 
     @Test
     fun `Prime adds action transformers to composition`() {
-        val prime = prime<State, Change, Action> {
-            actions {
-                perform { action: Observable<Action.One> -> action.map<Change> { Change.One } }
-                perform { action: Observable<Action.Two> -> action.map<Change> { Change.Two } }
+        val prime =
+            prime<State, Change, Action> {
+                actions {
+                    perform { action: Observable<Action.One> -> action.map<Change> { Change.One } }
+                    perform { action: Observable<Action.Two> -> action.map<Change> { Change.Two } }
+                }
             }
-        }
 
-        val composition = Composition<State, Change, Action>()
+        val composition =
+            Composition<State, Change, Action>()
         prime.addTo(composition)
 
         assertThat(composition.actionTransformers).hasSize(2)
@@ -71,14 +83,16 @@ class PrimeTest {
     fun `Prime adds event transformers to composition`() {
         val sourceOne = PublishSubject.create<Unit>()
         val sourceTwo = PublishSubject.create<Unit>()
-        val prime = prime<State, Change, Action> {
-            events {
-                transform { sourceOne.map { Change.One } }
-                transform { sourceTwo.map { Change.Two } }
+        val prime =
+            prime<State, Change, Action> {
+                events {
+                    transform { sourceOne.map { Change.One } }
+                    transform { sourceTwo.map { Change.Two } }
+                }
             }
-        }
 
-        val composition = Composition<State, Change, Action>()
+        val composition =
+            Composition<State, Change, Action>()
         prime.addTo(composition)
 
         assertThat(composition.eventTransformers).hasSize(2)
