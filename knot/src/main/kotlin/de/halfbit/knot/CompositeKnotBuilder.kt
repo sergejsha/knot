@@ -61,10 +61,12 @@ internal constructor() {
         /** An optional [Scheduler] used for reduce function. */
         var reduceOn: Scheduler? = null
 
+        /** A function for intercepting [Change] emissions. */
         fun intercept(interceptor: Interceptor<Change>) {
             changeInterceptors += interceptor
         }
 
+        /** A function for watching [Change] emissions. */
         fun watch(watcher: Watcher<Change>) {
             changeInterceptors += WatchingInterceptor(watcher)
         }

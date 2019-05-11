@@ -53,17 +53,17 @@ internal constructor() {
         ActionsBuilder(actionTransformers, actionInterceptors).also(block)
     }
 
-    /** A section for Event related declarations. */
+    /** A section for *Event* related declarations. */
     fun events(block: EventsBuilder<Change>.() -> Unit) {
         EventsBuilder(eventTransformers).also(block)
     }
 
-    /** A section for declaring interceptors for [State], [Change] or [Action]. */
+    /** A section for declaring interceptors of [State], [Change] or [Action]. */
     fun intercept(block: InterceptBuilder<State, Change, Action>.() -> Unit) {
         InterceptBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
     }
 
-    /** A section for declaring watchers for [State], [Change] or [Action]. */
+    /** A section for declaring watchers of [State], [Change] or [Action]. */
     fun watch(block: WatchBuilder<State, Change, Action>.() -> Unit) {
         WatchBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
     }
@@ -114,10 +114,12 @@ internal constructor() {
             this.reducer = reducer
         }
 
+        /** A function for intercepting [Change] emissions. */
         fun intercept(interceptor: Interceptor<Change>) {
             changeInterceptors += interceptor
         }
 
+        /** A function for watching [Change] emissions. */
         fun watch(watcher: Watcher<Change>) {
             changeInterceptors += WatchingInterceptor(watcher)
         }
@@ -141,10 +143,12 @@ internal constructor(
     /** An optional [Scheduler] used for dispatching state changes. */
     var observeOn: Scheduler? = null
 
+    /** A function for intercepting [State] mutations. */
     fun intercept(interceptor: Interceptor<State>) {
         stateInterceptors += interceptor
     }
 
+    /** A function for watching [State] mutations. */
     fun watch(watcher: Watcher<State>) {
         stateInterceptors += WatchingInterceptor(watcher)
     }
@@ -181,10 +185,12 @@ internal constructor(
         performAny(TypedActionTransformer(A::class.java, transformer))
     }
 
+    /** A function for intercepting [Action] emissions. */
     fun intercept(interceptor: Interceptor<Action>) {
         actionInterceptors += interceptor
     }
 
+    /** A function for watching [Action] emissions. */
     fun watch(watcher: Watcher<Action>) {
         actionInterceptors += WatchingInterceptor(watcher)
     }
@@ -222,18 +228,22 @@ internal constructor(
     private val actionInterceptors: MutableList<Interceptor<Action>>
 ) {
 
+    /** A function for watching [State] mutations. */
     fun state(watcher: Watcher<State>) {
         stateInterceptors += WatchingInterceptor(watcher)
     }
 
+    /** A function for watching [Change] emissions. */
     fun change(watcher: Watcher<Change>) {
         changeInterceptors += WatchingInterceptor(watcher)
     }
 
+    /** A function for watching [Action] emissions. */
     fun action(watcher: Watcher<Action>) {
         actionInterceptors += WatchingInterceptor(watcher)
     }
 
+    /** A function for watching [State] mutations as well as [Change] and [Action] emissions. */
     fun any(watcher: Watcher<Any>) {
         stateInterceptors += WatchingInterceptor(watcher as Watcher<State>)
         changeInterceptors += WatchingInterceptor(watcher as Watcher<Change>)
@@ -249,14 +259,17 @@ internal constructor(
     private val actionInterceptors: MutableList<Interceptor<Action>>
 ) {
 
+    /** A function for intercepting [State] mutations. */
     fun state(interceptor: Interceptor<State>) {
         stateInterceptors += interceptor
     }
 
+    /** A function for intercepting [Change] emissions. */
     fun change(interceptor: Interceptor<Change>) {
         changeInterceptors += interceptor
     }
 
+    /** A function for intercepting [Action] emissions. */
     fun action(interceptor: Interceptor<Action>) {
         actionInterceptors += interceptor
     }

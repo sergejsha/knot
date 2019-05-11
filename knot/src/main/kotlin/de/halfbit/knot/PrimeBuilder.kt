@@ -29,17 +29,17 @@ internal constructor() {
         ActionsBuilder(actionTransformers, actionInterceptors).also(block)
     }
 
-    /** A section for Event related declarations. */
+    /** A section for *Event* related declarations. */
     fun events(block: EventsBuilder<Change>.() -> Unit) {
         EventsBuilder(eventTransformers).also(block)
     }
 
-    /** A section for declaring interceptors for [State], [Change] or [Action]. */
+    /** A section for declaring interceptors of [State], [Change] or [Action]. */
     fun intercept(block: InterceptBuilder<State, Change, Action>.() -> Unit) {
         InterceptBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
     }
 
-    /** A section for declaring watchers for [State], [Change] or [Action]. */
+    /** A section for declaring watchers of [State], [Change] or [Action]. */
     fun watch(block: WatchBuilder<State, Change, Action>.() -> Unit) {
         WatchBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
     }
@@ -89,10 +89,12 @@ internal constructor() {
             reduce(C::class, reduce as Reducer<State, Change, Action>)
         }
 
+        /** A function for intercepting [Change] emissions. */
         fun intercept(interceptor: Interceptor<Change>) {
             changeInterceptors += interceptor
         }
 
+        /** A function for watching [Change] emissions. */
         fun watch(watcher: Watcher<Change>) {
             changeInterceptors += WatchingInterceptor(watcher)
         }
