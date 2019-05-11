@@ -96,7 +96,7 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 
 * Structured - helps writing better structured and less buggy code.
 * Modular - single knots can be combined together to build more complex application logic.
-* Decomposable - complex knots can be decomposed into primes by related functionality.
+* Scalable - complex knots can be decomposed into primes by related functionality.
 * Consice - it has minimalistic API and compact implementation.
 * Consistent - state is the single source of truth.
 * Side-effect free reducer - by desing.
