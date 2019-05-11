@@ -25,6 +25,8 @@ class KnotMultipleActionsTest {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
+            }
+            changes {
                 reduce { change ->
                     when (change) {
                         is Change.Launch -> copy(value = "zero") + Action.One

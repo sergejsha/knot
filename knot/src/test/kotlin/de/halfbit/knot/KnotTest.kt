@@ -34,6 +34,8 @@ class KnotTest {
         knot = knot {
             state {
                 initial = state
+            }
+            changes {
                 reduce { this.only }
             }
         }
@@ -46,6 +48,8 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
+            }
+            changes {
                 reduce { State(1).only }
             }
         }
@@ -63,6 +67,8 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
+            }
+            changes {
                 reduce { this.only }
             }
             events {
@@ -81,6 +87,8 @@ class KnotTest {
         knot = knot {
             state {
                 initial = State()
+            }
+            changes {
                 reduce { this.only }
             }
             actions {

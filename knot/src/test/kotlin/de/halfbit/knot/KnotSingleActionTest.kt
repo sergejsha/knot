@@ -24,6 +24,8 @@ class KnotSingleActionTest {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
+            }
+            changes {
                 reduce { change ->
                     when (change) {
                         is Change.Load -> copy(value = "loading") + Action.Load
@@ -57,6 +59,8 @@ class KnotSingleActionTest {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
+            }
+            changes {
                 reduce { change ->
                     when (change) {
                         is Change.Load -> copy(value = "loading") + Action.Load
@@ -90,6 +94,8 @@ class KnotSingleActionTest {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
+            }
+            changes {
                 reduce { change ->
                     when (change) {
                         is Change.Load -> copy(value = "loading") + Action.Load
@@ -129,6 +135,8 @@ class KnotSingleActionTest {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
+            }
+            changes {
                 reduce { change ->
                     when (change) {
                         is Change.Load -> copy(value = "loading") + Action.Load

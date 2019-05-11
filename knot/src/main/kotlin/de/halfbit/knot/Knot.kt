@@ -30,11 +30,14 @@ import io.reactivex.subjects.PublishSubject
  * [Effect] is a convenient wrapper class containing the new [State] and an optional [Action]. If
  * [Action] is present, Knot will perform it and provide resulting [Change] back to *Reducer*.
  *
- * Example:
+ * Example below shows the Knot which is capable of loading data, handling success and failure
+ * loading results and reloading data when an external "data changed" signal is received.
  * ```
  *  val knot = knot {
  *      state {
  *          initial = State.Initial
+ *      }
+ *      changes {
  *          reduce { change ->
  *              when (change) {
  *                  is Change.Load -> State.Loading.only + Action.Load
@@ -46,15 +49,20 @@ import io.reactivex.subjects.PublishSubject
  *      actions {
  *          perform<Action.Load> { action ->
  *              action
- *                  .flatMapSingle<Payload> { api.load() }
+ *                  .switchMapSingle<Payload> { api.load() }
  *                  .map<Change> { Change.Load.Success(it) }
  *                  .onErrorReturn { Change.Load.Failure(it) }
  *              }
  *          }
  *      }
+ *      events {
+ *          transform {
+ *              observer.dataChangedSignal.map { Change.Load }
+ *          }
+ *      }
  *  }
  *
- *  knot.state.subscribe { println($it) }
+ *  knot.state.subscribe { println(it) }
  * ```
  */
 interface Knot<State : Any, Change : Any, Action : Any> {

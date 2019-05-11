@@ -30,8 +30,16 @@ internal constructor() {
             .also {
                 block(it)
                 initialState = it.initial
-                reduce = it.reduce
                 observeOn = it.observeOn
+            }
+    }
+
+    /** A section for [Change] related declarations. */
+    fun changes(block: ChangesBuilder<State, Change, Action>.() -> Unit) {
+        ChangesBuilder<State, Change, Action>()
+            .also {
+                block(it)
+                reduce = it.reduce
                 reduceOn = it.reduceOn
             }
     }
@@ -58,13 +66,17 @@ internal constructor() {
     @KnotDsl
     class StateBuilder<State : Any, Change : Any, Action : Any>
     internal constructor() {
-        internal var reduce: Reduce<State, Change, Action>? = null
-
         /** Mandatory initial [State] of the [Knot]. */
         var initial: State? = null
 
         /** An optional [Scheduler] used for dispatching state changes. */
         var observeOn: Scheduler? = null
+    }
+
+    @KnotDsl
+    class ChangesBuilder<State : Any, Change : Any, Action : Any>
+    internal constructor() {
+        internal var reduce: Reduce<State, Change, Action>? = null
 
         /** An optional [Scheduler] used for reduce function. */
         var reduceOn: Scheduler? = null
@@ -78,13 +90,15 @@ internal constructor() {
          *
          * Example:
          * ```
-         *    reduce { change ->
-         *       when (change) {
-         *          is Change.Load -> copy(value = "loading") + Action.Load
-         *          is Change.Load.Success -> copy(value = change.payload).only
-         *          is Change.Load.Failure -> copy(value = "failed").only
-         *       }
-         *    }
+         *  changes {
+         *      reduce { change ->
+         *          when (change) {
+         *              is Change.Load -> copy(value = "loading") + Action.Load
+         *              is Change.Load.Success -> copy(value = change.payload).only
+         *              is Change.Load.Failure -> copy(value = "failed").only
+         *          }
+         *      }
+         *  }
          * ```
          */
         fun reduce(reduce: Reduce<State, Change, Action>) {
@@ -114,12 +128,14 @@ internal constructor() {
          *
          * Example:
          * ```
-         *    perform<Action.Load> { action ->
-         *       action
-         *          .flatMapSingle<Payload> { api.load() }
-         *          .map<Change> { Change.Load.Success(it) }
-         *          .onErrorReturn { Change.Load.Failure(it) }
-         *    }
+         *  actions {
+         *      perform<Action.Load> { action ->
+         *          action
+         *              .flatMapSingle<Payload> { api.load() }
+         *              .map<Change> { Change.Load.Success(it) }
+         *              .onErrorReturn { Change.Load.Failure(it) }
+         *      }
+         *  }
          * ```
          */
         inline fun <reified A : Action> perform(noinline transformer: ActionTransformer<A, Change>) {
@@ -138,10 +154,12 @@ internal constructor() {
          *
          * Example:
          * ```
+         *  events {
          *      transform {
          *          userLocationObserver
          *              .map { Change.UserLocationUpdated(it) }
          *      }
+         *  }
          * ```
          */
         fun transform(transformer: EventTransformer<Change>) {
