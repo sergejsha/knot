@@ -22,6 +22,68 @@ Knot helps managing application state by reacting on events and performing async
 
 `Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to `Reducer`.
 
+# Getting Started
+
+The example below declares a Knot capable of loading data, handling *Success* and *Failure* loading results and reloading data automatically when an external *Data Changed* signal gets received. It also writes all `State` mutations as well as all processed `Changes` and `Actions` in console.
+
+```kotlin
+sealed class State {
+   object Empty : State()
+   object Loading : State()
+   data class Content(val data: String): State()
+   data class Failed(val error: Throwable)
+}
+
+sealed class Change {
+   object Load : Change() {
+      data class Success(val data: String) : Change()
+      data class Failure(val error: Throwable): Change()
+   }
+}
+
+sealed class Action {
+   object Load : Action()
+}
+
+val knot = knot<State, Change, Action> {
+    state {
+        initial = State.Empty
+    }
+    changes {
+        reduce { change ->
+            when (change) {
+                is Change.Load -> State.Loading + Action.Load
+                is Change.Load.Success -> State.Content(data).only
+                is Change.Load.Failure -> State.Failed(error).only
+            }
+        }
+    }
+    actions {
+        perform<Action.Load> { action ->
+            action
+                .switchMapSingle<Payload> { api.load() }
+                .map<Change> { Change.Load.Success(it) }
+                .onErrorReturn { Change.Load.Failure(it) }
+            }
+        }
+    }
+    events {
+        transform {
+            dataChangeObserver.signal.map { Change.Load }
+        }
+    }
+    watch {
+        state { println("state: $it") }
+        changes { println("change: $it") }
+        actions { println("action: $it") }
+    }
+}
+
+knot.change.accept(Change.Load)
+```
+
+Notice how inside `reduce` function a new `State` can be combined with `Action` using `+` operator. Pure `State` can be returned from the reducer by adding `.only` suffix to the `State`.
+
 # Composition
 
 If your knot becomes big and you want to improve its maintainability and extensibility you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Prime`'s. 
