@@ -103,6 +103,14 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Testable - reducers and transformers are easy to test. 
 * Why not?
 
+
+# Download
+```kotlin
+dependencies {
+    implementation 'de.halfbit:knot:<version>'
+}
+```
+
 # Inspiration
 Knot was inspired by two awesome projects
 * Krate https://github.com/gustavkarlsson/krate
