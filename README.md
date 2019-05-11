@@ -86,7 +86,7 @@ Notice how inside `reduce` function a new `State` can be combined with `Action` 
 
 # Composition
 
-If your knot becomes big and you want to improve its maintainability and extensibility you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Prime`'s. 
+If your knot becomes big and you want to improve its maintainability and extensibility you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
 
 <img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
 
@@ -94,14 +94,13 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 
 # Why Knot?
 
-* Structured - helps writing better structured and less buggy code.
+* Predictable - state is the single source of truth.
+* Side-effect free reducer - by desing.
 * Scalable - single knots can be combined together to build more complex application logic.
 * Decomposable - complex knots can be decomposed into primes by related functionality.
-* Consice - it has minimalistic API and compact implementation.
-* Consistent - state is the single source of truth.
-* Side-effect free reducer - by desing.
+* Structured - easy to read and write declarative API for writing better structured and less buggy code.
+* Concise - it has minimalistic API and compact implementation.
 * Testable - reducers and transformers are easy to test. 
-* DSL - easy to read and write declarative configuration language.
 * Why not?
 
 # Inspiration
