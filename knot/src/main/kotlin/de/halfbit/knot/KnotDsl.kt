@@ -226,6 +226,12 @@ internal constructor() {
         fun action(watcher: Watcher<Action>) {
             actionInterceptors += WatchingInterceptor(watcher)
         }
+
+        fun any(watcher: Watcher<Any>) {
+            stateInterceptors += WatchingInterceptor(watcher as Watcher<State>)
+            changeInterceptors += WatchingInterceptor(watcher as Watcher<Change>)
+            actionInterceptors += WatchingInterceptor(watcher as Watcher<Action>)
+        }
     }
 }
 
