@@ -57,6 +57,10 @@ internal constructor() {
         EventsBuilder(eventTransformers).also(block)
     }
 
+    fun intercept(block: InterceptBuilder<State, Change, Action>.() -> Unit) {
+        InterceptBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
+    }
+
     fun watch(block: WatchBuilder<State, Change, Action>.() -> Unit) {
         WatchBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
     }
@@ -206,7 +210,6 @@ internal constructor() {
         }
     }
 
-
     @KnotDsl
     class WatchBuilder<State : Any, Change : Any, Action : Any>
     internal constructor(
@@ -231,6 +234,27 @@ internal constructor() {
             stateInterceptors += WatchingInterceptor(watcher as Watcher<State>)
             changeInterceptors += WatchingInterceptor(watcher as Watcher<Change>)
             actionInterceptors += WatchingInterceptor(watcher as Watcher<Action>)
+        }
+    }
+
+    @KnotDsl
+    class InterceptBuilder<State : Any, Change : Any, Action : Any>
+    internal constructor(
+        private val stateInterceptors: MutableList<Interceptor<State>>,
+        private val changeInterceptors: MutableList<Interceptor<Change>>,
+        private val actionInterceptors: MutableList<Interceptor<Action>>
+    ) {
+
+        fun state(interceptor: Interceptor<State>) {
+            stateInterceptors += interceptor
+        }
+
+        fun change(interceptor: Interceptor<Change>) {
+            changeInterceptors += interceptor
+        }
+
+        fun action(interceptor: Interceptor<Action>) {
+            actionInterceptors += interceptor
         }
     }
 }
