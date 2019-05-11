@@ -83,7 +83,10 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
     reduceOn: Scheduler?,
     reducer: Reducer<State, Change, Action>,
     eventTransformers: List<EventTransformer<Change>>,
-    actionTransformers: List<ActionTransformer<Action, Change>>
+    actionTransformers: List<ActionTransformer<Action, Change>>,
+    stateInterceptors: List<Interceptor<State>>,
+    changeInterceptors: List<Interceptor<Change>>,
+    actionInterceptors: List<Interceptor<Action>>
 ) : Knot<State, Change, Action> {
 
     private val changeSubject = PublishSubject.create<Change>()
@@ -95,11 +98,18 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
         .merge(
             mutableListOf<Observable<Change>>().apply {
                 add(changeSubject)
-                eventTransformers.map { add(it.invoke()) }
-                actionTransformers.map { add(it.invoke(actionSubject)) }
+                eventTransformers.map { transform ->
+                    add(transform())
+                }
+                actionSubject
+                    .intercept(actionInterceptors)
+                    .let { action ->
+                        actionTransformers.map { transform -> add(transform(action)) }
+                    }
             }
         )
         .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
+        .intercept(changeInterceptors)
         .serialize()
         .scan(initialState) { state, change ->
             reducer(state, change)
@@ -107,7 +117,12 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
                 .state
         }
         .let { state -> observeOn?.let { state.observeOn(it) } ?: state }
+        .intercept(stateInterceptors)
         .distinctUntilChanged()
         .replay(1)
         .also { disposable.add(it.connect()) }
+
+    private fun <T> Observable<T>.intercept(interceptors: List<Interceptor<T>>): Observable<T> =
+        interceptors.fold(this) { state, intercept -> intercept(state) }
+
 }
