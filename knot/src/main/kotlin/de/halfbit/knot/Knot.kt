@@ -17,39 +17,39 @@ import io.reactivex.subjects.PublishSubject
  * [State] represents an immutable partial state of an Android application. It can be a state
  * of a screen or a state of an internal headless component, like repository.
  *
- * [Change] is an immutable data object with an optional payload intended for changing the [State].
- * A [Change] can be produced from an external event or be a result of execution of an *Action*.
+ * [Change] is an immutable data object with an optional payload intended for changing the *State*.
+ * A *Change* can be produced from an external event or be a result of execution of an *Action*.
  *
- * [Action] is a synchronous or an asynchronous operation which, when completed, can emit a new [Change].
+ * [Action] is a synchronous or an asynchronous operation which, when completed, can emit a new *Change*.
  *
- * *Reducer* is a pure function that takes the previous [State] and a [Change] as arguments and returns
- * the new [State] and an optional [Action] wrapped by [Effect] class. *Reducer* in Knot is designer
- * to stays side-effects free because each side-effect can be turned into an [Action] and returned from
- * *Reducer* function together with a new [State].
+ * [Reducer] is a pure function that takes the previous *State* and a *Change* as arguments and returns
+ * the new *State* and an optional *Action* wrapped by *Effect* class. *Reducer* in Knot is designer
+ * to stays side-effects free because each side-effect can be turned into an *Action* and returned from
+ * *Reducer* function together with a new *State*.
  *
- * [Effect] is a convenient wrapper class containing the new [State] and an optional [Action]. If
- * [Action] is present, Knot will perform it and provide resulting [Change] back to *Reducer*.
+ * [Effect] is a convenient wrapper class containing the new *State* and an optional *Action*. If
+ * *Action* is present, Knot will perform it and provide resulting *Change* back to *Reducer*.
  *
  * Example below shows the Knot which is capable of loading data, handling success and failure
  * loading results and reloading data when an external "data changed" signal is received.
  * ```
  *  val knot = knot {
  *      state {
- *          initial = State.Initial
+ *          initial = State.Empty
  *      }
  *      changes {
  *          reduce { change ->
  *              when (change) {
- *                  is Change.Load -> State.Loading.only + Action.Load
+ *                  is Change.Load -> State.Loading + Action.Load
  *                  is Change.Load.Success -> State.Content(data).only
- *                  is Change.Load.Failure -> State.Error(error).only
+ *                  is Change.Load.Failure -> State.Failed(error).only
  *              }
  *          }
  *      }
  *      actions {
  *          perform<Action.Load> { action ->
  *              action
- *                  .switchMapSingle<Payload> { api.load() }
+ *                  .switchMapSingle<String> { api.load() }
  *                  .map<Change> { Change.Load.Success(it) }
  *                  .onErrorReturn { Change.Load.Failure(it) }
  *              }
@@ -57,17 +57,15 @@ import io.reactivex.subjects.PublishSubject
  *      }
  *      events {
  *          transform {
- *              observer.dataChangedSignal.map { Change.Load }
+ *              dataChangeObserver.signal.map { Change.Load }
  *          }
  *      }
  *      watch {
- *          state { println("state: $it") }
- *          change { println("change: $it") }
- *          action { println("action: $it") }
+ *          any { println(it) }
  *      }
  *  }
  *
- *  knot.state.subscribe { println(it) }
+ *  knot.change.accept(Change.Load)
  * ```
  */
 interface Knot<State : Any, Change : Any, Action : Any> {

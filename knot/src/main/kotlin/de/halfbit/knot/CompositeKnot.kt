@@ -17,9 +17,9 @@ import kotlin.reflect.KClass
  * [Flowchart diagram](https://github.com/beworker/knot/raw/master/docs/diagrams/flowchart-composite-knot.png)
  *
  * [Prime] defines its own [Change]'s, [Action]'s and *Reducer* for own changes. It's only the [State], what
- * is shared between the [Prime]'s. In that respect each [Prime] can be considered to be a separate knot
- * working on a shared [State]. Once all [Prime]'s are defined, they can be composed together and provided
- * though [compose] function to [CompositeKnot] which implements standard knot interface.
+ * is shared between the *Primes*. In that respect each *Prime* can be considered to be a separate [Knot]
+ * working on a shared *State*. Once all *Primes* are defined, they can be composed together and provided
+ * though [compose] function to [CompositeKnot] which implements standard [Knot] interface.
  */
 interface CompositeKnot<State : Any, Change : Any, Action : Any> : Knot<State, Change, Action> {
     fun compose(composition: Composition<State, Change, Action>)
@@ -49,7 +49,7 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
     override val disposable = CompositeDisposable()
     override val change = Consumer<Change> {
         if (!composed.get()) {
-            error("Call compose() before dispatching any change.")
+            error("compose() must be called before emitting any change.")
         }
         changeSubject.onNext(it)
     }
