@@ -7,7 +7,7 @@ interface Prime<State : Any, Change : Any, Action : Any> {
 }
 
 internal class DefaultPrime<State : Any, Change : Any, Action : Any>(
-    private val reducers: Map<KClass<out Change>, Reduce<State, Change, Action>>,
+    private val reducers: Map<KClass<out Change>, Reducer<State, Change, Action>>,
     private val eventTransformers: List<EventTransformer<Change>>,
     private val actionTransformers: List<ActionTransformer<Action, Change>>
 ) : Prime<State, Change, Action> {

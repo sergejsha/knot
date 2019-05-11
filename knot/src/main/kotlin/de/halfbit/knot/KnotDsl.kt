@@ -20,7 +20,7 @@ internal constructor() {
     private var initialState: State? = null
     private var observeOn: Scheduler? = null
     private var reduceOn: Scheduler? = null
-    private var reduce: Reduce<State, Change, Action>? = null
+    private var reduce: Reducer<State, Change, Action>? = null
     private val eventTransformers = mutableListOf<EventTransformer<Change>>()
     private val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
 
@@ -39,7 +39,7 @@ internal constructor() {
         ChangesBuilder<State, Change, Action>()
             .also {
                 block(it)
-                reduce = it.reduce
+                reduce = it.reducer
                 reduceOn = it.reduceOn
             }
     }
@@ -58,7 +58,7 @@ internal constructor() {
         initialState = checkNotNull(initialState) { "knot { state { initial } } must be set" },
         observeOn = observeOn,
         reduceOn = reduceOn,
-        reduce = checkNotNull(reduce) { "knot { state { reduce } } must be set" },
+        reducer = checkNotNull(reduce) { "knot { state { reduce } } must be set" },
         eventTransformers = eventTransformers,
         actionTransformers = actionTransformers
     )
@@ -76,7 +76,7 @@ internal constructor() {
     @KnotDsl
     class ChangesBuilder<State : Any, Change : Any, Action : Any>
     internal constructor() {
-        internal var reduce: Reduce<State, Change, Action>? = null
+        internal var reducer: Reducer<State, Change, Action>? = null
 
         /** An optional [Scheduler] used for reduce function. */
         var reduceOn: Scheduler? = null
@@ -101,8 +101,8 @@ internal constructor() {
          *  }
          * ```
          */
-        fun reduce(reduce: Reduce<State, Change, Action>) {
-            this.reduce = reduce
+        fun reduce(reducer: Reducer<State, Change, Action>) {
+            this.reducer = reducer
         }
 
         /** Turns [State] into an [Effect] without [Action]. */
@@ -169,7 +169,7 @@ internal constructor() {
 }
 
 /** A function accepting the *State* and a *Change* and returning a new *State*. */
-typealias Reduce<State, Change, Action> = State.(change: Change) -> Effect<State, Action>
+typealias Reducer<State, Change, Action> = State.(change: Change) -> Effect<State, Action>
 
 /** A function returning an [Observable] *Change*. */
 typealias EventTransformer<Change> = () -> Observable<Change>
@@ -185,3 +185,6 @@ class TypedActionTransformer<Action : Any, Change : Any, A : Action>(
         return transform(action.ofType(type))
     }
 }
+
+typealias Interceptor<Type> = (value: Observable<Type>) -> Observable<Type>
+typealias Watcher<Type> = (value: Observable<Type>) -> Unit

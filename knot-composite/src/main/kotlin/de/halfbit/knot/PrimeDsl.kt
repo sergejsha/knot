@@ -15,7 +15,7 @@ annotation class PrimeDsl
 @PrimeDsl
 class PrimeBuilder<State : Any, Change : Any, Action : Any>
 internal constructor() {
-    private val reducers = mutableMapOf<KClass<out Change>, Reduce<State, Change, Action>>()
+    private val reducers = mutableMapOf<KClass<out Change>, Reducer<State, Change, Action>>()
     private val eventTransformers = mutableListOf<EventTransformer<Change>>()
     private val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
 
@@ -40,15 +40,15 @@ internal constructor() {
     @PrimeDsl
     class StateBuilder<State : Any, Change : Any, Action : Any>
     internal constructor(
-        private val reducers: MutableMap<KClass<out Change>, Reduce<State, Change, Action>>
+        private val reducers: MutableMap<KClass<out Change>, Reducer<State, Change, Action>>
     ) {
-        fun reduce(changeType: KClass<out Change>, reduce: Reduce<State, Change, Action>) {
+        fun reduce(changeType: KClass<out Change>, reduce: Reducer<State, Change, Action>) {
             reducers[changeType] = reduce
         }
 
-        inline fun <reified C : Change> reduce(noinline reduce: Reduce<State, C, Action>) {
+        inline fun <reified C : Change> reduce(noinline reduce: Reducer<State, C, Action>) {
             @Suppress("UNCHECKED_CAST")
-            this.reduce(C::class, reduce as Reduce<State, Change, Action>)
+            this.reduce(C::class, reduce as Reducer<State, Change, Action>)
         }
 
         fun State.only(): Effect<State, Action> = Effect(this)

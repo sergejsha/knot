@@ -26,7 +26,7 @@ interface CompositeKnot<State : Any, Change : Any, Action : Any> : Knot<State, C
 }
 
 class Composition<State : Any, Change : Any, Action : Any> {
-    val reducers = mutableMapOf<KClass<out Change>, Reduce<State, Change, Action>>()
+    val reducers = mutableMapOf<KClass<out Change>, Reducer<State, Change, Action>>()
     val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
     val eventTransformers = mutableListOf<EventTransformer<Change>>()
 }

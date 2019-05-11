@@ -81,7 +81,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
     initialState: State,
     observeOn: Scheduler?,
     reduceOn: Scheduler?,
-    reduce: Reduce<State, Change, Action>,
+    reducer: Reducer<State, Change, Action>,
     eventTransformers: List<EventTransformer<Change>>,
     actionTransformers: List<ActionTransformer<Action, Change>>
 ) : Knot<State, Change, Action> {
@@ -102,7 +102,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
         .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
         .serialize()
         .scan(initialState) { state, change ->
-            reduce(state, change)
+            reducer(state, change)
                 .also { it.action?.let { action -> actionSubject.onNext(action) } }
                 .state
         }
