@@ -45,7 +45,7 @@ internal constructor() {
     }
 
     internal fun build(): CompositeKnot<State, Change, Action> = DefaultCompositeKnot(
-        initialState = checkNotNull(initialState) { "compositeKnot { state { initial } } must be set" },
+        initialState = checkNotNull(initialState) { "state { initial } must be set" },
         observeOn = observeOn,
         reduceOn = reduceOn,
         stateInterceptors = stateInterceptors,

@@ -69,10 +69,10 @@ internal constructor() {
     }
 
     internal fun build(): Knot<State, Change, Action> = DefaultKnot(
-        initialState = checkNotNull(initialState) { "knot { state { initial } } must be set" },
+        initialState = checkNotNull(initialState) { "state { initial } must be set" },
         observeOn = observeOn,
         reduceOn = reduceOn,
-        reducer = checkNotNull(reducer) { "knot { state { reduce } } must be set" },
+        reducer = checkNotNull(reducer) { "changes { reduce } must be set" },
         eventTransformers = eventTransformers,
         actionTransformers = actionTransformers,
         stateInterceptors = stateInterceptors,
