@@ -60,6 +60,11 @@ import io.reactivex.subjects.PublishSubject
  *              observer.dataChangedSignal.map { Change.Load }
  *          }
  *      }
+ *      watch {
+ *          state { println("state: $it") }
+ *          change { println("change: $it") }
+ *          action { println("action: $it") }
+ *      }
  *  }
  *
  *  knot.state.subscribe { println(it) }
