@@ -24,7 +24,7 @@ Knot helps managing application state by reacting on events and performing async
 
 # Getting Started
 
-The example below declares a Knot capable of loading data, handling *Success* and *Failure* loading results and reloading data automatically when an external *Data Changed* signal gets received. It also writes all `State` mutations as well as all processed `Changes` and `Actions` in console.
+The example below declares a Knot capable of loading data, handling *Success* and *Failure* loading results and reloading data automatically when an external *DataChanged* signal gets received. It also writes all `State` mutations as well as all processed `Changes` and `Actions` in console.
 
 ```kotlin
 sealed class State {
