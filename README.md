@@ -4,7 +4,7 @@
 [![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.halfbit%22%20a%3A%22knot%22)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
-Consice reactive state container library for Android applications.
+Concise reactive state container library for Android applications.
 
 # Concept
 
@@ -102,6 +102,14 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Concise - it has minimalistic API and compact implementation.
 * Testable - reducers and transformers are easy to test. 
 * Why not?
+
+
+# Download
+```kotlin
+dependencies {
+    implementation 'de.halfbit:knot:<version>'
+}
+```
 
 # Inspiration
 Knot was inspired by two awesome projects
