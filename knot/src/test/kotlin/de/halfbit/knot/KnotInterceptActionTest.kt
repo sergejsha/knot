@@ -14,7 +14,7 @@ class KnotInterceptActionTest {
     private object Action
 
     @Test
-    fun `actions { intercept } receives Action`() {
+    fun `actions { intercept } receives Action with performers`() {
         val interceptor = PublishSubject.create<Action>()
         val observer = interceptor.test()
         val knot = knot<State, Change, Action> {
@@ -30,6 +30,7 @@ class KnotInterceptActionTest {
                 }
             }
             actions {
+                perform<Action> { action -> action.map { Change.Done } }
                 perform<Action> { action -> action.map { Change.Done } }
                 intercept { action -> action.doOnNext { interceptor.onNext(it) } }
             }
@@ -39,7 +40,31 @@ class KnotInterceptActionTest {
     }
 
     @Test
-    fun `intercept { action } receives Action`() {
+    fun `actions { intercept } receives Action without performers`() {
+        val interceptor = PublishSubject.create<Action>()
+        val observer = interceptor.test()
+        val knot = knot<State, Change, Action> {
+            state {
+                initial = State
+            }
+            changes {
+                reduce { change ->
+                    when (change) {
+                        Change.PerformAction -> this + Action
+                        Change.Done -> this.only
+                    }
+                }
+            }
+            actions {
+                intercept { action -> action.doOnNext { interceptor.onNext(it) } }
+            }
+        }
+        knot.change.accept(Change.PerformAction)
+        observer.assertValues(Action)
+    }
+
+    @Test
+    fun `intercept { action } receives Action with performers`() {
         val interceptor = PublishSubject.create<Action>()
         val observer = interceptor.test()
         val knot = knot<State, Change, Action> {
@@ -56,6 +81,31 @@ class KnotInterceptActionTest {
             }
             actions {
                 perform<Action> { action -> action.map { Change.Done } }
+                perform<Action> { action -> action.map { Change.Done } }
+            }
+            intercept {
+                action { action -> action.doOnNext { interceptor.onNext(it) } }
+            }
+        }
+        knot.change.accept(Change.PerformAction)
+        observer.assertValues(Action)
+    }
+
+    @Test
+    fun `intercept { action } receives Action without performers`() {
+        val interceptor = PublishSubject.create<Action>()
+        val observer = interceptor.test()
+        val knot = knot<State, Change, Action> {
+            state {
+                initial = State
+            }
+            changes {
+                reduce { change ->
+                    when (change) {
+                        Change.PerformAction -> this + Action
+                        Change.Done -> this.only
+                    }
+                }
             }
             intercept {
                 action { action -> action.doOnNext { interceptor.onNext(it) } }

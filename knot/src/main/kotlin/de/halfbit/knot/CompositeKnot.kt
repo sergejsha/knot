@@ -72,11 +72,7 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
                     actionSubject
                         .intercept(actionInterceptors)
                         .intercept(composition.actionInterceptors)
-                        .let { action ->
-                            composition.actionTransformers.map { transform ->
-                                this += transform(action)
-                            }
-                        }
+                        .bind(composition.actionTransformers) { this += it }
                     composition.eventTransformers.map { transformer -> this += transformer() }
                     composition.stateTriggers.map { trigger -> this += trigger(stateSubject) }
                 }

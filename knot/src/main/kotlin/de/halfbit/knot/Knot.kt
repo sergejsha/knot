@@ -115,15 +115,11 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
     override val state: Observable<State> = Observable
         .merge(
             mutableListOf<Observable<Change>>().apply {
-                add(changeSubject)
-                eventTransformers.map { transform ->
-                    add(transform())
-                }
+                this += changeSubject
                 actionSubject
                     .intercept(actionInterceptors)
-                    .let { action ->
-                        actionTransformers.map { transform -> add(transform(action)) }
-                    }
+                    .bind(actionTransformers) { this += it }
+                eventTransformers.map { transform -> this += transform() }
             }
         )
         .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
@@ -144,3 +140,11 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
 
 internal fun <T> Observable<T>.intercept(interceptors: List<Interceptor<T>>): Observable<T> =
     interceptors.fold(this) { state, intercept -> intercept(state) }
+
+internal fun <Action, Change> Observable<Action>.bind(
+    actionTransformers: List<ActionTransformer<Action, Change>>,
+    append: (observable: Observable<Change>) -> Unit
+) {
+    if (actionTransformers.isEmpty()) append(flatMap { Observable.empty<Change>() })
+    else share().let { shared -> actionTransformers.map { transform -> append(transform(shared)) } }
+}
