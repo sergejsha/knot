@@ -94,8 +94,8 @@ internal constructor() {
          * Mandatory reduce function which receives the current [State] and a [Change]
          * and must return [Effect] with a new [State] and an optional [Action].
          *
-         * New *State* and *Action* can be joined together using overloaded [State.plus()]
-         * operator. For returning *State* without action call *.only* on the state.
+         * New `State` and `Action` can be joined together using overloaded [State.plus()]
+         * operator. For returning `State` without action call *.only* on the state.
          *
          * Example:
          * ```
@@ -120,8 +120,13 @@ internal constructor() {
         }
 
         /** A function for watching [Change] emissions. */
-        fun watch(watcher: Watcher<Change>) {
+        fun watchAll(watcher: Watcher<Change>) {
             changeInterceptors += WatchingInterceptor(watcher)
+        }
+
+        /** A function for watching emissions of all `Changes`. */
+        inline fun <reified T : Change> watch(noinline watcher: Watcher<T>) {
+            watchAll(TypedWatcher(T::class.java, watcher))
         }
 
         /** Turns [State] into an [Effect] without [Action]. */
@@ -129,6 +134,9 @@ internal constructor() {
 
         /** Combines [State] and [Action] into [Effect]. */
         operator fun State.plus(action: Action) = Effect(this, action)
+
+        /** Throws [IllegalStateException] with current [State] and given [Change] in its message. */
+        fun State.unexpected(change: Change): Nothing = error("Unexpected $change in $this")
     }
 }
 
@@ -148,9 +156,14 @@ internal constructor(
         stateInterceptors += interceptor
     }
 
-    /** A function for watching [State] mutations. */
-    fun watch(watcher: Watcher<State>) {
+    /** A function for watching mutations of any [State]. */
+    fun watchAll(watcher: Watcher<State>) {
         stateInterceptors += WatchingInterceptor(watcher)
+    }
+
+    /** A function for watching mutations of all `States`. */
+    inline fun <reified T : State> watch(noinline watcher: Watcher<T>) {
+        watchAll(TypedWatcher(T::class.java, watcher))
     }
 }
 
@@ -191,8 +204,13 @@ internal constructor(
     }
 
     /** A function for watching [Action] emissions. */
-    fun watch(watcher: Watcher<Action>) {
+    fun watchAll(watcher: Watcher<Action>) {
         actionInterceptors += WatchingInterceptor(watcher)
+    }
+
+    /** A function for watching emissions of all `Changes`. */
+    inline fun <reified T : Action> watch(noinline watcher: Watcher<T>) {
+        watchAll(TypedWatcher(T::class.java, watcher))
     }
 }
 
@@ -244,7 +262,7 @@ internal constructor(
     }
 
     /** A function for watching [State] mutations as well as [Change] and [Action] emissions. */
-    fun any(watcher: Watcher<Any>) {
+    fun all(watcher: Watcher<Any>) {
         stateInterceptors += WatchingInterceptor(watcher as Watcher<State>)
         changeInterceptors += WatchingInterceptor(watcher as Watcher<Change>)
         actionInterceptors += WatchingInterceptor(watcher as Watcher<Action>)
@@ -275,7 +293,8 @@ internal constructor(
     }
 }
 
-class TypedActionTransformer<Action : Any, Change : Any, A : Action>(
+@PublishedApi
+internal class TypedActionTransformer<Action : Any, Change : Any, A : Action>(
     private val type: Class<A>,
     private val transform: ActionTransformer<A, Change>
 ) : ActionTransformer<Action, Change> {
@@ -286,4 +305,16 @@ class TypedActionTransformer<Action : Any, Change : Any, A : Action>(
 
 internal class WatchingInterceptor<T>(private val watcher: Watcher<T>) : Interceptor<T> {
     override fun invoke(stream: Observable<T>): Observable<T> = stream.doOnNext(watcher)
+}
+
+@PublishedApi
+internal class TypedWatcher<Type : Any, T : Type>(
+    private val type: Class<T>,
+    private val watch: Watcher<T>
+) : Watcher<Type> {
+    override fun invoke(value: Type) {
+        if (type.isInstance(value)) {
+            watch(type.cast(value))
+        }
+    }
 }

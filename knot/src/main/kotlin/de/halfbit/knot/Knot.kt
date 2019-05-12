@@ -10,25 +10,25 @@ import io.reactivex.subjects.PublishSubject
 /**
  * Knot helps managing application state by reacting on events and performing asynchronous
  * actions in a structured way. There are five core concepts Knot defines: [State], [Change],
- * *Reducer*, [Effect] and [Action].
+ * `Reducer`, [Effect] and [Action].
  *
  * [Flowchart diagram](https://github.com/beworker/knot/raw/master/docs/diagrams/flowchart-knot.png)
  *
  * [State] represents an immutable partial state of an Android application. It can be a state
  * of a screen or a state of an internal headless component, like repository.
  *
- * [Change] is an immutable data object with an optional payload intended for changing the *State*.
- * A *Change* can be produced from an external event or be a result of execution of an *Action*.
+ * [Change] is an immutable data object with an optional payload intended for changing the `State`.
+ * A `Change` can be produced from an external event or be a result of execution of an `Action`.
  *
- * [Action] is a synchronous or an asynchronous operation which, when completed, can emit a new *Change*.
+ * [Action] is a synchronous or an asynchronous operation which, when completed, can emit a new `Change`.
  *
- * [Reducer] is a pure function that takes the previous *State* and a *Change* as arguments and returns
- * the new *State* and an optional *Action* wrapped by *Effect* class. *Reducer* in Knot is designer
- * to stays side-effects free because each side-effect can be turned into an *Action* and returned from
- * *Reducer* function together with a new *State*.
+ * [Reducer] is a pure function that takes the previous `State` and a `Change` as arguments and returns
+ * the new `State` and an optional `Action` wrapped by `Effect` class. `Reducer` in Knot is designer
+ * to stays side-effects free because each side-effect can be turned into an `Action` and returned from
+ * `Reducer` function together with a new `State`.
  *
- * [Effect] is a convenient wrapper class containing the new *State* and an optional *Action*. If
- * *Action* is present, Knot will perform it and provide resulting *Change* back to *Reducer*.
+ * [Effect] is a convenient wrapper class containing the new `State` and an optional `Action`. If
+ * `Action` is present, Knot will perform it and provide resulting `Change` back to `Reducer`.
  *
  * Example below shows the Knot which is capable of loading data, handling success and failure
  * loading results and reloading data when an external "data changed" signal is received.
@@ -80,13 +80,13 @@ class Effect<State : Any, Action : Any>(
     val action: Action? = null
 )
 
-/** A function accepting the *State* and a *Change* and returning a new *State*. */
+/** A function accepting the `State` and a `Change` and returning a new `State`. */
 typealias Reducer<State, Change, Action> = State.(change: Change) -> Effect<State, Action>
 
-/** A function returning an [Observable] *Change*. */
+/** A function returning an [Observable] `Change`. */
 typealias EventTransformer<Change> = () -> Observable<Change>
 
-/** A function used for performing given *Action* and emitting resulting *Change* or *Changes*. */
+/** A function used for performing given `Action` and emitting resulting `Change` or *Changes*. */
 typealias ActionTransformer<Action, Change> = (action: Observable<Action>) -> Observable<Change>
 
 /** A function user for intercepting events of given type. */
@@ -134,9 +134,9 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
                 .also { it.action?.let { action -> actionSubject.onNext(action) } }
                 .state
         }
+        .distinctUntilChanged()
         .let { state -> observeOn?.let { state.observeOn(it) } ?: state }
         .intercept(stateInterceptors)
-        .distinctUntilChanged()
         .replay(1)
         .also { disposable.add(it.connect()) }
 

@@ -12,18 +12,20 @@ import kotlin.reflect.KClass
 /**
  * If your [Knot] becomes big and you want to improve its maintainability and extensibility you
  * may consider to decompose it. You start decomposition by grouping related functionality into,
- * in a certain sense, indecomposable pieces called [Prime]'s.
+ * in a certain sense, indecomposable pieces called `Primes`.
  *
  * [Flowchart diagram](https://github.com/beworker/knot/raw/master/docs/diagrams/flowchart-composite-knot.png)
  *
- * [Prime] defines its own [Change]'s, [Action]'s and *Reducer* for own changes. It's only the [State], what
- * is shared between the *Primes*. In that respect each *Prime* can be considered to be a separate [Knot]
- * working on a shared *State*. Once all *Primes* are defined, they can be composed together and provided
+ * [Prime] defines its own [Change]'s, [Action]'s and [Reducer] for own changes. It's only the [State], what
+ * is shared between the `Primes`. In that respect each `Prime` can be considered to be a separate [Knot]
+ * working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided
  * though [compose] function to [CompositeKnot] which implements standard [Knot] interface.
  */
 interface CompositeKnot<State : Any, Change : Any, Action : Any> : Knot<State, Change, Action> {
     fun compose(composition: Composition<State, Change, Action>)
 }
+
+typealias StateTrigger<State, Change> = (state: Observable<State>) -> Observable<Change>
 
 class Composition<State : Any, Change : Any, Action : Any> {
     val reducers = mutableMapOf<KClass<out Change>, Reducer<State, Change, Action>>()
@@ -32,6 +34,7 @@ class Composition<State : Any, Change : Any, Action : Any> {
     val stateInterceptors = mutableListOf<Interceptor<State>>()
     val changeInterceptors = mutableListOf<Interceptor<Change>>()
     val actionInterceptors = mutableListOf<Interceptor<Action>>()
+    val stateTriggers = mutableListOf<StateTrigger<State, Change>>()
 }
 
 internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
@@ -61,17 +64,21 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
         if (composed.get()) {
             error("compose() must be called just once.")
         }
+
         Observable
             .merge(
                 mutableListOf<Observable<Change>>().apply {
-                    add(changeSubject)
-                    composition.eventTransformers.map { add(it.invoke()) }
+                    this += changeSubject
                     actionSubject
                         .intercept(actionInterceptors)
                         .intercept(composition.actionInterceptors)
                         .let { action ->
-                            composition.actionTransformers.map { transform -> add(transform(action)) }
+                            composition.actionTransformers.map { transform ->
+                                this += transform(action)
+                            }
                         }
+                    composition.eventTransformers.map { transformer -> this += transformer() }
+                    composition.stateTriggers.map { trigger -> this += trigger(stateSubject) }
                 }
             )
             .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
@@ -84,12 +91,11 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
                     .also { it.action?.let { action -> actionSubject.onNext(action) } }
                     .state
             }
+            .distinctUntilChanged()
             .let { state -> observeOn?.let { state.observeOn(it) } ?: state }
             .intercept(stateInterceptors)
             .intercept(composition.stateInterceptors)
-            .distinctUntilChanged()
             .doOnSubscribe { composed.set(true) }
             .subscribe(stateSubject)
     }
-
 }

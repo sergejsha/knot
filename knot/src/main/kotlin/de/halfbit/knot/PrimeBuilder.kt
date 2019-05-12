@@ -1,5 +1,7 @@
 package de.halfbit.knot
 
+import io.reactivex.Maybe
+import io.reactivex.Observable
 import kotlin.reflect.KClass
 
 fun <State : Any, Change : Any, Action : Any> prime(
@@ -18,6 +20,12 @@ internal constructor() {
     private val stateInterceptors = mutableListOf<Interceptor<State>>()
     private val changeInterceptors = mutableListOf<Interceptor<Change>>()
     private val actionInterceptors = mutableListOf<Interceptor<Action>>()
+    private val stateTriggers = mutableListOf<StateTrigger<State, Change>>()
+
+    /** A section for [State] related declarations. */
+    fun state(block: StateBuilder<State, Change>.() -> Unit) {
+        StateBuilder(stateInterceptors, stateTriggers).also(block)
+    }
 
     /** A section for [Change] related declarations. */
     fun changes(block: ChangesBuilder<State, Change, Action>.() -> Unit) {
@@ -50,8 +58,51 @@ internal constructor() {
         actionTransformers = actionTransformers,
         stateInterceptors = stateInterceptors,
         changeInterceptors = changeInterceptors,
-        actionInterceptors = actionInterceptors
+        actionInterceptors = actionInterceptors,
+        stateTriggers = stateTriggers
     )
+
+    @KnotDsl
+    class StateBuilder<State : Any, Change : Any>
+    internal constructor(
+        private val stateInterceptors: MutableList<Interceptor<State>>,
+        private val stateTriggers: MutableList<StateTrigger<State, Change>>
+    ) {
+
+        /** A function for intercepting [State] mutations. */
+        fun intercept(interceptor: Interceptor<State>) {
+            stateInterceptors += interceptor
+        }
+
+        /** A function for watching mutations of any [State]. */
+        fun watchAll(watcher: Watcher<State>) {
+            stateInterceptors += WatchingInterceptor(watcher)
+        }
+
+        /** A function for watching mutations of all `States`. */
+        inline fun <reified T : State> watch(noinline watcher: Watcher<T>) {
+            watchAll(TypedWatcher(T::class.java, watcher))
+        }
+
+        @PublishedApi
+        internal fun onState(stateTrigger: StateTrigger<State, Change>) {
+            stateTriggers += stateTrigger
+        }
+
+        /**
+         * A functions emitting a [Change] when the [State] turns into a state of given type.
+         *
+         * This function is used when `State` is modeled using State Machine design pattern. It
+         * gets called one, right after the state of given type has been entered. If a `Prime`
+         * is responsible for state initialization, this is the initial trigger to launch such
+         * initialization.
+         *
+         * *Experimental, can be changed in next version*
+         */
+        inline fun <reified S : State> onEnter(noinline stateTrigger: StateTrigger<State, Change>) {
+            onState(OnEnterStateTrigger(S::class.java, stateTrigger))
+        }
+    }
 
     @KnotDsl
     class ChangesBuilder<State : Any, Change : Any, Action : Any>
@@ -64,8 +115,8 @@ internal constructor() {
          * Mandatory reduce function which receives the current [State] and a [Change]
          * and must return [Effect] with a new [State] and an optional [Action].
          *
-         * New *State* and *Action* can be joined together using overloaded [State.plus()]
-         * operator. For returning *State* without action call *.only* on the state.
+         * New `State` and `Action` can be joined together using overloaded [State.plus()]
+         * operator. For returning `State` without action call *.only* on the state.
          *
          * Example:
          * ```
@@ -104,5 +155,33 @@ internal constructor() {
 
         /** Combines [State] and [Action] into [Effect]. */
         operator fun State.plus(action: Action) = Effect(this, action)
+
+        /** Throws [IllegalStateException] with current [State] and given [Change] in its message. */
+        fun State.unexpected(change: Change): Nothing = error("Unexpected $change in $this")
     }
+}
+
+@PublishedApi
+internal class OnEnterStateTrigger<State : Any, Change : Any, S : State>(
+    private val type: Class<S>,
+    private val stateTrigger: StateTrigger<State, Change>
+) : StateTrigger<State, Change> {
+    override fun invoke(state: Observable<State>): Observable<Change> =
+        stateTrigger(
+            state
+                .map { Optional(it) }
+                .scan(Optional<State>()) { old, new ->
+                    if (new.isOfType(type) && !old.isOfType(type)) new
+                    else Optional()
+                }
+                .flatMapMaybe {
+                    if (it.value != null) Maybe.just(it.value)
+                    else Maybe.empty()
+                }
+        )
+}
+
+internal class Optional<T : Any>(val value: T? = null) {
+    fun isOfType(type: Class<out T>): Boolean =
+        value != null && value::class.java.isAssignableFrom(type)
 }
