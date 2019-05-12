@@ -10,7 +10,7 @@ import io.reactivex.subjects.PublishSubject
 /**
  * Knot helps managing application state by reacting on events and performing asynchronous
  * actions in a structured way. There are five core concepts Knot defines: [State], [Change],
- * `Reducer`, [Effect] and [Action].
+ * [Reducer], [Effect] and [Action].
  *
  * [Flowchart diagram](https://github.com/beworker/knot/raw/master/docs/diagrams/flowchart-knot.png)
  *
