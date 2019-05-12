@@ -175,7 +175,7 @@ internal constructor(
 ) {
 
     /** A function used for declaring an [ActionTransformer] function. */
-    fun performAny(transformer: ActionTransformer<Action, Change>) {
+    fun performAll(transformer: ActionTransformer<Action, Change>) {
         actionTransformers += transformer
     }
 
@@ -195,7 +195,7 @@ internal constructor(
      * ```
      */
     inline fun <reified A : Action> perform(noinline transformer: ActionTransformer<A, Change>) {
-        performAny(TypedActionTransformer(A::class.java, transformer))
+        performAll(TypedActionTransformer(A::class.java, transformer))
     }
 
     /** A function for intercepting [Action] emissions. */
