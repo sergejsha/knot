@@ -61,7 +61,7 @@ import io.reactivex.subjects.PublishSubject
  *          }
  *      }
  *      watch {
- *          any { println(it) }
+ *          all { println(it) }
  *      }
  *  }
  *
