@@ -252,12 +252,12 @@ internal constructor(
     }
 
     /** A function for watching [Change] emissions. */
-    fun change(watcher: Watcher<Change>) {
+    fun changes(watcher: Watcher<Change>) {
         changeInterceptors += WatchingInterceptor(watcher)
     }
 
     /** A function for watching [Action] emissions. */
-    fun action(watcher: Watcher<Action>) {
+    fun actions(watcher: Watcher<Action>) {
         actionInterceptors += WatchingInterceptor(watcher)
     }
 
@@ -283,12 +283,12 @@ internal constructor(
     }
 
     /** A function for intercepting [Change] emissions. */
-    fun change(interceptor: Interceptor<Change>) {
+    fun changes(interceptor: Interceptor<Change>) {
         changeInterceptors += interceptor
     }
 
     /** A function for intercepting [Action] emissions. */
-    fun action(interceptor: Interceptor<Action>) {
+    fun actions(interceptor: Interceptor<Action>) {
         actionInterceptors += interceptor
     }
 }

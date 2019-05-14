@@ -84,7 +84,7 @@ class KnotInterceptActionTest {
                 perform<Action> { action -> action.map { Change.Done } }
             }
             intercept {
-                action { action -> action.doOnNext { interceptor.onNext(it) } }
+                actions { action -> action.doOnNext { interceptor.onNext(it) } }
             }
         }
         knot.change.accept(Change.PerformAction)
@@ -108,7 +108,7 @@ class KnotInterceptActionTest {
                 }
             }
             intercept {
-                action { action -> action.doOnNext { interceptor.onNext(it) } }
+                actions { action -> action.doOnNext { interceptor.onNext(it) } }
             }
         }
         knot.change.accept(Change.PerformAction)

@@ -102,7 +102,7 @@ class KnotInterceptChangeTest {
                 reduce { this.only }
             }
             intercept {
-                change { change -> change.doOnNext { interceptor.onNext(it) } }
+                changes { change -> change.doOnNext { interceptor.onNext(it) } }
             }
         }
         knot.change.accept(Change.One)
@@ -133,7 +133,7 @@ class KnotInterceptChangeTest {
                 perform<Action> { it.flatMap { Observable.fromArray(Change.Two, Change.Two) } }
             }
             intercept {
-                change { change -> change.doOnNext { interceptor.onNext(it) } }
+                changes { change -> change.doOnNext { interceptor.onNext(it) } }
             }
         }
         knot.change.accept(Change.One)
@@ -160,7 +160,7 @@ class KnotInterceptChangeTest {
                 transform { externalSource.map { Change.Two } }
             }
             intercept {
-                change { change -> change.doOnNext { interceptor.onNext(it) } }
+                changes { change -> change.doOnNext { interceptor.onNext(it) } }
             }
         }
         knot.change.accept(Change.One)
