@@ -91,7 +91,7 @@ class KnotInterceptChangeTest {
     }
 
     @Test
-    fun `intercept { change } receives external Change`() {
+    fun `intercept { changes } receives external Change`() {
         val interceptor = PublishSubject.create<Change>()
         val observer = interceptor.test()
         val knot = knot<State, Change, Action> {
@@ -114,7 +114,7 @@ class KnotInterceptChangeTest {
     }
 
     @Test
-    fun `intercept { change } receives change from Action`() {
+    fun `intercept { changes } receives change from Action`() {
         val interceptor = PublishSubject.create<Change>()
         val observer = interceptor.test()
         val knot = knot<State, Change, Action> {
@@ -145,7 +145,7 @@ class KnotInterceptChangeTest {
     }
 
     @Test
-    fun `intercept { change } receives change from Event`() {
+    fun `intercept { changes } receives change from Event`() {
         val externalSource = PublishSubject.create<Unit>()
         val interceptor = PublishSubject.create<Change>()
         val observer = interceptor.test()

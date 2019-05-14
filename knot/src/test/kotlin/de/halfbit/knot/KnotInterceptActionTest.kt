@@ -64,7 +64,7 @@ class KnotInterceptActionTest {
     }
 
     @Test
-    fun `intercept { action } receives Action with performers`() {
+    fun `intercept { actions } receives Action with performers`() {
         val interceptor = PublishSubject.create<Action>()
         val observer = interceptor.test()
         val knot = knot<State, Change, Action> {
@@ -92,7 +92,7 @@ class KnotInterceptActionTest {
     }
 
     @Test
-    fun `intercept { action } receives Action without performers`() {
+    fun `intercept { actions } receives Action without performers`() {
         val interceptor = PublishSubject.create<Action>()
         val observer = interceptor.test()
         val knot = knot<State, Change, Action> {
