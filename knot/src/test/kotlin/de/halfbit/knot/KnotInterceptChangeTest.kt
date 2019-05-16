@@ -79,7 +79,7 @@ class KnotInterceptChangeTest {
                 intercept { change -> change.doOnNext { interceptor.onNext(it) } }
             }
             events {
-                transform { externalSource.map { Change.Two } }
+                source { externalSource.map { Change.Two } }
             }
         }
         knot.change.accept(Change.One)
@@ -157,7 +157,7 @@ class KnotInterceptChangeTest {
                 reduce { this.only }
             }
             events {
-                transform { externalSource.map { Change.Two } }
+                source { externalSource.map { Change.Two } }
             }
             intercept {
                 changes { change -> change.doOnNext { interceptor.onNext(it) } }

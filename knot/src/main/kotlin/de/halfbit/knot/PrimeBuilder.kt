@@ -15,7 +15,7 @@ fun <State : Any, Change : Any, Action : Any> prime(
 class PrimeBuilder<State : Any, Change : Any, Action : Any>
 internal constructor() {
     private val reducers = mutableMapOf<KClass<out Change>, Reducer<State, Change, Action>>()
-    private val eventTransformers = mutableListOf<EventTransformer<Change>>()
+    private val eventSources = mutableListOf<EventSource<Change>>()
     private val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
     private val stateInterceptors = mutableListOf<Interceptor<State>>()
     private val changeInterceptors = mutableListOf<Interceptor<Change>>()
@@ -39,7 +39,7 @@ internal constructor() {
 
     /** A section for *Event* related declarations. */
     fun events(block: EventsBuilder<Change>.() -> Unit) {
-        EventsBuilder(eventTransformers).also(block)
+        EventsBuilder(eventSources).also(block)
     }
 
     /** A section for declaring interceptors of [State], [Change] or [Action]. */
@@ -54,7 +54,7 @@ internal constructor() {
 
     internal fun build(): Prime<State, Change, Action> = DefaultPrime(
         reducers = reducers,
-        eventTransformers = eventTransformers,
+        eventSources = eventSources,
         actionTransformers = actionTransformers,
         stateInterceptors = stateInterceptors,
         changeInterceptors = changeInterceptors,

@@ -81,18 +81,18 @@ class PrimeTest {
         val sourceTwo = PublishSubject.create<Unit>()
         val prime = prime<State, Change, Action> {
             events {
-                transform { sourceOne.map { Change.One } }
-                transform { sourceTwo.map { Change.Two } }
+                source { sourceOne.map { Change.One } }
+                source { sourceTwo.map { Change.Two } }
             }
         }
 
         val composition = Composition<State, Change, Action>()
         prime.addTo(composition)
 
-        assertThat(composition.eventTransformers).hasSize(2)
+        assertThat(composition.eventSources).hasSize(2)
 
-        val observer1 = composition.eventTransformers[0].invoke().test()
-        val observer2 = composition.eventTransformers[1].invoke().test()
+        val observer1 = composition.eventSources[0].invoke().test()
+        val observer2 = composition.eventSources[1].invoke().test()
 
         sourceOne.onNext(Unit)
         observer1.assertValues(Change.One)

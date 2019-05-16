@@ -60,7 +60,7 @@ class KnotTest {
 
     @Test
     fun `Event transformer gets invoked on initialization`() {
-        val eventTransformer: EventTransformer<Change> = mock {
+        val eventSource: EventSource<Change> = mock {
             on { invoke() }.thenAnswer { Observable.just(Change) }
         }
 
@@ -72,10 +72,10 @@ class KnotTest {
                 reduce { this.only }
             }
             events {
-                transform(eventTransformer)
+                source(eventSource)
             }
         }
-        verify(eventTransformer).invoke()
+        verify(eventSource).invoke()
     }
 
     @Test

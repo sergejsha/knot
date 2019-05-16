@@ -84,7 +84,7 @@ class Effect<State : Any, Action : Any>(
 typealias Reducer<State, Change, Action> = State.(change: Change) -> Effect<State, Action>
 
 /** A function returning an [Observable] `Change`. */
-typealias EventTransformer<Change> = () -> Observable<Change>
+typealias EventSource<Change> = () -> Observable<Change>
 
 /** A function used for performing given `Action` and emitting resulting `Change` or *Changes*. */
 typealias ActionTransformer<Action, Change> = (action: Observable<Action>) -> Observable<Change>
@@ -100,7 +100,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
     observeOn: Scheduler?,
     reduceOn: Scheduler?,
     reducer: Reducer<State, Change, Action>,
-    eventTransformers: List<EventTransformer<Change>>,
+    eventSources: List<EventSource<Change>>,
     actionTransformers: List<ActionTransformer<Action, Change>>,
     stateInterceptors: List<Interceptor<State>>,
     changeInterceptors: List<Interceptor<Change>>,
@@ -119,7 +119,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
                 actionSubject
                     .intercept(actionInterceptors)
                     .bind(actionTransformers) { this += it }
-                eventTransformers.map { transform -> this += transform() }
+                eventSources.map { transform -> this += transform() }
             }
         )
         .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }

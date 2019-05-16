@@ -39,7 +39,7 @@ class ConcurrentStateMutations {
                 reduce { copy(counter = counter + it.value).only }
             }
             events {
-                transform { countUpEmitter.map { CountUpChange(100) } }
+                source { countUpEmitter.map { CountUpChange(100) } }
             }
         }
 

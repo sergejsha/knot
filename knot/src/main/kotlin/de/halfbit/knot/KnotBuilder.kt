@@ -22,7 +22,7 @@ internal constructor() {
     private var observeOn: Scheduler? = null
     private var reduceOn: Scheduler? = null
     private var reducer: Reducer<State, Change, Action>? = null
-    private val eventTransformers = mutableListOf<EventTransformer<Change>>()
+    private val eventSources = mutableListOf<EventSource<Change>>()
     private val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
     private val stateInterceptors = mutableListOf<Interceptor<State>>()
     private val changeInterceptors = mutableListOf<Interceptor<Change>>()
@@ -55,7 +55,7 @@ internal constructor() {
 
     /** A section for *Event* related declarations. */
     fun events(block: EventsBuilder<Change>.() -> Unit) {
-        EventsBuilder(eventTransformers).also(block)
+        EventsBuilder(eventSources).also(block)
     }
 
     /** A section for declaring interceptors of [State], [Change] or [Action]. */
@@ -69,11 +69,11 @@ internal constructor() {
     }
 
     internal fun build(): Knot<State, Change> = DefaultKnot(
-        initialState = checkNotNull(initialState) { "state { initial } must be set" },
+        initialState = checkNotNull(initialState) { "state { initial } must be declared" },
         observeOn = observeOn,
         reduceOn = reduceOn,
-        reducer = checkNotNull(reducer) { "changes { reduce } must be set" },
-        eventTransformers = eventTransformers,
+        reducer = checkNotNull(reducer) { "changes { reduce } must be declared" },
+        eventSources = eventSources,
         actionTransformers = actionTransformers,
         stateInterceptors = stateInterceptors,
         changeInterceptors = changeInterceptors,
@@ -217,7 +217,7 @@ internal constructor(
 @KnotDsl
 class EventsBuilder<Change : Any>
 internal constructor(
-    private val eventTransformers: MutableList<EventTransformer<Change>>
+    private val eventSources: MutableList<EventSource<Change>>
 ) {
 
     /**
@@ -226,15 +226,15 @@ internal constructor(
      * Example:
      * ```
      *  events {
-     *      transform {
+     *      source {
      *          userLocationObserver
      *              .map { Change.UserLocationUpdated(it) }
      *      }
      *  }
      * ```
      */
-    fun transform(transformer: EventTransformer<Change>) {
-        eventTransformers += transformer
+    fun source(source: EventSource<Change>) {
+        eventSources += source
     }
 }
 

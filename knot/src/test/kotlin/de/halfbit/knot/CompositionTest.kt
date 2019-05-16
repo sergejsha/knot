@@ -62,8 +62,8 @@ class CompositionTest {
         val changeB = PublishSubject.create<Unit>()
 
         val composition = Composition<State, Change, Action>().apply {
-            eventTransformers += { changeA.map { Change.A } }
-            eventTransformers += { changeB.map { Change.B } }
+            eventSources += { changeA.map { Change.A } }
+            eventSources += { changeB.map { Change.B } }
 
             reducers[Change.A::class] = { change -> Effect(copy(value = change.value)) }
             reducers[Change.B::class] = { change -> Effect(copy(value = change.value)) }

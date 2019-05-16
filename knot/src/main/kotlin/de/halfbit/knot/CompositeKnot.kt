@@ -30,7 +30,7 @@ typealias StateTrigger<State, Change> = (state: Observable<State>) -> Observable
 class Composition<State : Any, Change : Any, Action : Any> {
     val reducers = mutableMapOf<KClass<out Change>, Reducer<State, Change, Action>>()
     val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
-    val eventTransformers = mutableListOf<EventTransformer<Change>>()
+    val eventSources = mutableListOf<EventSource<Change>>()
     val stateInterceptors = mutableListOf<Interceptor<State>>()
     val changeInterceptors = mutableListOf<Interceptor<Change>>()
     val actionInterceptors = mutableListOf<Interceptor<Action>>()
@@ -73,7 +73,7 @@ internal class DefaultCompositeKnot<State : Any, Change : Any, Action : Any>(
                         .intercept(actionInterceptors)
                         .intercept(composition.actionInterceptors)
                         .bind(composition.actionTransformers) { this += it }
-                    composition.eventTransformers.map { transformer -> this += transformer() }
+                    composition.eventSources.map { source -> this += source() }
                     composition.stateTriggers.map { trigger -> this += trigger(stateSubject) }
                 }
             )
