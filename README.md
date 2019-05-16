@@ -103,6 +103,11 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 
 # Download
 ```kotlin
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
 dependencies {
     implementation 'de.halfbit:knot:<version>'
 }
