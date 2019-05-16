@@ -35,9 +35,8 @@ class KnotSingleActionTest {
                 }
             }
             actions {
-                perform<Action.Load> { action ->
-                    action
-                        .flatMapSingle { Single.just("loaded") }
+                perform<Action.Load> {
+                    flatMapSingle { Single.just("loaded") }
                         .map<Change> { Change.Load.Success(it) }
                         .onErrorReturn { Change.Load.Failure(it) }
                 }
@@ -70,9 +69,8 @@ class KnotSingleActionTest {
                 }
             }
             actions {
-                perform<Action.Load> { action ->
-                    action
-                        .flatMapSingle<String> { Single.error(Exception()) }
+                perform<Action.Load> {
+                    flatMapSingle<String> { Single.error(Exception()) }
                         .map<Change> { Change.Load.Success(it) }
                         .onErrorReturn { Change.Load.Failure(it) }
                 }
@@ -105,8 +103,8 @@ class KnotSingleActionTest {
                 }
             }
             actions {
-                perform<Action.Load> { action ->
-                    action
+                perform<Action.Load> {
+                    this
                         .flatMap {
                             Observable
                                 .fromArray("loading1", "loading2")

@@ -30,8 +30,8 @@ class KnotInterceptActionTest {
                 }
             }
             actions {
-                perform<Action> { action -> action.map { Change.Done } }
-                perform<Action> { action -> action.map { Change.Done } }
+                perform<Action> { map { Change.Done } }
+                perform<Action> { map { Change.Done } }
                 intercept { action -> action.doOnNext { interceptor.onNext(it) } }
             }
         }
@@ -80,8 +80,8 @@ class KnotInterceptActionTest {
                 }
             }
             actions {
-                perform<Action> { action -> action.map { Change.Done } }
-                perform<Action> { action -> action.map { Change.Done } }
+                perform<Action> { map { Change.Done } }
+                perform<Action> { map { Change.Done } }
             }
             intercept {
                 actions { action -> action.doOnNext { interceptor.onNext(it) } }

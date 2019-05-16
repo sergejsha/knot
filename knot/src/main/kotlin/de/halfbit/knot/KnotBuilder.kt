@@ -175,7 +175,8 @@ internal constructor(
 ) {
 
     /** A function used for declaring an [ActionTransformer] function. */
-    fun performAll(transformer: ActionTransformer<Action, Change>) {
+    @PublishedApi
+    internal fun performAll(transformer: ActionTransformer<Action, Change>) {
         actionTransformers += transformer
     }
 
@@ -185,16 +186,15 @@ internal constructor(
      * Example:
      * ```
      *  actions {
-     *      perform<Action.Load> { action ->
-     *          action
-     *              .flatMapSingle<Payload> { api.load() }
+     *      perform<Action.Load> {
+     *          flatMapSingle<Payload> { api.load() }
      *              .map<Change> { Change.Load.Success(it) }
      *              .onErrorReturn { Change.Load.Failure(it) }
      *      }
      *  }
      * ```
      */
-    inline fun <reified A : Action> perform(noinline transformer: ActionTransformer<A, Change>) {
+    inline fun <reified A : Action> perform(noinline transformer: ActionTransformerWithReceiver<A, Change>) {
         performAll(TypedActionTransformer(A::class.java, transformer))
     }
 

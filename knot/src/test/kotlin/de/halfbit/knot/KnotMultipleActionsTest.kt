@@ -37,9 +37,9 @@ class KnotMultipleActionsTest {
                 }
             }
             actions {
-                perform<Action.One> { it.flatMapSingle { Single.just(Change.OneDone) } }
-                perform<Action.Two> { it.flatMapSingle { Single.just(Change.TwoDone) } }
-                perform<Action.Three> { it.flatMapSingle { Single.just(Change.ThreeDone) } }
+                perform<Action.One> { flatMapSingle { Single.just(Change.OneDone) } }
+                perform<Action.Two> { flatMapSingle { Single.just(Change.TwoDone) } }
+                perform<Action.Three> { flatMapSingle { Single.just(Change.ThreeDone) } }
             }
         }
 

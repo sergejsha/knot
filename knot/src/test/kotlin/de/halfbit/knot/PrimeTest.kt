@@ -1,7 +1,6 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
-import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -52,8 +51,8 @@ class PrimeTest {
     fun `Prime adds action transformers to composition`() {
         val prime = prime<State, Change, Action> {
             actions {
-                perform { action: Observable<Action.One> -> action.map<Change> { Change.One } }
-                perform { action: Observable<Action.Two> -> action.map<Change> { Change.Two } }
+                perform<Action.One> { map<Change> { Change.One } }
+                perform<Action.Two> { map<Change> { Change.Two } }
             }
         }
 

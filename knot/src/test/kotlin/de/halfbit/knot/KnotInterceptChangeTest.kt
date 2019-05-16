@@ -54,7 +54,7 @@ class KnotInterceptChangeTest {
                 intercept { change -> change.doOnNext { interceptor.onNext(it) } }
             }
             actions {
-                perform<Action> { it.flatMap { Observable.fromArray(Change.Two, Change.Two) } }
+                perform<Action> { flatMap { Observable.fromArray(Change.Two, Change.Two) } }
             }
         }
         knot.change.accept(Change.One)
@@ -130,7 +130,7 @@ class KnotInterceptChangeTest {
                 }
             }
             actions {
-                perform<Action> { it.flatMap { Observable.fromArray(Change.Two, Change.Two) } }
+                perform<Action> { flatMap { Observable.fromArray(Change.Two, Change.Two) } }
             }
             intercept {
                 changes { change -> change.doOnNext { interceptor.onNext(it) } }

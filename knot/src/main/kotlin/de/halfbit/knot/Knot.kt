@@ -89,6 +89,9 @@ typealias EventSource<Change> = () -> Observable<Change>
 /** A function used for performing given `Action` and emitting resulting `Change` or *Changes*. */
 typealias ActionTransformer<Action, Change> = (action: Observable<Action>) -> Observable<Change>
 
+/** A function used for performing given `Action` and emitting resulting `Change` or *Changes*. */
+typealias ActionTransformerWithReceiver<Action, Change> = Observable<Action>.() -> Observable<Change>
+
 /** A function user for intercepting events of given type. */
 typealias Interceptor<Type> = (value: Observable<Type>) -> Observable<Type>
 
