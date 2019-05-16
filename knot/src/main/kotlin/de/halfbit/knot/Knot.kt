@@ -10,7 +10,7 @@ import io.reactivex.subjects.PublishSubject
 /**
  * Knot helps managing application state by reacting on events and performing asynchronous
  * actions in a structured way. There are five core concepts Knot defines: [State], [Change],
- * [Reducer], [Effect] and [Action].
+ * [Reducer], [Effect] and `Action`.
  *
  * [Flowchart diagram](https://github.com/beworker/knot/raw/master/docs/diagrams/flowchart-knot.png)
  *
@@ -20,7 +20,7 @@ import io.reactivex.subjects.PublishSubject
  * [Change] is an immutable data object with an optional payload intended for changing the `State`.
  * A `Change` can be produced from an external event or be a result of execution of an `Action`.
  *
- * [Action] is a synchronous or an asynchronous operation which, when completed, can emit a new `Change`.
+ * `Action` is a synchronous or an asynchronous operation which, when completed, can emit a new `Change`.
  *
  * [Reducer] is a pure function that takes the previous `State` and a `Change` as arguments and returns
  * the new `State` and an optional `Action` wrapped by `Effect` class. `Reducer` in Knot is designer
@@ -68,7 +68,7 @@ import io.reactivex.subjects.PublishSubject
  *  knot.change.accept(Change.Load)
  * ```
  */
-interface Knot<State : Any, Change : Any, Action : Any> {
+interface Knot<State : Any, Change : Any> {
     val state: Observable<State>
     val change: Consumer<Change>
     val disposable: Disposable
@@ -105,7 +105,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
     stateInterceptors: List<Interceptor<State>>,
     changeInterceptors: List<Interceptor<Change>>,
     actionInterceptors: List<Interceptor<Action>>
-) : Knot<State, Change, Action> {
+) : Knot<State, Change> {
 
     private val changeSubject = PublishSubject.create<Change>()
     private val actionSubject = PublishSubject.create<Action>()

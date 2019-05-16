@@ -12,16 +12,16 @@ class KnotTest {
     private object Change
     private object Action
 
-    private lateinit var knot: Knot<State, Change, Action>
+    private lateinit var knot: Knot<State, Change>
 
     @Test(expected = IllegalStateException::class)
     fun `DSL builder requires initial state`() {
-        knot = knot { }
+        knot = knot<State, Change, Action> { }
     }
 
     @Test(expected = IllegalStateException::class)
     fun `DSL builder requires reducer`() {
-        knot = knot {
+        knot = knot<State, Change, Action> {
             state {
                 initial = State()
             }
@@ -31,7 +31,7 @@ class KnotTest {
     @Test
     fun `Initial state gets dispatched`() {
         val state = State()
-        knot = knot {
+        knot = knot<State, Change, Action> {
             state {
                 initial = state
             }
@@ -45,7 +45,7 @@ class KnotTest {
 
     @Test
     fun `Reduces updates state`() {
-        knot = knot {
+        knot = knot<State, Change, Action> {
             state {
                 initial = State()
             }
@@ -64,7 +64,7 @@ class KnotTest {
             on { invoke() }.thenAnswer { Observable.just(Change) }
         }
 
-        knot = knot {
+        knot = knot<State, Change, Action> {
             state {
                 initial = State()
             }
@@ -84,7 +84,7 @@ class KnotTest {
             on { invoke(any()) }.thenAnswer { Observable.just(Change) }
         }
 
-        knot = knot {
+        knot = knot<State, Change, Action> {
             state {
                 initial = State()
             }

@@ -14,7 +14,7 @@ class ConcurrentStateMutations {
         override fun toString(): String = "State: $counter"
     }
 
-    private lateinit var knot: Knot<State, CountUpChange, Unit>
+    private lateinit var knot: Knot<State, CountUpChange>
 
     @Test
     fun `Concurrent state updates are serialized`() {
@@ -31,7 +31,7 @@ class ConcurrentStateMutations {
             }
             .subscribeOn(Schedulers.newThread())
 
-        knot = knot {
+        knot = knot<State, CountUpChange, Unit> {
             state {
                 initial = State()
             }

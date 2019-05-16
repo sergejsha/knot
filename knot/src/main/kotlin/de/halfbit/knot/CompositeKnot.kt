@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
  * working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided
  * though [compose] function to [CompositeKnot] which implements standard [Knot] interface.
  */
-interface CompositeKnot<State : Any, Change : Any, Action : Any> : Knot<State, Change, Action> {
+interface CompositeKnot<State : Any, Change : Any, Action : Any> : Knot<State, Change> {
     fun compose(composition: Composition<State, Change, Action>)
 }
 

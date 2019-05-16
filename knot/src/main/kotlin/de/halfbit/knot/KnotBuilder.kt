@@ -6,7 +6,7 @@ import io.reactivex.Scheduler
 /** Creates a [Knot] instance. */
 fun <State : Any, Change : Any, Action : Any> knot(
     block: KnotBuilder<State, Change, Action>.() -> Unit
-): Knot<State, Change, Action> =
+): Knot<State, Change> =
     KnotBuilder<State, Change, Action>()
         .also(block)
         .build()
@@ -68,7 +68,7 @@ internal constructor() {
         WatchBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
     }
 
-    internal fun build(): Knot<State, Change, Action> = DefaultKnot(
+    internal fun build(): Knot<State, Change> = DefaultKnot(
         initialState = checkNotNull(initialState) { "state { initial } must be set" },
         observeOn = observeOn,
         reduceOn = reduceOn,
