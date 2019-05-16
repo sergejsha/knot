@@ -25,17 +25,17 @@ Knot helps managing application state by reacting on events and performing async
 
 `State` represents an immutable partial state of an Android application. It can be a state of a screen or a state of an internal headless component, like repository.
 
-`Change` is an immutable data object with an optional payload intended for changing the `State`. A `Change` can be produced from an external event or be a result of execution of an `Action`.
+`Change` is an immutable data object with an optional payload intended for changing the `State`. A `Change` can be produced from an external source or be a result of execution of an `Action`.
 
 `Action` is a synchronous or an asynchronous operation which, when completed, can emit a new `Change`.
 
-`Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped by `Effect` class. `Reducer` in Knot is designer to stays side-effects free because each side-effect can be turned into an `Action` and returned from reducer function together with a new state.
+`Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped by `Effect` class. `Reducer` in Knot is designer to stays side-effects free because each side-effect can be turned into an `Action` and returned from reducer function together with a new state in a pure way.
 
-`Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to `Reducer`.
+`Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to the `Reducer`.
 
 # Getting Started
 
-The example below declares a Knot capable of loading data, handling *Success* and *Failure* loading results and reloading data automatically when an external *"data changed"* signal gets received. It also writes all `State` mutations as well as all processed `Changes` and `Actions` in console.
+The example below declares a Knot capable of loading data, handling *Success* and *Failure* loading results and reloading data automatically when an external *"data changed"* signal gets received. It also logs all `State` mutations as well as all processed `Changes` and `Actions` in console.
 
 ```kotlin
 sealed class State {
@@ -91,7 +91,7 @@ val knot = knot<State, Change, Action> {
 knot.change.accept(Change.Load)
 ```
 
-Notice how inside `reduce` function a new `State` can be combined with `Action` using `+` operator. Pure `State` can be returned from the reducer by adding `.only` suffix to the `State`.
+Notice how inside the `reduce` function a new `State` can be combined with an `Action` using `+` operator. Only the `State` value can be returned from the reducer by adding `.only` suffix to the `State`.
 
 # Composition
 
