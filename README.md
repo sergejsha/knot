@@ -12,7 +12,7 @@ Concise reactive state container library for Android applications.
 * Side-effect free reducer - by desing.
 * Scalable - single knots can be combined together to build more complex application logic.
 * Decomposable - complex knots can be decomposed into primes by related functionality.
-* Structured - easy to read and write declarative API for writing better structured and less buggy code.
+* Structured - easy to read and write DSL for writing better structured and less buggy code.
 * Concise - it has minimalistic API and compact implementation.
 * Testable - reducers and transformers are easy to test. 
 * Why not?
