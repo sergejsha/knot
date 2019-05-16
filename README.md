@@ -6,17 +6,6 @@
 
 Concise reactive state container library for Android applications.
 
-# Why Knot?
-
-* Predictable - state is the single source of truth.
-* Side-effect free reducer - by desing.
-* Scalable - single knots can be combined together to build more complex application logic.
-* Decomposable - complex knots can be decomposed into primes by related functionality.
-* Structured - easy to read and write DSL for writing better structured and less buggy code.
-* Concise - it has minimalistic API and compact implementation.
-* Testable - reducers and transformers are easy to test. 
-* Why not?
-
 # Concept
 
 Knot helps managing application state by reacting on events and performing asynchronous actions in a structured way. There are five core concepts Knot defines: `State`, `Change`, `Reducer`, `Effect` and `Action`.
@@ -100,6 +89,17 @@ If your knot becomes big and you want to improve its redability and maintainabil
 <img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
 
 Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can be seen as a separate `Knot` working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided to `CompositeKnot` which implements standard `Knot` interface.
+
+# Why Knot?
+
+* Predictable - state is the single source of truth.
+* Side-effect free reducer - by desing.
+* Scalable - single knots can be combined together to build more complex application logic.
+* Decomposable - complex knots can be decomposed into primes by related functionality.
+* Structured - easy to read and write DSL for writing better structured and less buggy code.
+* Concise - it has minimalistic API and compact implementation.
+* Testable - reducers and transformers are easy to test. 
+* Why not?
 
 # Download
 ```kotlin
