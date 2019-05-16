@@ -59,16 +59,14 @@ val knot = knot<State, Change, Action> {
         }
     }
     actions {
-        perform<Action.Load> { action ->
-            action
-                .switchMapSingle<String> { api.load() }
+        perform<Action.Load> {
+            switchMapSingle<String> { api.load() }
                 .map<Change> { Change.Load.Success(it) }
                 .onErrorReturn { Change.Load.Failure(it) }
-            }
         }
     }
     events {
-        transform {
+        source {
             dataChangeObserver.signal.map { Change.Load }
         }
     }
