@@ -16,7 +16,7 @@ Knot helps managing application state by reacting on events and performing async
 
 `Change` is an immutable data object with an optional payload intended for changing the `State`. A `Change` can be produced from an external source or be a result of execution of an `Action`.
 
-`Action` is a synchronous or an asynchronous operation which, when completed, can emit a new `Change`.
+`Action` is a synchronous or an asynchronous operation which, when completed, can – but don't have to – emit a new `Change`.
 
 `Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped by the `Effect` class. `Reducer` in Knot is designed to stay side-effects free because each side-effect can be turned into an `Action` and returned from the reducer function together with a new state in a pure way.
 
