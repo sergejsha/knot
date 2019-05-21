@@ -34,12 +34,11 @@ class CompositionTest {
 
     @Test
     fun `CompositeKnot picks reducers by change type`() {
-
         val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
 
-        knot.getComposition<Change, Action>().registerPrime {
+        knot.registerPrime<Change, Action>() {
             changes {
                 reduce<Change.A> { copy(value = it.value).only }
                 reduce<Change.B> { copy(value = it.value).only }
@@ -68,7 +67,7 @@ class CompositionTest {
             state { initial = State("empty") }
         }
 
-        knot.getComposition<Change, Action>().registerPrime {
+        knot.registerPrime<Change, Action> {
             changes {
                 reduce<Change.A> { copy(value = it.value).only }
                 reduce<Change.B> { copy(value = it.value).only }
@@ -98,7 +97,7 @@ class CompositionTest {
             state { initial = State("empty") }
         }
 
-        knot.getComposition<Change, Action>().registerPrime {
+        knot.registerPrime<Change, Action>() {
             changes {
                 reduce<Change.A> { copy(value = it.value) + Action.A }
                 reduce<Change.ADone> { copy(value = it.value).only }
@@ -125,5 +124,4 @@ class CompositionTest {
             State("b-done")
         )
     }
-
 }

@@ -22,12 +22,8 @@ import kotlin.reflect.KClass
  * though [compose] function to [CompositeKnot] which implements standard [Knot] interface.
  */
 interface CompositeKnot<State : Any> : Store<State> {
-    fun <Change : Any, Action : Any> getComposition(): Composition<State, Change, Action>
+    fun <Change : Any, Action : Any> registerPrime(block: PrimeBuilder<State, Change, Action>.() -> Unit)
     fun compose()
-}
-
-interface Composition<State : Any, Change : Any, Action : Any> {
-    fun registerPrime(block: PrimeBuilder<State, Change, Action>.() -> Unit)
 }
 
 /**
@@ -45,38 +41,36 @@ internal class DefaultCompositeKnot<State : Any>(
     private val actionInterceptors: MutableList<Interceptor<Any>>
 ) : CompositeKnot<State>, TestCompositeKnot<State, Any> {
 
+    private val reducers = mutableMapOf<KClass<out Any>, Reducer<State, Any, Any>>()
+    private val actionTransformers = mutableListOf<ActionTransformer<Any, Any>>()
+    private val eventSources = mutableListOf<EventSource<Any>>()
+    private val composed = AtomicBoolean(false)
+
     private val stateSubject = BehaviorSubject.create<State>()
     private val changeSubject = PublishSubject.create<Any>()
     private val actionSubject = PublishSubject.create<Any>()
-    private val composed = AtomicBoolean(false)
-    private val composition = object : Composition<State, Any, Any> {
 
-        val reducers = mutableMapOf<KClass<out Any>, Reducer<State, Any, Any>>()
-        val actionTransformers = mutableListOf<ActionTransformer<Any, Any>>()
-        val eventSources = mutableListOf<EventSource<Any>>()
-
-        override fun registerPrime(
-            block: PrimeBuilder<State, Any, Any>.() -> Unit
-        ) {
-            PrimeBuilder(
-                reducers,
-                eventSources,
-                actionTransformers,
-                stateInterceptors,
-                changeInterceptors,
-                actionInterceptors
-            ).also(block)
-        }
+    override fun <Change : Any, Action : Any> registerPrime(
+        block: PrimeBuilder<State, Change, Action>.() -> Unit
+    ) {
+        @Suppress("UNCHECKED_CAST")
+        PrimeBuilder(
+            reducers,
+            eventSources,
+            actionTransformers,
+            stateInterceptors,
+            changeInterceptors,
+            actionInterceptors
+        ).also(block as PrimeBuilder<State, Any, Any>.() -> Unit)
     }
 
-
     override val state = stateSubject
-    override val change: Consumer<Any> = Consumer { changeSubject.onNext(it) }
     override val disposable = CompositeDisposable()
-
-    override fun <Change : Any, Action : Any> getComposition(): Composition<State, Change, Action> {
-        @Suppress("UNCHECKED_CAST")
-        return composition as Composition<State, Change, Action>
+    override val change: Consumer<Any> = Consumer {
+        if (!composed.get()) {
+            error("compose() must be called before emitting any change.")
+        }
+        changeSubject.onNext(it)
     }
 
     override fun compose() {
@@ -89,15 +83,15 @@ internal class DefaultCompositeKnot<State : Any>(
                     this += changeSubject
                     actionSubject
                         .intercept(actionInterceptors)
-                        .bind(composition.actionTransformers) { this += it }
-                    composition.eventSources.map { source -> this += source() }
+                        .bind(actionTransformers) { this += it }
+                    eventSources.map { source -> this += source() }
                 }
             )
             .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
             .intercept(changeInterceptors)
             .serialize()
             .scan(initialState) { state, change ->
-                val reducer = composition.reducers[change::class] ?: error("Cannot find reducer for $change")
+                val reducer = reducers[change::class] ?: error("Cannot find reducer for $change")
                 reducer(state, change)
                     .also { it.action?.let { action -> actionSubject.onNext(action) } }
                     .state
