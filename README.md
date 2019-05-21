@@ -6,49 +6,38 @@
 
 Concise reactive state container library for Android applications.
 
-# Why Knot?
-
-* Predictable - state is the single source of truth.
-* Side-effect free reducer - by desing.
-* Scalable - single knots can be combined together to build more complex application logic.
-* Decomposable - complex knots can be decomposed into primes by related functionality.
-* Structured - easy to read and write DSL for writing better structured and less buggy code.
-* Concise - it has minimalistic API and compact implementation.
-* Testable - reducers and transformers are easy to test. 
-* Why not?
-
 # Concept
 
 Knot helps managing application state by reacting on events and performing asynchronous actions in a structured way. There are five core concepts Knot defines: `State`, `Change`, `Reducer`, `Effect` and `Action`.
 
 <img src="docs/diagrams/flowchart-knot.png" width="490" />
 
-`State` represents an immutable partial state of an Android application. It can be a state of a screen or a state of an internal headless component, like repository.
+`State` represents an immutable partial state of an application. It can be a state of a screen or a state of an internal headless component, like a repository.
 
-`Change` is an immutable data object with an optional payload intended for changing the `State`. A `Change` can be produced from an external event or be a result of execution of an `Action`.
+`Change` is an immutable data object with an optional payload intended for changing the `State`. A `Change` can be produced from an external source or be a result of execution of an `Action`.
 
-`Action` is a synchronous or an asynchronous operation which, when completed, can emit a new `Change`.
+`Action` is a synchronous or an asynchronous operation which, when completed, can – but doesn't have to – emit a new `Change`.
 
-`Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped by `Effect` class. `Reducer` in Knot is designer to stays side-effects free because each side-effect can be turned into an `Action` and returned from reducer function together with a new state.
+`Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped by the `Effect` class. `Reducer` in Knot is designed to stay side-effects free because each side-effect can be turned into an `Action` and returned from the reducer function together with a new state in a pure way.
 
-`Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to `Reducer`.
+`Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to the `Reducer`.
 
 # Getting Started
 
-The example below declares a Knot capable of loading data, handling *Success* and *Failure* loading results and reloading data automatically when an external *"data changed"* signal gets received. It also writes all `State` mutations as well as all processed `Changes` and `Actions` in console.
+The example below declares a Knot capable of loading data, handling *Success* and *Failure* loading results and reloading data automatically when an external *"data changed"* signal gets received. It also logs all `State` mutations as well as all processed `Changes` and `Actions` in console.
 
 ```kotlin
 sealed class State {
    object Empty : State()
    object Loading : State()
-   data class Content(val data: String): State()
-   data class Failed(val error: Throwable)
+   data class Content(val data: String) : State()
+   data class Failed(val error: Throwable) : State()
 }
 
 sealed class Change {
    object Load : Change() {
       data class Success(val data: String) : Change()
-      data class Failure(val error: Throwable): Change()
+      data class Failure(val error: Throwable) : Change()
    }
 }
 
@@ -91,15 +80,26 @@ val knot = knot<State, Change, Action> {
 knot.change.accept(Change.Load)
 ```
 
-Notice how inside `reduce` function a new `State` can be combined with `Action` using `+` operator. Pure `State` can be returned from the reducer by adding `.only` suffix to the `State`.
+Notice how inside the `reduce` function a new `State` can be combined with an `Action` using `+` operator. If only the `State` value should be returned from the reducer, the `.only` suffix is added to the `State`.
 
 # Composition
 
-If your knot becomes big and you want to improve its redability and maintainability you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
+If your knot becomes big and you want to improve its redability and maintainability, you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
 
 <img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
 
 Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can be seen as a separate `Knot` working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided to `CompositeKnot` which implements standard `Knot` interface.
+
+# Why Knot?
+
+* Predictable - state is the single source of truth.
+* Side-effect free reducer - by design.
+* Scalable - single knots can be combined together to build more complex application logic.
+* Decomposable - complex knots can be decomposed into primes by related functionality.
+* Structured - easy to read and write DSL for writing better structured and less buggy code.
+* Concise - it has minimalistic API and compact implementation.
+* Testable - reducers and transformers are easy to test. 
+* Why not?
 
 # Download
 ```kotlin
