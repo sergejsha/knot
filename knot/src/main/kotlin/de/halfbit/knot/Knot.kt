@@ -70,11 +70,11 @@ import io.reactivex.subjects.PublishSubject
  */
 interface Knot<State : Any, Change : Any> : Store<State> {
     val change: Consumer<Change>
-    val disposable: Disposable
 }
 
 interface Store<State : Any> {
-    val state: Observable<State>    
+    val state: Observable<State>
+    val disposable: Disposable
 }
 
 /** Convenience wrapper around [State] and optional [Action]. */
