@@ -21,12 +21,12 @@ class CompositionTest {
 
     @Test
     fun `CompositeKnot terminates with IllegalStateException if reducer cannot be found`() {
-        val knot = compositeKnot<State, Change, Action> {
+        val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
 
         val observer = knot.state.test()
-        knot.compose(Composition())
+        knot.compose()
         knot.change.accept(Change.A)
 
         observer.assertError(IllegalStateException::class.java)
@@ -34,17 +34,20 @@ class CompositionTest {
 
     @Test
     fun `CompositeKnot picks reducers by change type`() {
-        val composition = Composition<State, Change, Action>().apply {
-            reducers[Change.A::class] = { change -> Effect(copy(value = change.value)) }
-            reducers[Change.B::class] = { change -> Effect(copy(value = change.value)) }
-        }
 
-        val knot = compositeKnot<State, Change, Action> {
+        val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
 
+        knot.getComposition<Change, Action>().registerPrime {
+            changes {
+                reduce<Change.A> { copy(value = it.value).only }
+                reduce<Change.B> { copy(value = it.value).only }
+            }
+        }
+
         val observer = knot.state.test()
-        knot.compose(composition)
+        knot.compose()
 
         knot.change.accept(Change.A)
         knot.change.accept(Change.B)
@@ -61,20 +64,23 @@ class CompositionTest {
         val changeA = PublishSubject.create<Unit>()
         val changeB = PublishSubject.create<Unit>()
 
-        val composition = Composition<State, Change, Action>().apply {
-            eventSources += { changeA.map { Change.A } }
-            eventSources += { changeB.map { Change.B } }
-
-            reducers[Change.A::class] = { change -> Effect(copy(value = change.value)) }
-            reducers[Change.B::class] = { change -> Effect(copy(value = change.value)) }
-        }
-
-        val knot = compositeKnot<State, Change, Action> {
+        val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
 
+        knot.getComposition<Change, Action>().registerPrime {
+            changes {
+                reduce<Change.A> { copy(value = it.value).only }
+                reduce<Change.B> { copy(value = it.value).only }
+            }
+            events {
+                source { changeA.map { Change.A } }
+                source { changeB.map { Change.B } }
+            }
+        }
+
         val observer = knot.state.test()
-        knot.compose(composition)
+        knot.compose()
 
         changeA.onNext(Unit)
         changeB.onNext(Unit)
@@ -88,45 +94,25 @@ class CompositionTest {
 
     @Test
     fun `CompositeKnot performs actions`() {
-
-        val composition = Composition<State, Change, Action>().apply {
-            actionTransformers += { action -> action.filter { it is Action.A }.map { Change.ADone } }
-            actionTransformers += { action -> action.filter { it is Action.B }.map { Change.BDone } }
-
-            reducers[Change.A::class] = { change ->
-                Effect(
-                    copy(value = change.value),
-                    Action.A
-                )
-            }
-            reducers[Change.ADone::class] = { change ->
-                Effect(
-                    copy(
-                        value = change.value
-                    )
-                )
-            }
-            reducers[Change.B::class] = { change ->
-                Effect(
-                    copy(value = change.value),
-                    Action.B
-                )
-            }
-            reducers[Change.BDone::class] = { change ->
-                Effect(
-                    copy(
-                        value = change.value
-                    )
-                )
-            }
-        }
-
-        val knot = compositeKnot<State, Change, Action> {
+        val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
 
+        knot.getComposition<Change, Action>().registerPrime {
+            changes {
+                reduce<Change.A> { copy(value = it.value) + Action.A }
+                reduce<Change.ADone> { copy(value = it.value).only }
+                reduce<Change.B> { copy(value = it.value) + Action.B }
+                reduce<Change.BDone> { copy(value = it.value).only }
+            }
+            actions {
+                perform<Action.A> { map { Change.ADone } }
+                perform<Action.B> { map { Change.BDone } }
+            }
+        }
+
         val observer = knot.state.test()
-        knot.compose(composition)
+        knot.compose()
 
         knot.change.accept(Change.A)
         knot.change.accept(Change.B)
