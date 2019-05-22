@@ -70,11 +70,6 @@ val knot = knot<State, Change, Action> {
             dataChangeObserver.signal.map { Change.Load }
         }
     }
-    watch {
-        state { println("state: $it") }
-        changes { println("change: $it") }
-        actions { println("action: $it") }
-    }
 }
 
 val states = knot.state.test()
