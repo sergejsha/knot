@@ -8,7 +8,7 @@ Concise reactive state container library for Android applications.
 
 # Concept
 
-Knot helps managing application state by reacting on events and performing asynchronous actions in a structured way. There are five core concepts Knot defines: `State`, `Change`, `Reducer`, `Effect` and `Action`.
+Knot helps managing application state by reacting on events and performing asynchronous actions in a structured way. There are five core concepts Knot defines: `State`, `Change`, `Action`, `Reducer` and `Effect`.
 
 <img src="docs/diagrams/flowchart-knot.png" width="490" />
 
@@ -20,7 +20,7 @@ Knot helps managing application state by reacting on events and performing async
 
 `Reducer` is a function that takes the previous `State` and a `Change` as arguments and returns the new `State` and an optional `Action` wrapped by the `Effect` class. `Reducer` in Knot is designed to stay side-effects free because each side-effect can be turned into an `Action` and returned from the reducer function together with a new state in a pure way.
 
-`Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` back to the `Reducer`.
+`Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` (if any) back to the `Reducer`.
 
 # Getting Started
 
@@ -77,7 +77,13 @@ val knot = knot<State, Change, Action> {
     }
 }
 
+val states = knot.state.test()
 knot.change.accept(Change.Load)
+
+states.assertValues(
+    State.Loading,
+    State.Content("data")
+)
 ```
 
 Notice how inside the `reduce` function a new `State` can be combined with an `Action` using `+` operator. If only the `State` value should be returned from the reducer, the `.only` suffix is added to the `State`.
