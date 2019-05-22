@@ -40,7 +40,7 @@ internal constructor() {
             }
     }
 
-    /** A section for [Change] related declarations. */
+    /** A section for `Change` related declarations. */
     fun changes(block: ChangesBuilder<Any>.() -> Unit) {
         ChangesBuilder(changeInterceptors)
             .also {
@@ -48,7 +48,6 @@ internal constructor() {
                 reduceOn = it.reduceOn
             }
     }
-
 
     internal fun build() = DefaultCompositeKnot(
         initialState = checkNotNull(initialState) { "state { initial } must be set" },
@@ -113,16 +112,6 @@ internal constructor(
     /** A section for *Event* related declarations. */
     fun events(block: EventsBuilder<Change>.() -> Unit) {
         EventsBuilder(eventSources).also(block)
-    }
-
-    /** A section for declaring interceptors of [State], [Change] or [Action]. */
-    fun intercept(block: InterceptBuilder<State, Change, Action>.() -> Unit) {
-        InterceptBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
-    }
-
-    /** A section for declaring watchers of [State], [Change] or [Action]. */
-    fun watch(block: WatchBuilder<State, Change, Action>.() -> Unit) {
-        WatchBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
     }
 
     @KnotDsl
