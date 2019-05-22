@@ -58,16 +58,6 @@ internal constructor() {
         EventsBuilder(eventSources).also(block)
     }
 
-    /** A section for declaring interceptors of [State], [Change] or [Action]. */
-    fun intercept(block: InterceptBuilder<State, Change, Action>.() -> Unit) {
-        InterceptBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
-    }
-
-    /** A section for declaring watchers of [State], [Change] or [Action]. */
-    fun watch(block: WatchBuilder<State, Change, Action>.() -> Unit) {
-        WatchBuilder(stateInterceptors, changeInterceptors, actionInterceptors).also(block)
-    }
-
     internal fun build(): Knot<State, Change> = DefaultKnot(
         initialState = checkNotNull(initialState) { "state { initial } must be declared" },
         observeOn = observeOn,
@@ -235,61 +225,6 @@ internal constructor(
      */
     fun source(source: EventSource<Change>) {
         eventSources += source
-    }
-}
-
-@KnotDsl
-class WatchBuilder<State : Any, Change : Any, Action : Any>
-internal constructor(
-    private val stateInterceptors: MutableList<Interceptor<State>>,
-    private val changeInterceptors: MutableList<Interceptor<Change>>,
-    private val actionInterceptors: MutableList<Interceptor<Action>>
-) {
-
-    /** A function for watching [State] mutations. */
-    fun state(watcher: Watcher<State>) {
-        stateInterceptors += WatchingInterceptor(watcher)
-    }
-
-    /** A function for watching [Change] emissions. */
-    fun changes(watcher: Watcher<Change>) {
-        changeInterceptors += WatchingInterceptor(watcher)
-    }
-
-    /** A function for watching [Action] emissions. */
-    fun actions(watcher: Watcher<Action>) {
-        actionInterceptors += WatchingInterceptor(watcher)
-    }
-
-    /** A function for watching [State] mutations as well as [Change] and [Action] emissions. */
-    fun all(watcher: Watcher<Any>) {
-        stateInterceptors += WatchingInterceptor(watcher as Watcher<State>)
-        changeInterceptors += WatchingInterceptor(watcher as Watcher<Change>)
-        actionInterceptors += WatchingInterceptor(watcher as Watcher<Action>)
-    }
-}
-
-@KnotDsl
-class InterceptBuilder<State : Any, Change : Any, Action : Any>
-internal constructor(
-    private val stateInterceptors: MutableList<Interceptor<State>>,
-    private val changeInterceptors: MutableList<Interceptor<Change>>,
-    private val actionInterceptors: MutableList<Interceptor<Action>>
-) {
-
-    /** A function for intercepting [State] mutations. */
-    fun state(interceptor: Interceptor<State>) {
-        stateInterceptors += interceptor
-    }
-
-    /** A function for intercepting [Change] emissions. */
-    fun changes(interceptor: Interceptor<Change>) {
-        changeInterceptors += interceptor
-    }
-
-    /** A function for intercepting [Action] emissions. */
-    fun actions(interceptor: Interceptor<Action>) {
-        actionInterceptors += interceptor
     }
 }
 

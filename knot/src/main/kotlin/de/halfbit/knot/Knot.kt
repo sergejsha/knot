@@ -68,9 +68,12 @@ import io.reactivex.subjects.PublishSubject
  *  knot.change.accept(Change.Load)
  * ```
  */
-interface Knot<State : Any, Change : Any> {
-    val state: Observable<State>
+interface Knot<State : Any, Change : Any> : Store<State> {
     val change: Consumer<Change>
+}
+
+interface Store<State : Any> {
+    val state: Observable<State>
     val disposable: Disposable
 }
 
