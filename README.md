@@ -46,9 +46,7 @@ sealed class Action {
 }
 
 val knot = knot<State, Change, Action> {
-    state {
-        initial = State.Empty
-    }
+    state { initial = State.Empty }
     changes {
         reduce { change ->
             when (change) {
