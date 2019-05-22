@@ -4,6 +4,7 @@ import io.reactivex.Scheduler
 import org.jetbrains.annotations.TestOnly
 import kotlin.reflect.KClass
 
+/** Creates a [CompositeKnot]. */
 fun <State : Any> compositeKnot(
     block: CompositeKnotBuilder<State>.() -> Unit
 ): CompositeKnot<State> =
@@ -11,6 +12,7 @@ fun <State : Any> compositeKnot(
         .also(block)
         .build()
 
+/** Creates a [TestCompositeKnot]. To be used in tests only. */
 @TestOnly
 fun <State : Any> testCompositeKnot(
     block: CompositeKnotBuilder<State>.() -> Unit
@@ -19,6 +21,7 @@ fun <State : Any> testCompositeKnot(
         .also(block)
         .build()
 
+/** A configuration builder for a [CompositeKnot]. */
 @KnotDsl
 class CompositeKnotBuilder<State : Any>
 internal constructor() {
@@ -58,6 +61,7 @@ internal constructor() {
         actionInterceptors = actionInterceptors
     )
 
+    /** A configuration builder for `Changes`. */
     @KnotDsl
     class ChangesBuilder<Change : Any>
     internal constructor(
@@ -83,6 +87,7 @@ internal constructor() {
     }
 }
 
+/** A configuration builder for a `Prime`. */
 @KnotDsl
 class PrimeBuilder<State : Any, Change : Any, Action : Any>
 internal constructor(
@@ -109,11 +114,12 @@ internal constructor(
         ActionsBuilder(actionTransformers, actionInterceptors).also(block)
     }
 
-    /** A section for *Event* related declarations. */
+    /** A section for `Event` related declarations. */
     fun events(block: EventsBuilder<Change>.() -> Unit) {
         EventsBuilder(eventSources).also(block)
     }
 
+    /** A configuration builder for [State] related declarations. */
     @KnotDsl
     class StateBuilder<State : Any>
     internal constructor(
@@ -136,6 +142,7 @@ internal constructor(
         }
     }
 
+    /** A configuration builder for [Change] related declarations. */
     @KnotDsl
     class ChangesBuilder<State : Any, Change : Any, Action : Any>
     internal constructor(

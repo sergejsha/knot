@@ -39,6 +39,7 @@ publishing {
     val dokka by tasks.getting(org.jetbrains.dokka.gradle.DokkaTask::class) {
         outputFormat = "javadoc"
         outputDirectory = "$buildDir/javadoc"
+        noStdlibLink = false
     }
 
     val sourcesJar by tasks.creating(Jar::class) {

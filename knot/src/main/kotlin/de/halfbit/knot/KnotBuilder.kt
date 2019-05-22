@@ -14,6 +14,7 @@ fun <State : Any, Change : Any, Action : Any> knot(
 @DslMarker
 annotation class KnotDsl
 
+/** A configuration builder for a [Knot]. */
 @KnotDsl
 class KnotBuilder<State : Any, Change : Any, Action : Any>
 internal constructor() {
@@ -130,6 +131,7 @@ internal constructor() {
     }
 }
 
+/** A configuration builder for [State] related declarations. */
 @KnotDsl
 class StateBuilder<State : Any>
 internal constructor(
@@ -157,6 +159,7 @@ internal constructor(
     }
 }
 
+/** A configuration builder for [Action] related declarations. */
 @KnotDsl
 class ActionsBuilder<Change : Any, Action : Any>
 internal constructor(
@@ -204,6 +207,7 @@ internal constructor(
     }
 }
 
+/** A configuration builder for `Events` related declarations. */
 @KnotDsl
 class EventsBuilder<Change : Any>
 internal constructor(

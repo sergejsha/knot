@@ -69,11 +69,18 @@ import io.reactivex.subjects.PublishSubject
  * ```
  */
 interface Knot<State : Any, Change : Any> : Store<State> {
+
+    /** Change emitter used for delivering changes to this knot. */
     val change: Consumer<Change>
 }
 
+/** Store is a disposable container for a [State]. */
 interface Store<State : Any> {
+
+    /** Observable state. */
     val state: Observable<State>
+
+    /** Container disposer. Disposed store stops operating and releases all resources. */
     val disposable: Disposable
 }
 

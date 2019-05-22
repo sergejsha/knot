@@ -18,17 +18,21 @@ import kotlin.reflect.KClass
  *
  * Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and
  * `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can
- * be seen as a separate [Knot] working on a shared `State`. Once all `Primes` are registered at a
- * `CompositeKnot`, the knot can be finally composed using [compose] function and start operating.
+ * be seen as a separate [Knot] working on a shared `State`.
+ *
+ * Once all `Primes` are registered at a `CompositeKnot`, the knot can be finally composed using
+ * [compose] function and start operating.
  */
 interface CompositeKnot<State : Any> : Store<State> {
+
+    /** Registers a new `Prime` at this composite knot. */
     fun <Change : Any, Action : Any> registerPrime(block: PrimeBuilder<State, Change, Action>.() -> Unit)
+
+    /** Finishes composition of `Primes` and moves this knot into operational mode. */
     fun compose()
 }
 
-/**
- * Interface for testing [CompositeKnot] and its `Primes` by allowing emitting `Changes`.
- */
+/** A capable of emitting `Changes` interface for testing [CompositeKnot] and its `Primes`. */
 interface TestCompositeKnot<State : Any, Change : Any> :
     CompositeKnot<State>, Knot<State, Change>
 
