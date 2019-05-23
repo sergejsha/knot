@@ -22,6 +22,13 @@ Knot helps managing application state by reacting on events and performing async
 
 `Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` (if any) back to the `Reducer`.
 
+# Unique Features
+
+* **DSL**. Knot provides a concise and easy to understand DLS for writing state container logic.
+* **External events**. Knot supports mixing external events like "user location updates", "database table changes", "network state" etc. into the loop by design. All events go through the reducer first, to be processed in accordance with the current state. Thus the state handling is localized at a single place - in the reducer.
+* **Actions as side-effects**. Common unanswered question of many state containers is how to handle side-effects in reducer, when the state does not reflect the change but the app, for instance, has to show a message to the user instead. Knot answers this by allowing to issue an `Action` from the reducer, which then can be processed outside. This keeps reducer a pure function and provides a structured way for handling side-effects.
+* **Decomposition**. Knot offers a convenient and structured way of splitting code into multiple parts when the code becomes complex.
+
 # Getting Started
 
 The example below declares a Knot capable of loading data, handling *Success* and *Failure* loading results and reloading data automatically when an external *"data changed"* signal gets received. It also logs all `State` mutations as well as all processed `Changes` and `Actions` in console.
@@ -83,7 +90,7 @@ Notice how inside the `reduce` function a new `State` can be combined with an `A
 
 # Composition
 
-If your knot becomes big and you want to improve its redability and maintainability, you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
+If your knot becomes complex and you want to improve its redability and maintainability, you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
 
 <img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
 
