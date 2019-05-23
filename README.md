@@ -93,7 +93,7 @@ states.assertValues(
 
 Notice how inside the `reduce` function a new `State` can be combined with an `Action` using `+` operator. If only the `State` value should be returned from the reducer, the `.only` suffix is added to the `State`.
 
-# Composition
+# Decomposition
 
 If your knot becomes complex and you want to improve its redability and maintainability, you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
 
