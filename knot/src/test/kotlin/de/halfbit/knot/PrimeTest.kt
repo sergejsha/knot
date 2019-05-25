@@ -297,6 +297,110 @@ class PrimeTest {
     }
 
     @Test
+    fun `Prime actions { watch } receives Action`() {
+        val watcher = PublishSubject.create<Action>()
+        val observer = watcher.test()
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+            actions {
+                watch<Action.A> { watcher.onNext(it) }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        observer.assertValues(
+            Action.A
+        )
+    }
+
+    @Test
+    fun `Prime actions { intercept } receives Action`() {
+        val watcher = PublishSubject.create<Action>()
+        val observer = watcher.test()
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+            actions {
+                intercept { action -> action.doOnNext { watcher.onNext(it) } }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        observer.assertValues(
+            Action.A
+        )
+    }
+
+    @Test
+    fun `Prime changes { watchAll } receives Change`() {
+        val watcher = PublishSubject.create<Change>()
+        val observer = watcher.test()
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+                watchAll { watcher.onNext(it) }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        observer.assertValues(
+            Change.A
+        )
+    }
+
+    @Test
+    fun `Prime changes { watch } receives Change`() {
+        val watcher = PublishSubject.create<Change>()
+        val observer = watcher.test()
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+                watch<Change.A> { watcher.onNext(it) }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        observer.assertValues(
+            Change.A
+        )
+    }
+
+    @Test
+    fun `Prime changes { intercept } receives Change`() {
+        val watcher = PublishSubject.create<Change>()
+        val observer = watcher.test()
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+                intercept { change -> change.doOnNext { watcher.onNext(it) } }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        observer.assertValues(
+            Change.A
+        )
+    }
+
+    @Test
     fun `CompositeKnot state { watchAll } receives State`() {
         val watcher = PublishSubject.create<State>()
         val knot = testCompositeKnot<State> {
@@ -318,6 +422,32 @@ class PrimeTest {
         observer.assertValues(
             State("empty"),
             State("one")
+        )
+    }
+
+    @Test
+    fun `CompositeKnot changes { watchAll } receives Change`() {
+        val watcher = PublishSubject.create<Any>()
+        val knot = testCompositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+            changes {
+                watchAll { watcher.onNext(it) }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { State("one").only }
+            }
+        }
+
+        val observer = watcher.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            Change.A
         )
     }
 

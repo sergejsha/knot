@@ -79,11 +79,6 @@ internal constructor() {
         fun watchAll(watcher: Watcher<Change>) {
             changeInterceptors += WatchingInterceptor(watcher)
         }
-
-        /** A function for watching emissions of all `Changes`. */
-        inline fun <reified T : Change> watch(noinline watcher: Watcher<T>) {
-            watchAll(TypedWatcher(T::class.java, watcher))
-        }
     }
 }
 
@@ -182,6 +177,11 @@ internal constructor(
         /** A function for intercepting [Change] emissions. */
         fun intercept(interceptor: Interceptor<Change>) {
             changeInterceptors += interceptor
+        }
+
+        /** A function for watching emissions of all `Changes`. */
+        inline fun <reified T : Change> watch(noinline watcher: Watcher<T>) {
+            watchAll(TypedWatcher(T::class.java, watcher))
         }
 
         /** A function for watching [Change] emissions. */
