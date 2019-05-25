@@ -1,5 +1,7 @@
 package de.halfbit.knot
 
+import com.google.common.truth.Truth
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -122,6 +124,87 @@ class CompositionTest {
             State("a-done"),
             State("b"),
             State("b-done")
+        )
+    }
+
+    @Test
+    fun `changes { reduceOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from {
+            visited = true
+            it.run()
+        }
+        val knot = testCompositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+            changes {
+                reduceOn = scheduler
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change> { only }
+            }
+        }
+
+        knot.compose()
+        knot.state.test()
+        knot.change.accept(Change.A)
+
+        Truth.assertThat(visited).isTrue()
+    }
+
+    @Test
+    fun `Disposed CompositeKnot ignores emitted changes`() {
+
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action>() {
+            changes {
+                reduce<Change.A> { copy(value = it.value).only }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.compose()
+        knot.disposable.dispose()
+
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            State("empty")
+        )
+    }
+
+    @Test
+    fun `Disposed CompositeKnot ignores emitted events`() {
+
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+
+        val eventSource = PublishSubject.create<Unit>()
+        knot.registerPrime<Change, Action>() {
+            changes {
+                reduce<Change.A> { copy(value = it.value).only }
+            }
+            events {
+                source {
+                    eventSource.map { Change.A }
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.compose()
+        knot.disposable.dispose()
+
+        eventSource.onNext(Unit)
+
+        observer.assertValues(
+            State("empty")
         )
     }
 }

@@ -71,4 +71,12 @@ class CompositeKnotTest {
         knot.compose()
         Truth.assertThat(visited).isTrue()
     }
+
+    @Test(expected = IllegalStateException::class)
+    fun `TestCompositeKnot fails emitting changes when knot is not composed`() {
+        val knot = testCompositeKnot<State> {
+            state { initial = State }
+        }
+        knot.change.accept(Unit)
+    }
 }

@@ -81,28 +81,33 @@ internal class DefaultCompositeKnot<State : Any>(
         if (composed.getAndSet(true)) {
             error("compose() must be called just once.")
         }
-        Observable
-            .merge(
-                mutableListOf<Observable<Any>>().apply {
-                    this += changeSubject
-                    actionSubject
-                        .intercept(actionInterceptors)
-                        .bind(actionTransformers) { this += it }
-                    eventSources.map { source -> this += source() }
+        disposable.add(
+            Observable
+                .merge(
+                    mutableListOf<Observable<Any>>().apply {
+                        this += changeSubject
+                        actionSubject
+                            .intercept(actionInterceptors)
+                            .bind(actionTransformers) { this += it }
+                        eventSources.map { source -> this += source() }
+                    }
+                )
+                .let { stream -> reduceOn?.let { stream.observeOn(it) } ?: stream }
+                .intercept(changeInterceptors)
+                .serialize()
+                .scan(initialState) { state, change ->
+                    val reducer = reducers[change::class] ?: error("Cannot find reducer for $change")
+                    reducer(state, change)
+                        .also { it.action?.let { action -> actionSubject.onNext(action) } }
+                        .state
                 }
-            )
-            .let { change -> reduceOn?.let { change.observeOn(it) } ?: change }
-            .intercept(changeInterceptors)
-            .serialize()
-            .scan(initialState) { state, change ->
-                val reducer = reducers[change::class] ?: error("Cannot find reducer for $change")
-                reducer(state, change)
-                    .also { it.action?.let { action -> actionSubject.onNext(action) } }
-                    .state
-            }
-            .distinctUntilChanged()
-            .let { state -> observeOn?.let { state.observeOn(it) } ?: state }
-            .intercept(stateInterceptors)
-            .subscribe(stateSubject)
+                .distinctUntilChanged()
+                .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
+                .intercept(stateInterceptors)
+                .subscribe(
+                    { stateSubject.onNext(it) },
+                    { stateSubject.onError(it) }
+                )
+        )
     }
 }
