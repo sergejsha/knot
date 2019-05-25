@@ -1,6 +1,7 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
@@ -206,5 +207,52 @@ class CompositionTest {
         observer.assertValues(
             State("empty")
         )
+    }
+
+    @Test
+    fun `Composed CompositeKnot subscribes event source`() {
+
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+
+        val eventSource = PublishSubject.create<Unit>()
+        knot.registerPrime<Change, Action>() {
+            changes {
+                reduce<Change> { only }
+            }
+            events {
+                source {
+                    eventSource.map { Change.A }
+                }
+            }
+        }
+
+        knot.compose()
+        assertThat(eventSource.hasObservers()).isTrue()
+    }
+
+    @Test
+    fun `Disposed CompositeKnot unsubscribes event source`() {
+
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+
+        val eventSource = PublishSubject.create<Unit>()
+        knot.registerPrime<Change, Action>() {
+            changes {
+                reduce<Change> { only }
+            }
+            events {
+                source {
+                    eventSource.map { Change.A }
+                }
+            }
+        }
+
+        knot.compose()
+        knot.disposable.dispose()
+        assertThat(eventSource.hasObservers()).isFalse()
     }
 }
