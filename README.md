@@ -109,7 +109,8 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Decomposable - complex knots can be decomposed into primes by related functionality.
 * Structured - easy to read and write DSL for writing better structured and less buggy code.
 * Concise - it has minimalistic API and compact implementation.
-* Testable - reducers and transformers are easy to test. 
+* Testable - reducers and transformers are easy to test.
+* Production ready - Knot is used in productive app.
 * Why not?
 
 # Download
