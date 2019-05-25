@@ -1,5 +1,7 @@
 package de.halfbit.knot
 
+import com.google.common.truth.Truth
+import io.reactivex.schedulers.Schedulers
 import org.junit.Test
 
 class CompositeKnotTest {
@@ -50,5 +52,23 @@ class CompositeKnotTest {
         }
         knot.compose()
         knot.compose()
+    }
+
+    @Test
+    fun `state { observeOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from {
+            visited = true
+            it.run()
+        }
+        val knot = compositeKnot<State> {
+            state {
+                initial = State
+                observeOn = scheduler
+            }
+        }
+        knot.state.test()
+        knot.compose()
+        Truth.assertThat(visited).isTrue()
     }
 }

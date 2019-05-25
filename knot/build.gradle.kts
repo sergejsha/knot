@@ -24,8 +24,10 @@ tasks {
     jacocoTestReport {
         reports {
             xml.isEnabled = true
-            html.isEnabled = true
-            html.destination = file("$buildDir/reports/jacoco/html")
+            with(html) {
+                isEnabled = true
+                destination = file("$buildDir/reports/jacoco/html")
+            }
         }
     }
     check {
