@@ -13,5 +13,8 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
 script:
-  - ./gradlew build test
+  - ./gradlew build
