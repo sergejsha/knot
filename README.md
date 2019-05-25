@@ -112,7 +112,7 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Structured - easy to read and write DSL for writing better structured and less buggy code.
 * Concise - it has minimalistic API and compact implementation.
 * Testable - reducers and transformers are easy to test.
-* Production ready - Knot is used in productive app.
+* Production ready - Knot is used in a productive app.
 * Why not?
 
 # Download
