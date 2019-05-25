@@ -57,7 +57,7 @@ sealed class Action {
 val knot = knot<State, Change, Action> {
     state { 
         initial = State.Empty 
-        watch { println("state: $it") }
+        watchAll { println("state: $it") }
     }
     changes {
         reduce { change ->
@@ -67,7 +67,7 @@ val knot = knot<State, Change, Action> {
                 is Change.Load.Failure -> State.Failed(error).only
             }
         }
-        watch { println("change: $it") }
+        watchAll { println("change: $it") }
     }
     actions {
         perform<Action.Load> {
@@ -75,7 +75,7 @@ val knot = knot<State, Change, Action> {
                 .map<Change> { Change.Load.Success(it) }
                 .onErrorReturn { Change.Load.Failure(it) }
         }
-        watch { println("action: $it") }
+        watchAll { println("action: $it") }
     }
     events {
         source {
