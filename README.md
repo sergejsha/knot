@@ -1,7 +1,9 @@
 # Knot
 
-[![Build Status](https://travis-ci.org/beworker/knot.svg?branch=master)](https://travis-ci.org/beworker/knot)
 [![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.halfbit%22%20a%3A%22knot%22)
+![](https://img.shields.io/badge/production-ready-brightgreen.svg)
+[![Build Status](https://travis-ci.org/beworker/knot.svg?branch=master)](https://travis-ci.org/beworker/knot)
+[![codecov](https://codecov.io/gh/beworker/knot/branch/jacoco/graph/badge.svg)](https://codecov.io/gh/beworker/knot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 Concise reactive state container library for Android applications.
@@ -26,7 +28,7 @@ Knot helps managing application state by reacting on events and performing async
 
 * **DSL**. Knot provides a concise and easy to understand DLS for writing state container logic.
 * **External events**. Knot supports mixing external events like "user location updates", "database table changes", "network state" etc. into the loop by design. All events go through the reducer first, to be processed in accordance with the current state. Thus the state handling is localized at a single place - in the reducer.
-* **Actions as side-effects**. Common unanswered question of many state containers is how to handle side-effects in reducer, when the state does not reflect the change but the app, for instance, has to show a message to the user instead. Knot answers this by allowing to issue an `Action` from the reducer, which then can be processed outside. This keeps reducer a pure function and provides a structured way for handling side-effects.
+* **Actions as side-effects**. Common unanswered question of many state containers is how to handle side-effects in reducer, when the state does not reflect the change but the app, for instance, has to show a message to the user instead. Knot answers this by allowing to issue an `Action` from the reducer, which then can be processed outside. This keeps reducer a pure function and provides a structured way of handling side-effects.
 * **Decomposition**. Knot offers a convenient and structured way of splitting code into multiple parts when the code becomes complex.
 
 # Getting Started
@@ -55,7 +57,7 @@ sealed class Action {
 val knot = knot<State, Change, Action> {
     state { 
         initial = State.Empty 
-        watch { println("state: $it") }
+        watchAll { println("state: $it") }
     }
     changes {
         reduce { change ->
@@ -65,7 +67,7 @@ val knot = knot<State, Change, Action> {
                 is Change.Load.Failure -> State.Failed(error).only
             }
         }
-        watch { println("change: $it") }
+        watchAll { println("change: $it") }
     }
     actions {
         perform<Action.Load> {
@@ -73,7 +75,7 @@ val knot = knot<State, Change, Action> {
                 .map<Change> { Change.Load.Success(it) }
                 .onErrorReturn { Change.Load.Failure(it) }
         }
-        watch { println("action: $it") }
+        watchAll { println("action: $it") }
     }
     events {
         source {
@@ -93,7 +95,7 @@ states.assertValues(
 
 Notice how inside the `reduce` function a new `State` can be combined with an `Action` using `+` operator. If only the `State` value should be returned from the reducer, the `.only` suffix is added to the `State`.
 
-# Composition
+# Decomposition
 
 If your knot becomes complex and you want to improve its redability and maintainability, you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
 
@@ -109,7 +111,8 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Decomposable - complex knots can be decomposed into primes by related functionality.
 * Structured - easy to read and write DSL for writing better structured and less buggy code.
 * Concise - it has minimalistic API and compact implementation.
-* Testable - reducers and transformers are easy to test. 
+* Testable - reducers and transformers are easy to test.
+* Production ready - Knot is used in a productive app.
 * Why not?
 
 # Download
