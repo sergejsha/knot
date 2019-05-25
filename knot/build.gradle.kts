@@ -3,6 +3,7 @@ plugins {
     `maven-publish`
     id("org.gradle.signing")
     id("org.jetbrains.dokka") version Deps.Version.dokka
+    id("jacoco")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -17,6 +18,19 @@ dependencies {
     testImplementation(Deps.truth)
     testImplementation(Deps.mockito)
     testImplementation(Deps.mockitoKotlin)
+}
+
+tasks {
+    jacocoTestReport {
+        reports {
+            xml.isEnabled = true
+            html.isEnabled = true
+            html.destination = file("$buildDir/reports/jacoco/html")
+        }
+    }
+    check {
+        dependsOn(jacocoTestReport)
+    }
 }
 
 publishing {
@@ -82,7 +96,6 @@ publishing {
             }
         }
     }
-
 }
 
 if (project.hasSigningKey()) {
