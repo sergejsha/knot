@@ -6,7 +6,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
-class CompositionTest {
+class PrimeTest {
 
     private data class State(val value: String)
 
@@ -23,7 +23,7 @@ class CompositionTest {
     }
 
     @Test
-    fun `CompositeKnot terminates with IllegalStateException if reducer cannot be found`() {
+    fun `CompositeKnot emits IllegalStateException if reducer cannot be found`() {
         val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
@@ -41,7 +41,7 @@ class CompositionTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action>() {
+        knot.registerPrime<Change, Action> {
             changes {
                 reduce<Change.A> { copy(value = it.value).only }
                 reduce<Change.B> { copy(value = it.value).only }
@@ -100,7 +100,7 @@ class CompositionTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action>() {
+        knot.registerPrime<Change, Action> {
             changes {
                 reduce<Change.A> { copy(value = it.value) + Action.A }
                 reduce<Change.ADone> { copy(value = it.value).only }
@@ -162,7 +162,7 @@ class CompositionTest {
         val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action>() {
+        knot.registerPrime<Change, Action> {
             changes {
                 reduce<Change.A> { copy(value = it.value).only }
             }
@@ -187,7 +187,7 @@ class CompositionTest {
         }
 
         val eventSource = PublishSubject.create<Unit>()
-        knot.registerPrime<Change, Action>() {
+        knot.registerPrime<Change, Action> {
             changes {
                 reduce<Change.A> { copy(value = it.value).only }
             }
@@ -217,7 +217,7 @@ class CompositionTest {
         }
 
         val eventSource = PublishSubject.create<Unit>()
-        knot.registerPrime<Change, Action>() {
+        knot.registerPrime<Change, Action> {
             changes {
                 reduce<Change> { only }
             }
@@ -240,7 +240,7 @@ class CompositionTest {
         }
 
         val eventSource = PublishSubject.create<Unit>()
-        knot.registerPrime<Change, Action>() {
+        knot.registerPrime<Change, Action> {
             changes {
                 reduce<Change> { only }
             }
@@ -254,5 +254,149 @@ class CompositionTest {
         knot.compose()
         knot.disposable.dispose()
         assertThat(eventSource.hasObservers()).isFalse()
+    }
+
+    @Test
+    fun `Reducer throws error on unexpected()`() {
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { unexpected(it) }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+        observer.assertError(IllegalStateException::class.java)
+    }
+
+    @Test
+    fun `Prime actions { watchAll } receives Action`() {
+        val watcher = PublishSubject.create<Action>()
+        val observer = watcher.test()
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+            actions {
+                watchAll { watcher.onNext(it) }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        observer.assertValues(
+            Action.A
+        )
+    }
+
+    @Test
+    fun `CompositeKnot state { watchAll } receives State`() {
+        val watcher = PublishSubject.create<State>()
+        val knot = testCompositeKnot<State> {
+            state {
+                initial = State("empty")
+                watchAll { watcher.onNext(it) }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { State("one").only }
+            }
+        }
+
+        val observer = watcher.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            State("empty"),
+            State("one")
+        )
+    }
+
+    @Test
+    fun `CompositeKnot state { watch } receives State`() {
+        val watcher = PublishSubject.create<State>()
+        val knot = testCompositeKnot<State> {
+            state {
+                initial = State("empty")
+                watch<State> { watcher.onNext(it) }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { State("one").only }
+            }
+        }
+
+        val observer = watcher.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            State("empty"),
+            State("one")
+        )
+    }
+
+    @Test
+    fun `Prime state { watchAll } receives State`() {
+        val watcher = PublishSubject.create<State>()
+        val knot = testCompositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            state {
+                watchAll { watcher.onNext(it) }
+            }
+            changes {
+                reduce<Change.A> { State("one").only }
+            }
+        }
+
+        val observer = watcher.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            State("empty"),
+            State("one")
+        )
+    }
+
+    @Test
+    fun `Prime state { watch } receives State`() {
+        val watcher = PublishSubject.create<State>()
+        val knot = testCompositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            state {
+                watch<State> { watcher.onNext(it) }
+            }
+            changes {
+                reduce<Change.A> { State("one").only }
+            }
+        }
+
+        val observer = watcher.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            State("empty"),
+            State("one")
+        )
     }
 }

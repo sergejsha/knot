@@ -185,7 +185,7 @@ internal constructor(
         }
 
         /** A function for watching [Change] emissions. */
-        fun watch(watcher: Watcher<Change>) {
+        fun watchAll(watcher: Watcher<Change>) {
             changeInterceptors += WatchingInterceptor(watcher)
         }
 

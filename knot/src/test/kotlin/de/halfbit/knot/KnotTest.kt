@@ -99,6 +99,19 @@ class KnotTest {
     }
 
     @Test
+    fun `Reducer throws error on unexpected()`() {
+        val knot = knot<State, Change, Action> {
+            state { initial = State() }
+            changes {
+                reduce { unexpected(it) }
+            }
+        }
+        val observer = knot.state.test()
+        knot.change.accept(Change)
+        observer.assertError(IllegalStateException::class.java)
+    }
+
+    @Test
     fun `state { observeOn } gets applied`() {
         var visited = false
         val scheduler = Schedulers.from {
@@ -140,4 +153,5 @@ class KnotTest {
         knot.change.accept(Change)
         assertThat(visited).isTrue()
     }
+
 }
