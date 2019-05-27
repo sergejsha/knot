@@ -121,7 +121,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    implementation 'de.halfbit:knot:<release-version>'
+    implementation 'de.halfbit:knot:<version>'
 }
 ```
 
