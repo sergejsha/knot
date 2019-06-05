@@ -24,7 +24,7 @@ class PrimeTest {
 
     @Test
     fun `CompositeKnot emits IllegalStateException if reducer cannot be found`() {
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
 
@@ -37,7 +37,7 @@ class PrimeTest {
 
     @Test
     fun `CompositeKnot picks reducers by change type`() {
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
 
@@ -66,7 +66,7 @@ class PrimeTest {
         val changeA = PublishSubject.create<Unit>()
         val changeB = PublishSubject.create<Unit>()
 
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
 
@@ -96,7 +96,7 @@ class PrimeTest {
 
     @Test
     fun `CompositeKnot performs actions`() {
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
 
@@ -135,7 +135,7 @@ class PrimeTest {
             visited = true
             it.run()
         }
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
             }
@@ -159,7 +159,7 @@ class PrimeTest {
     @Test
     fun `Disposed CompositeKnot ignores emitted changes`() {
 
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
@@ -182,7 +182,7 @@ class PrimeTest {
     @Test
     fun `Disposed CompositeKnot ignores emitted events`() {
 
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
 
@@ -212,7 +212,7 @@ class PrimeTest {
     @Test
     fun `Composed CompositeKnot subscribes event source`() {
 
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
 
@@ -235,7 +235,7 @@ class PrimeTest {
     @Test
     fun `Disposed CompositeKnot unsubscribes event source`() {
 
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
 
@@ -258,7 +258,7 @@ class PrimeTest {
 
     @Test
     fun `Reducer throws error on unexpected()`() {
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
 
@@ -278,7 +278,7 @@ class PrimeTest {
     fun `Prime actions { watchAll } receives Action`() {
         val watcher = PublishSubject.create<Action>()
         val observer = watcher.test()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
@@ -300,7 +300,7 @@ class PrimeTest {
     fun `Prime actions { watch } receives Action`() {
         val watcher = PublishSubject.create<Action>()
         val observer = watcher.test()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
@@ -322,7 +322,7 @@ class PrimeTest {
     fun `Prime actions { intercept } receives Action`() {
         val watcher = PublishSubject.create<Action>()
         val observer = watcher.test()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
@@ -344,7 +344,7 @@ class PrimeTest {
     fun `Prime changes { watchAll } receives Change`() {
         val watcher = PublishSubject.create<Change>()
         val observer = watcher.test()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
@@ -364,7 +364,7 @@ class PrimeTest {
     fun `Prime changes { watch } receives Change`() {
         val watcher = PublishSubject.create<Change>()
         val observer = watcher.test()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
@@ -384,7 +384,7 @@ class PrimeTest {
     fun `Prime changes { intercept } receives Change`() {
         val watcher = PublishSubject.create<Change>()
         val observer = watcher.test()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
@@ -403,7 +403,7 @@ class PrimeTest {
     @Test
     fun `CompositeKnot state { watchAll } receives State`() {
         val watcher = PublishSubject.create<State>()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
                 watchAll { watcher.onNext(it) }
@@ -428,7 +428,7 @@ class PrimeTest {
     @Test
     fun `CompositeKnot changes { watchAll } receives Change`() {
         val watcher = PublishSubject.create<Any>()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
             }
@@ -454,7 +454,7 @@ class PrimeTest {
     @Test
     fun `CompositeKnot actions { watchAll } receives Action`() {
         val watcher = PublishSubject.create<Any>()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
             }
@@ -480,7 +480,7 @@ class PrimeTest {
     @Test
     fun `CompositeKnot state { watch } receives State`() {
         val watcher = PublishSubject.create<State>()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
                 watch<State> { watcher.onNext(it) }
@@ -505,7 +505,7 @@ class PrimeTest {
     @Test
     fun `Prime state { watchAll } receives State`() {
         val watcher = PublishSubject.create<State>()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
             }
@@ -532,7 +532,7 @@ class PrimeTest {
     @Test
     fun `Prime state { watch } receives State`() {
         val watcher = PublishSubject.create<State>()
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
             }
@@ -559,7 +559,7 @@ class PrimeTest {
     @Test
     fun `Prime receives updates when listens to state updates inside events { } section`() {
 
-        val knot = testCompositeKnot<State> {
+        val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
             }

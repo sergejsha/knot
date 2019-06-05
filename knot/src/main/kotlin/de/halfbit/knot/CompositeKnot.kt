@@ -23,7 +23,10 @@ import kotlin.reflect.KClass
  * Once all `Primes` are registered at a `CompositeKnot`, the knot can be finally composed using
  * [compose] function and start operating.
  */
-interface CompositeKnot<State : Any> : Store<State> {
+interface CompositeKnot<State : Any> : Knot<State, Any> {
+
+    /** Change emitter used for delivering changes to this knot. */
+    override val change: Consumer<Any>
 
     /** Registers a new `Prime` at this composite knot. */
     fun <Change : Any, Action : Any> registerPrime(block: PrimeBuilder<State, Change, Action>.() -> Unit)
@@ -32,10 +35,6 @@ interface CompositeKnot<State : Any> : Store<State> {
     fun compose()
 }
 
-/** A capable of emitting `Changes` interface for testing [CompositeKnot] and its `Primes`. */
-interface TestCompositeKnot<State : Any, Change : Any> :
-    CompositeKnot<State>, Knot<State, Change>
-
 internal class DefaultCompositeKnot<State : Any>(
     private val initialState: State,
     private val observeOn: Scheduler?,
@@ -43,7 +42,7 @@ internal class DefaultCompositeKnot<State : Any>(
     private val stateInterceptors: MutableList<Interceptor<State>>,
     private val changeInterceptors: MutableList<Interceptor<Any>>,
     private val actionInterceptors: MutableList<Interceptor<Any>>
-) : CompositeKnot<State>, TestCompositeKnot<State, Any> {
+) : CompositeKnot<State> {
 
     private val reducers = mutableMapOf<KClass<out Any>, Reducer<State, Any, Any>>()
     private val actionTransformers = mutableListOf<ActionTransformer<Any, Any>>()
@@ -97,9 +96,9 @@ internal class DefaultCompositeKnot<State : Any>(
                         .also { it.action?.let { action -> actionSubject.onNext(action) } }
                         .state
                 }
+                .intercept(stateInterceptors)
                 .distinctUntilChanged()
                 .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
-                .intercept(stateInterceptors)
                 .subscribe(
                     { stateSubject.onNext(it) },
                     { stateSubject.onError(it) }
