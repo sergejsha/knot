@@ -143,9 +143,9 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
                 .also { it.action?.let { action -> actionSubject.onNext(action) } }
                 .state
         }
+        .intercept(stateInterceptors)
         .distinctUntilChanged()
         .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
-        .intercept(stateInterceptors)
         .replay(1)
         .also { disposable.add(it.connect()) }
 

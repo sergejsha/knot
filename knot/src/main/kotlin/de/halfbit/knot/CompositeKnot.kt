@@ -96,9 +96,9 @@ internal class DefaultCompositeKnot<State : Any>(
                         .also { it.action?.let { action -> actionSubject.onNext(action) } }
                         .state
                 }
+                .intercept(stateInterceptors)
                 .distinctUntilChanged()
                 .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
-                .intercept(stateInterceptors)
                 .subscribe(
                     { stateSubject.onNext(it) },
                     { stateSubject.onError(it) }
