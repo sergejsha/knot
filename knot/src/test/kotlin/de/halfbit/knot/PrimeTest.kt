@@ -452,6 +452,32 @@ class PrimeTest {
     }
 
     @Test
+    fun `CompositeKnot actions { watchAll } receives Action`() {
+        val watcher = PublishSubject.create<Any>()
+        val knot = testCompositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+            actions {
+                watchAll { watcher.onNext(it) }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { State("one") + Action.A }
+            }
+        }
+
+        val observer = watcher.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            Action.A
+        )
+    }
+
+    @Test
     fun `CompositeKnot state { watch } receives State`() {
         val watcher = PublishSubject.create<State>()
         val knot = testCompositeKnot<State> {
@@ -529,4 +555,37 @@ class PrimeTest {
             State("one")
         )
     }
+
+    @Test
+    fun `Prime receives updates when listens to state updates inside events { } section`() {
+
+        val knot = testCompositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+        }
+
+        val stateObserver = knot.state.test()
+        knot.registerPrime<Change, Unit> {
+            changes {
+                reduce<Change.A> {
+                    State("one").only
+                }
+            }
+            events {
+                source {
+                    knot.state
+                        .filter { it.value == "empty" }
+                        .map { Change.A }
+                }
+            }
+        }
+        knot.compose()
+
+        stateObserver.assertValues(
+            State("empty"),
+            State("one")
+        )
+    }
+
 }

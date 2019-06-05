@@ -44,12 +44,17 @@ internal constructor() {
     }
 
     /** A section for `Change` related declarations. */
-    fun changes(block: ChangesBuilder<Any>.() -> Unit) {
+    fun changes(block: ChangesBuilder.() -> Unit) {
         ChangesBuilder(changeInterceptors)
             .also {
                 block(it)
                 reduceOn = it.reduceOn
             }
+    }
+
+    /** A section for `Action` related declarations. */
+    fun actions(block: ActionsBuilder.() -> Unit) {
+        ActionsBuilder(actionInterceptors).also(block)
     }
 
     internal fun build() = DefaultCompositeKnot(
@@ -63,21 +68,29 @@ internal constructor() {
 
     /** A configuration builder for `Changes`. */
     @KnotDsl
-    class ChangesBuilder<Change : Any>
+    class ChangesBuilder
     internal constructor(
-        private val changeInterceptors: MutableList<Interceptor<Change>>
+        private val changeInterceptors: MutableList<Interceptor<Any>>
     ) {
         /** An optional [Scheduler] used for reduce function. */
         var reduceOn: Scheduler? = null
 
-        /** A function for intercepting [Change] emissions. */
-        fun intercept(interceptor: Interceptor<Change>) {
-            changeInterceptors += interceptor
-        }
-
-        /** A function for watching [Change] emissions. */
-        fun watchAll(watcher: Watcher<Change>) {
+        /** A function for watching `Change` emissions. */
+        fun watchAll(watcher: Watcher<Any>) {
             changeInterceptors += WatchingInterceptor(watcher)
+        }
+    }
+
+    /** A configuration builder for `Action` related declarations. */
+    @KnotDsl
+    class ActionsBuilder
+    internal constructor(
+        private val actionInterceptors: MutableList<Interceptor<Any>>
+    ) {
+
+        /** A function for watching `Action` emissions. */
+        fun watchAll(watcher: Watcher<Any>) {
+            actionInterceptors += WatchingInterceptor(watcher)
         }
     }
 }

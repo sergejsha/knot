@@ -71,16 +71,12 @@ internal class DefaultCompositeKnot<State : Any>(
     override val state = stateSubject
     override val disposable = CompositeDisposable()
     override val change: Consumer<Any> = Consumer {
-        if (!composed.get()) {
-            error("compose() must be called before emitting any change.")
-        }
+        check(composed.get()) { "compose() must be called before emitting any change." }
         changeSubject.onNext(it)
     }
 
     override fun compose() {
-        if (composed.getAndSet(true)) {
-            error("compose() must be called just once.")
-        }
+        check(!composed.getAndSet(true)) { "compose() must be called just once." }
         disposable.add(
             Observable
                 .merge(
