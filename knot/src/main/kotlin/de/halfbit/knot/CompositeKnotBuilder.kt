@@ -1,22 +1,12 @@
 package de.halfbit.knot
 
 import io.reactivex.Scheduler
-import org.jetbrains.annotations.TestOnly
 import kotlin.reflect.KClass
 
 /** Creates a [CompositeKnot]. */
 fun <State : Any> compositeKnot(
     block: CompositeKnotBuilder<State>.() -> Unit
 ): CompositeKnot<State> =
-    CompositeKnotBuilder<State>()
-        .also(block)
-        .build()
-
-/** Creates a [TestCompositeKnot]. To be used in tests only. */
-@TestOnly
-fun <State : Any> testCompositeKnot(
-    block: CompositeKnotBuilder<State>.() -> Unit
-): TestCompositeKnot<State, Any> =
     CompositeKnotBuilder<State>()
         .also(block)
         .build()
