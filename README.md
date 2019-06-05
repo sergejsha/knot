@@ -1,6 +1,6 @@
 # Knot
 
-[![GitHub release](https://img.shields.io/github/release/beworker/knot.svg)](https://repo.maven.apache.org/maven2/de/halfbit/knot/)
+[![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.halfbit%22%20a%3A%22knot%22)
 ![](https://img.shields.io/badge/production-ready-brightgreen.svg)
 [![Build Status](https://travis-ci.org/beworker/knot.svg?branch=master)](https://travis-ci.org/beworker/knot)
 [![codecov](https://codecov.io/gh/beworker/knot/branch/master/graph/badge.svg)](https://codecov.io/gh/beworker/knot)
