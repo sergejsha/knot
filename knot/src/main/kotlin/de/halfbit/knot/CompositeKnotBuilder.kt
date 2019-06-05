@@ -81,7 +81,7 @@ internal constructor() {
         }
     }
 
-    /** A configuration builder for [Action] related declarations. */
+    /** A configuration builder for `Action` related declarations. */
     @KnotDsl
     class ActionsBuilder
     internal constructor(

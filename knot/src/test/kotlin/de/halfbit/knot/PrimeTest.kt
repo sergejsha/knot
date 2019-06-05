@@ -557,7 +557,7 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime receives updates when uses state as events soruce`() {
+    fun `Prime receives updates when listens to state updates inside events { } section`() {
 
         val knot = testCompositeKnot<State> {
             state {
