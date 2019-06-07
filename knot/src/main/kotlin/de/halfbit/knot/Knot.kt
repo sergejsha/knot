@@ -85,10 +85,26 @@ interface Store<State : Any> {
 }
 
 /** Convenience wrapper around [State] and optional [Action]. */
-class Effect<State : Any, Action : Any>(
-    val state: State,
-    val action: Action? = null
-)
+sealed class Effect<State : Any, Action : Any> {
+    abstract fun plus(action: Action): Effect<State, Action>
+
+    data class WithAction<State : Any, Action : Any>(
+        val state: State,
+        val action: Action? = null
+    ) : Effect<State, Action>() {
+        override fun plus(action: Action): Effect<State, Action> =
+            if (this.action == null) WithAction(state, action)
+            else WithActions(state, listOf(this.action, action))
+    }
+
+    data class WithActions<State : Any, Action : Any>(
+        val state: State,
+        val actions: List<Action>
+    ) : Effect<State, Action>() {
+        override fun plus(action: Action): Effect<State, Action> =
+            WithActions(state, actions + action)
+    }
+}
 
 /** A function accepting the `State` and a `Change` and returning a new `State`. */
 typealias Reducer<State, Change, Action> = State.(change: Change) -> Effect<State, Action>
@@ -138,17 +154,26 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
         .let { stream -> reduceOn?.let { stream.observeOn(it) } ?: stream }
         .intercept(changeInterceptors)
         .serialize()
-        .scan(initialState) { state, change ->
-            reducer(state, change)
-                .also { it.action?.let { action -> actionSubject.onNext(action) } }
-                .state
-        }
+        .scan(initialState) { state, change -> reducer(state, change).emitActions(actionSubject) }
         .intercept(stateInterceptors)
         .distinctUntilChanged()
         .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
         .replay(1)
         .also { disposable.add(it.connect()) }
 
+}
+
+internal fun <State : Any, Action : Any> Effect<State, Action>.emitActions(
+    actionSubject: PublishSubject<Action>
+): State = when (this) {
+    is Effect.WithAction -> {
+        action?.let { action -> actionSubject.onNext(action) }
+        state
+    }
+    is Effect.WithActions -> {
+        for (action in actions) actionSubject.onNext(action)
+        state
+    }
 }
 
 internal fun <T> Observable<T>.intercept(interceptors: List<Interceptor<T>>): Observable<T> =
