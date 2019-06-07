@@ -92,9 +92,7 @@ internal class DefaultCompositeKnot<State : Any>(
                 .serialize()
                 .scan(initialState) { state, change ->
                     val reducer = reducers[change::class] ?: error("Cannot find reducer for $change")
-                    reducer(state, change)
-                        .also { it.action?.let { action -> actionSubject.onNext(action) } }
-                        .state
+                    reducer(state, change).emitActions(actionSubject)
                 }
                 .intercept(stateInterceptors)
                 .distinctUntilChanged()
