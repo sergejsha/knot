@@ -4,6 +4,7 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
+import java.util.concurrent.atomic.AtomicBoolean
 
 /** Creates a [TestCompositeKnot]. */
 fun <State : Any> testCompositeKnot(
@@ -31,14 +32,23 @@ internal class DefaultTestCompositeKnot<State : Any>(
     private val actionSubject: PublishSubject<Any>
 ) : TestCompositeKnot<State> {
 
+    private val composed = AtomicBoolean()
+
     override val action: Observable<Any> = actionSubject
-    override val actionConsumer: Consumer<Any> = Consumer { actionSubject.onNext(it) }
+    override val actionConsumer: Consumer<Any> = Consumer {
+        check(composed.get()) { "compose() must be called before emitting actions" }
+        actionSubject.onNext(it)
+    }
 
     override fun <Change : Any, Action : Any> registerPrime(
         block: PrimeBuilder<State, Change, Action>.() -> Unit
     ) = compositeKnot.registerPrime(block)
 
-    override fun compose() = compositeKnot.compose()
+    override fun compose() {
+        composed.set(true)
+        compositeKnot.compose()
+    }
+
     override val change: Consumer<Any> = compositeKnot.change
     override val state: Observable<State> = compositeKnot.state
     override val disposable: Disposable = compositeKnot.disposable
