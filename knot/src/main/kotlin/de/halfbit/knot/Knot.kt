@@ -6,6 +6,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 
 /**
  * Knot helps managing application state by reacting on events and performing asynchronous
@@ -164,7 +165,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
 }
 
 internal fun <State : Any, Action : Any> Effect<State, Action>.emitActions(
-    actionSubject: PublishSubject<Action>
+    actionSubject: Subject<Action>
 ): State = when (this) {
     is Effect.WithAction -> {
         action?.let { action -> actionSubject.onNext(action) }
