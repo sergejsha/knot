@@ -1,6 +1,8 @@
 package de.halfbit.knot
 
 import io.reactivex.Scheduler
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 import kotlin.reflect.KClass
 
 /** Creates a [CompositeKnot]. */
@@ -9,7 +11,9 @@ fun <State : Any> compositeKnot(
 ): CompositeKnot<State> =
     CompositeKnotBuilder<State>()
         .also(block)
-        .build()
+        .build(
+            actionSubject = PublishSubject.create<Any>()
+        )
 
 /** A configuration builder for a [CompositeKnot]. */
 @KnotDsl
@@ -47,13 +51,16 @@ internal constructor() {
         ActionsBuilder(actionInterceptors).also(block)
     }
 
-    internal fun build() = DefaultCompositeKnot(
+    internal fun build(
+        actionSubject: Subject<Any>
+    ) = DefaultCompositeKnot(
         initialState = checkNotNull(initialState) { "state { initial } must be set" },
         observeOn = observeOn,
         reduceOn = reduceOn,
         stateInterceptors = stateInterceptors,
         changeInterceptors = changeInterceptors,
-        actionInterceptors = actionInterceptors
+        actionInterceptors = actionInterceptors,
+        actionSubject = actionSubject
     )
 
     /** A configuration builder for `Changes`. */

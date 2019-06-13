@@ -6,6 +6,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.reflect.KClass
 
@@ -25,9 +26,6 @@ import kotlin.reflect.KClass
  */
 interface CompositeKnot<State : Any> : Knot<State, Any> {
 
-    /** Change emitter used for delivering changes to this knot. */
-    override val change: Consumer<Any>
-
     /** Registers a new `Prime` at this composite knot. */
     fun <Change : Any, Action : Any> registerPrime(block: PrimeBuilder<State, Change, Action>.() -> Unit)
 
@@ -41,7 +39,8 @@ internal class DefaultCompositeKnot<State : Any>(
     private val reduceOn: Scheduler?,
     private val stateInterceptors: MutableList<Interceptor<State>>,
     private val changeInterceptors: MutableList<Interceptor<Any>>,
-    private val actionInterceptors: MutableList<Interceptor<Any>>
+    private val actionInterceptors: MutableList<Interceptor<Any>>,
+    private val actionSubject: Subject<Any>
 ) : CompositeKnot<State> {
 
     private val reducers = mutableMapOf<KClass<out Any>, Reducer<State, Any, Any>>()
@@ -51,7 +50,6 @@ internal class DefaultCompositeKnot<State : Any>(
 
     private val stateSubject = BehaviorSubject.create<State>()
     private val changeSubject = PublishSubject.create<Any>()
-    private val actionSubject = PublishSubject.create<Any>()
 
     override fun <Change : Any, Action : Any> registerPrime(
         block: PrimeBuilder<State, Change, Action>.() -> Unit
