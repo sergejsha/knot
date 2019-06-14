@@ -33,6 +33,44 @@ class KnotEffectTest {
     }
 
     @Test
+    fun `Knot Effect + null action`() {
+        val actions = PublishSubject.create<Action>()
+        val knot = knot<State, Change, Action> {
+            state {
+                initial = State
+            }
+            changes {
+                reduce { only + null  }
+            }
+            actions {
+                watchAll { actions.onNext(it) }
+            }
+        }
+        val observer = actions.test()
+        knot.change.accept(Change)
+        observer.assertEmpty()
+    }
+
+    @Test
+    fun `Knot Effect this + null action`() {
+        val actions = PublishSubject.create<Action>()
+        val knot = knot<State, Change, Action> {
+            state {
+                initial = State
+            }
+            changes {
+                reduce { this + null }
+            }
+            actions {
+                watchAll { actions.onNext(it) }
+            }
+        }
+        val observer = actions.test()
+        knot.change.accept(Change)
+        observer.assertEmpty()
+    }
+
+    @Test
     fun `Knot Effect this + one action`() {
         val actions = PublishSubject.create<Action>()
         val knot = knot<State, Change, Action> {
@@ -123,6 +161,50 @@ class KnotEffectTest {
         compositeKnot.registerPrime<Change, Action> {
             changes {
                 reduce<Change> { only }
+            }
+            actions {
+                watchAll { actions.onNext(it) }
+            }
+        }
+        compositeKnot.compose()
+        val observer = actions.test()
+        compositeKnot.change.accept(Change)
+        observer.assertEmpty()
+    }
+
+    @Test
+    fun `CompositeKnot Effect + null action`() {
+        val actions = PublishSubject.create<Action>()
+        val compositeKnot = compositeKnot<State> {
+            state {
+                initial = State
+            }
+        }
+        compositeKnot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change> { only + null }
+            }
+            actions {
+                watchAll { actions.onNext(it) }
+            }
+        }
+        compositeKnot.compose()
+        val observer = actions.test()
+        compositeKnot.change.accept(Change)
+        observer.assertEmpty()
+    }
+
+    @Test
+    fun `CompositeKnot Effect this + null action`() {
+        val actions = PublishSubject.create<Action>()
+        val compositeKnot = compositeKnot<State> {
+            state {
+                initial = State
+            }
+        }
+        compositeKnot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change> { this + null }
             }
             actions {
                 watchAll { actions.onNext(it) }

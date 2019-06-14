@@ -87,23 +87,27 @@ interface Store<State : Any> {
 
 /** Convenience wrapper around [State] and optional [Action]. */
 sealed class Effect<State : Any, Action : Any> {
-    abstract fun plus(action: Action): Effect<State, Action>
+    abstract fun plus(action: Action?): Effect<State, Action>
 
     data class WithAction<State : Any, Action : Any>(
         val state: State,
         val action: Action? = null
     ) : Effect<State, Action>() {
-        override fun plus(action: Action): Effect<State, Action> =
-            if (this.action == null) WithAction(state, action)
-            else WithActions(state, listOf(this.action, action))
+        override fun plus(action: Action?): Effect<State, Action> =
+            when {
+                action == null -> this
+                this.action == null -> WithAction(state, action)
+                else -> WithActions(state, listOf(this.action, action))
+            }
     }
 
     data class WithActions<State : Any, Action : Any>(
         val state: State,
         val actions: List<Action>
     ) : Effect<State, Action>() {
-        override fun plus(action: Action): Effect<State, Action> =
-            WithActions(state, actions + action)
+        override fun plus(action: Action?): Effect<State, Action> =
+            if (action == null) this
+            else WithActions(state, actions + action)
     }
 }
 
