@@ -87,7 +87,9 @@ interface Store<State : Any> {
 
 /** Convenience wrapper around [State] and optional [Action]. */
 sealed class Effect<State : Any, Action : Any> {
-    abstract fun plus(action: Action?): Effect<State, Action>
+
+    /** Adds another action to [Effect]. */
+    abstract operator fun plus(action: Action?): Effect<State, Action>
 
     data class WithAction<State : Any, Action : Any>(
         val state: State,
