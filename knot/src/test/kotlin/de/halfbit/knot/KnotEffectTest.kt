@@ -281,6 +281,30 @@ class KnotEffectTest {
     }
 
     @Test
+    fun `CompositeKnot Effect this + one action + null`() {
+        val actions = PublishSubject.create<Action>()
+        val compositeKnot = compositeKnot<State> {
+            state {
+                initial = State
+            }
+        }
+        compositeKnot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change> { this + Action.One + null }
+            }
+            actions {
+                watchAll { actions.onNext(it) }
+            }
+        }
+        compositeKnot.compose()
+        val observer = actions.test()
+        compositeKnot.change.accept(Change)
+        observer.assertValues(
+            Action.One
+        )
+    }
+
+    @Test
     fun `CompositeKnot Effect only + one action`() {
         val actions = PublishSubject.create<Action>()
         val compositeKnot = compositeKnot<State> {
@@ -306,6 +330,30 @@ class KnotEffectTest {
 
     @Test
     fun `CompositeKnot Effect only + two actions`() {
+        val actions = PublishSubject.create<Action>()
+        val compositeKnot = compositeKnot<State> {
+            state {
+                initial = State
+            }
+        }
+        compositeKnot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change> { this + Action.One + Action.Two }
+            }
+            actions {
+                watchAll { actions.onNext(it) }
+            }
+        }
+        compositeKnot.compose()
+        val observer = actions.test()
+        compositeKnot.change.accept(Change)
+        observer.assertValues(
+            Action.One, Action.Two
+        )
+    }
+
+    @Test
+    fun `CompositeKnot Effect only + two actions + null`() {
         val actions = PublishSubject.create<Action>()
         val compositeKnot = compositeKnot<State> {
             state {
