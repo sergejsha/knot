@@ -362,7 +362,7 @@ class KnotEffectTest {
         }
         compositeKnot.registerPrime<Change, Action> {
             changes {
-                reduce<Change> { this + Action.One + Action.Two }
+                reduce<Change> { this + Action.One + Action.Two + null }
             }
             actions {
                 watchAll { actions.onNext(it) }
