@@ -203,10 +203,7 @@ internal constructor(
         val State.only: Effect<State, Action> get() = Effect.WithAction(this)
 
         /** Combines [State] and [Action] into [Effect]. */
-        operator fun State.plus(action: Action) = Effect.WithAction(this, action)
-
-        /** Adds another action to [Effect]. */
-        operator fun Effect<State, Action>.plus(action: Action) = plus(action)
+        operator fun State.plus(action: Action?) = Effect.WithAction(this, action)
 
         /** Throws [IllegalStateException] with current [State] and given [Change] in its message. */
         fun State.unexpected(change: Change): Nothing = error("Unexpected $change in $this")
