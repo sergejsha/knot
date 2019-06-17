@@ -90,6 +90,25 @@ class KnotEffectTest {
     }
 
     @Test
+    fun `Knot Effect this + one action + null`() {
+        val actions = PublishSubject.create<Action>()
+        val knot = knot<State, Change, Action> {
+            state {
+                initial = State
+            }
+            changes {
+                reduce { this + Action.One + null }
+            }
+            actions {
+                watchAll { actions.onNext(it) }
+            }
+        }
+        val observer = actions.test()
+        knot.change.accept(Change)
+        observer.assertValues(Action.One)
+    }
+
+    @Test
     fun `Knot Effect only + one action`() {
         val actions = PublishSubject.create<Action>()
         val knot = knot<State, Change, Action> {
@@ -117,6 +136,27 @@ class KnotEffectTest {
             }
             changes {
                 reduce { this + Action.One + Action.Two }
+            }
+            actions {
+                watchAll { actions.onNext(it) }
+            }
+        }
+        val observer = actions.test()
+        knot.change.accept(Change)
+        observer.assertValues(
+            Action.One, Action.Two
+        )
+    }
+
+    @Test
+    fun `Knot Effect this + two actions + null`() {
+        val actions = PublishSubject.create<Action>()
+        val knot = knot<State, Change, Action> {
+            state {
+                initial = State
+            }
+            changes {
+                reduce { this + Action.One + Action.Two + null }
             }
             actions {
                 watchAll { actions.onNext(it) }
