@@ -1,7 +1,7 @@
 object Deps {
 
     object Version {
-        const val kotlin = "1.3.31"
+        const val kotlin = "1.3.41"
         const val dokka = "0.9.17"
         const val jvmTarget = "1.6"
     }

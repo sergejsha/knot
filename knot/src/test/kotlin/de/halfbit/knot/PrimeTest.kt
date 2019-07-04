@@ -401,6 +401,32 @@ class PrimeTest {
     }
 
     @Test
+    fun `Prime state { intercept } intercepts after distinctUntilChanged`() {
+        val interceptor = PublishSubject.create<State>()
+        val observer = interceptor.test()
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+                intercept {
+                    it.doOnNext { state -> interceptor.onNext(state) }
+                }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { State("changed").only }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        knot.change.accept(Change.A)
+        observer.assertValues(
+            State("empty"),
+            State("changed")
+        )
+    }
+
+    @Test
     fun `CompositeKnot state { watchAll } receives State`() {
         val watcher = PublishSubject.create<State>()
         val knot = compositeKnot<State> {
