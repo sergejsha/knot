@@ -10,7 +10,7 @@ import org.junit.Test
 
 class KnotTest {
 
-    private data class State(val value: Int = 0)
+    private data class State(val value: String)
     private object Change
     private object Action
 
@@ -23,14 +23,14 @@ class KnotTest {
     fun `DSL builder requires reducer`() {
         knot<State, Change, Action> {
             state {
-                initial = State()
+                initial = State("empty")
             }
         }
     }
 
     @Test
     fun `Initial state gets dispatched`() {
-        val state = State()
+        val state = State("empty")
         val knot = knot<State, Change, Action> {
             state {
                 initial = state
@@ -47,15 +47,15 @@ class KnotTest {
     fun `Reduces updates state`() {
         val knot = knot<State, Change, Action> {
             state {
-                initial = State()
+                initial = State("empty")
             }
             changes {
-                reduce { State(1).only }
+                reduce { State("one").only }
             }
         }
         val observable = knot.state.test()
         knot.change.accept(Change)
-        observable.assertValues(State(0), State(1))
+        observable.assertValues(State("empty"), State("one"))
     }
 
     @Test
@@ -66,7 +66,7 @@ class KnotTest {
 
         knot<State, Change, Action> {
             state {
-                initial = State()
+                initial = State("empty")
             }
             changes {
                 reduce { this.only }
@@ -86,7 +86,7 @@ class KnotTest {
 
         knot<State, Change, Action> {
             state {
-                initial = State()
+                initial = State("empty")
             }
             changes {
                 reduce { this.only }
@@ -101,7 +101,7 @@ class KnotTest {
     @Test
     fun `Reducer throws error on unexpected()`() {
         val knot = knot<State, Change, Action> {
-            state { initial = State() }
+            state { initial = State("empty") }
             changes {
                 reduce { unexpected(it) }
             }
@@ -120,7 +120,7 @@ class KnotTest {
         }
         val knot = knot<State, Change, Action> {
             state {
-                initial = State()
+                initial = State("empty")
                 observeOn = scheduler
             }
             changes {
@@ -141,7 +141,7 @@ class KnotTest {
         }
         val knot = knot<State, Change, Action> {
             state {
-                initial = State()
+                initial = State("empty")
             }
             changes {
                 reduce { this.only }
@@ -154,4 +154,49 @@ class KnotTest {
         assertThat(visited).isTrue()
     }
 
+    @Test
+    fun `State gets gets filtered, if it's the same`() {
+        val knot = knot<State, Change, Action> {
+            state {
+                initial = State("empty")
+            }
+            changes {
+                reduce {
+                    if (value == "empty") State("one").only else only
+                }
+            }
+        }
+        val observable = knot.state.test()
+        knot.change.accept(Change)
+        knot.change.accept(Change)
+        knot.change.accept(Change)
+        observable.assertValues(
+            State("empty"),
+            State("one")
+        )
+    }
+
+    @Test
+    fun `State gets gets dispatched, if it's equal but not the same`() {
+        val knot = knot<State, Change, Action> {
+            state {
+                initial = State("empty")
+            }
+            changes {
+                reduce {
+                    State("one").only
+                }
+            }
+        }
+        val observable = knot.state.test()
+        knot.change.accept(Change)
+        knot.change.accept(Change)
+        knot.change.accept(Change)
+        observable.assertValues(
+            State("empty"),
+            State("one"),
+            State("one"),
+            State("one")
+        )
+    }
 }

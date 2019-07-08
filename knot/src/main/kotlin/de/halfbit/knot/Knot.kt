@@ -162,7 +162,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
         .serialize()
         .intercept(changeInterceptors)
         .scan(initialState) { state, change -> reducer(state, change).emitActions(actionSubject) }
-        .distinctUntilChanged()
+        .distinctUntilChanged { prev, curr -> prev === curr }
         .intercept(stateInterceptors)
         .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
         .replay(1)

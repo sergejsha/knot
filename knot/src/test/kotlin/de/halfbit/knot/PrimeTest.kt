@@ -414,7 +414,9 @@ class PrimeTest {
         }
         knot.registerPrime<Change, Action> {
             changes {
-                reduce<Change.A> { State("changed").only }
+                reduce<Change.A> {
+                    if (value == "empty") State("changed").only else only
+                }
             }
         }
         knot.compose()
@@ -524,6 +526,62 @@ class PrimeTest {
 
         observer.assertValues(
             State("empty"),
+            State("one")
+        )
+    }
+
+    @Test
+    fun `CompositeKnot filters same state before dispatching`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> {
+                    if (value == "empty") State("one").only else only
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+        knot.change.accept(Change.A)
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            State("empty"),
+            State("one")
+        )
+    }
+
+    @Test
+    fun `CompositeKnot dispatches equal but not the same state`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> {
+                    State("one").only
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+        knot.change.accept(Change.A)
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            State("empty"),
+            State("one"),
+            State("one"),
             State("one")
         )
     }
