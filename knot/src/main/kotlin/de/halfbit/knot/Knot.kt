@@ -125,10 +125,10 @@ typealias ActionTransformer<Action, Change> = (action: Observable<Action>) -> Ob
 /** A function used for performing given `Action` and emitting resulting `Change` or *Changes*. */
 typealias ActionTransformerWithReceiver<Action, Change> = Observable<Action>.() -> Observable<Change>
 
-/** A function user for intercepting events of given type. */
+/** A function used for intercepting events of given type. */
 typealias Interceptor<Type> = (value: Observable<Type>) -> Observable<Type>
 
-/** A function user for consuming events of given type. */
+/** A function used for consuming events of given type. */
 typealias Watcher<Type> = (value: Type) -> Unit
 
 internal class DefaultKnot<State : Any, Change : Any, Action : Any>(

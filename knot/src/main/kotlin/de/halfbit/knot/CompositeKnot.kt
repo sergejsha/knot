@@ -11,14 +11,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.reflect.KClass
 
 /**
- * If your [Knot] becomes big and you want to improve its redability and maintainability, you may consider
+ * If your [Knot] becomes big and you want to improve its readability and maintainability, you may consider
  * to decompose it. You start decomposition by grouping related functionality into, in a certain sense,
- * indecomposable pieces called `Primes`.
+ * undecomposable pieces called `Primes`.
  *
  * [Flowchart diagram](https://github.com/beworker/knot/raw/master/docs/diagrams/flowchart-composite-knot.png)
  *
  * Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and
- * `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can
+ * `Reducers`. It's only the `State`, that is shared between the `Primes`. In that respect each `Prime` can
  * be seen as a separate [Knot] working on a shared `State`.
  *
  * Once all `Primes` are registered at a `CompositeKnot`, the knot can be finally composed using
