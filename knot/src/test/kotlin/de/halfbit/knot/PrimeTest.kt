@@ -170,7 +170,7 @@ class PrimeTest {
 
         val observer = knot.state.test()
         knot.compose()
-        knot.disposable.dispose()
+        knot.dispose()
 
         knot.change.accept(Change.A)
 
@@ -200,7 +200,7 @@ class PrimeTest {
 
         val observer = knot.state.test()
         knot.compose()
-        knot.disposable.dispose()
+        knot.dispose()
 
         eventSource.onNext(Unit)
 
@@ -252,7 +252,7 @@ class PrimeTest {
         }
 
         knot.compose()
-        knot.disposable.dispose()
+        knot.dispose()
         assertThat(eventSource.hasObservers()).isFalse()
     }
 
@@ -671,5 +671,4 @@ class PrimeTest {
             State("one")
         )
     }
-
 }

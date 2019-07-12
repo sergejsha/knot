@@ -1,7 +1,6 @@
 package de.halfbit.knot
 
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.atomic.AtomicBoolean
@@ -57,11 +56,12 @@ internal class DefaultTestCompositeKnot<State : Any>(
     ) = compositeKnot.registerPrime(block)
 
     override fun compose() {
-        composed.set(true)
         compositeKnot.compose()
+        composed.set(true)
     }
 
     override val change: Consumer<Any> = compositeKnot.change
     override val state: Observable<State> = compositeKnot.state
-    override val disposable: Disposable = compositeKnot.disposable
+    override fun isDisposed(): Boolean = compositeKnot.isDisposed
+    override fun dispose() = compositeKnot.dispose()
 }

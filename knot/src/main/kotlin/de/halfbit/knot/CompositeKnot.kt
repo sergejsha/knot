@@ -47,6 +47,7 @@ internal class DefaultCompositeKnot<State : Any>(
     private val actionTransformers = mutableListOf<ActionTransformer<Any, Any>>()
     private val eventSources = mutableListOf<EventSource<Any>>()
     private val composed = AtomicBoolean(false)
+    private val disposables = CompositeDisposable()
 
     private val stateSubject = BehaviorSubject.create<State>()
     private val changeSubject = PublishSubject.create<Any>()
@@ -65,8 +66,9 @@ internal class DefaultCompositeKnot<State : Any>(
         ).also(block as PrimeBuilder<State, Any, Any>.() -> Unit)
     }
 
+    override fun isDisposed(): Boolean = disposables.isDisposed
+    override fun dispose() = disposables.dispose()
     override val state = stateSubject
-    override val disposable = CompositeDisposable()
     override val change: Consumer<Any> = Consumer {
         check(composed.get()) { "compose() must be called before emitting any change." }
         changeSubject.onNext(it)
@@ -74,7 +76,7 @@ internal class DefaultCompositeKnot<State : Any>(
 
     override fun compose() {
         check(!composed.getAndSet(true)) { "compose() must be called just once." }
-        disposable.add(
+        disposables.add(
             Observable
                 .merge(
                     mutableListOf<Observable<Any>>().apply {
