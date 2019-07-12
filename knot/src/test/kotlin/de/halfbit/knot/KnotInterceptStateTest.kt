@@ -131,4 +131,30 @@ class KnotInterceptStateTest {
             State.One
         )
     }
+
+    @Test
+    fun `state { intercept } intercepts after distinctUntilChanged`() {
+        val interceptor = PublishSubject.create<State>()
+        val observer = interceptor.test()
+        val knot = knot<State, Change, Action> {
+            state {
+                initial = State.Zero
+                intercept { state -> state.doOnNext { interceptor.onNext(it) } }
+            }
+            changes {
+                reduce { change ->
+                    when (change) {
+                        Change.One -> State.One.only
+                    }
+                }
+            }
+        }
+        knot.change.accept(Change.One)
+        knot.change.accept(Change.One)
+        knot.change.accept(Change.One)
+        observer.assertValues(
+            State.Zero,
+            State.One
+        )
+    }
 }

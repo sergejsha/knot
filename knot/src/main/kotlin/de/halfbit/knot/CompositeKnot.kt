@@ -86,15 +86,15 @@ internal class DefaultCompositeKnot<State : Any>(
                     }
                 )
                 .let { stream -> reduceOn?.let { stream.observeOn(it) } ?: stream }
-                .intercept(changeInterceptors)
                 .serialize()
+                .intercept(changeInterceptors)
                 .scan(initialState) { state, change ->
                     val reducer = reducers[change::class] ?: error("Cannot find reducer for $change")
                     reducer(state, change).emitActions(actionSubject)
                 }
-                .intercept(stateInterceptors)
-                .distinctUntilChanged()
+                .distinctUntilChanged { prev, curr -> prev === curr }
                 .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
+                .intercept(stateInterceptors)
                 .subscribe(
                     { stateSubject.onNext(it) },
                     { stateSubject.onError(it) }

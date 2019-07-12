@@ -401,6 +401,34 @@ class PrimeTest {
     }
 
     @Test
+    fun `Prime state { intercept } intercepts after distinctUntilChanged`() {
+        val interceptor = PublishSubject.create<State>()
+        val observer = interceptor.test()
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+                intercept {
+                    it.doOnNext { state -> interceptor.onNext(state) }
+                }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> {
+                    if (value == "empty") State("changed").only else only
+                }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        knot.change.accept(Change.A)
+        observer.assertValues(
+            State("empty"),
+            State("changed")
+        )
+    }
+
+    @Test
     fun `CompositeKnot state { watchAll } receives State`() {
         val watcher = PublishSubject.create<State>()
         val knot = compositeKnot<State> {
@@ -498,6 +526,62 @@ class PrimeTest {
 
         observer.assertValues(
             State("empty"),
+            State("one")
+        )
+    }
+
+    @Test
+    fun `CompositeKnot filters same state before dispatching`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> {
+                    if (value == "empty") State("one").only else only
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+        knot.change.accept(Change.A)
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            State("empty"),
+            State("one")
+        )
+    }
+
+    @Test
+    fun `CompositeKnot dispatches equal but not the same state`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> {
+                    State("one").only
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.compose()
+        knot.change.accept(Change.A)
+        knot.change.accept(Change.A)
+        knot.change.accept(Change.A)
+
+        observer.assertValues(
+            State("empty"),
+            State("one"),
+            State("one"),
             State("one")
         )
     }
