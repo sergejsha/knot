@@ -6,7 +6,9 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import org.junit.Test
+import java.util.concurrent.atomic.AtomicBoolean
 
 class KnotTest {
 
@@ -198,5 +200,62 @@ class KnotTest {
             State("one"),
             State("one")
         )
+    }
+
+    @Test
+    fun `isDisposed returns false if not has not been disposed`() {
+        val knot = knot<State, Change, Action> {
+            state { initial = State("empty") }
+            changes { reduce { only } }
+        }
+        assertThat(knot.isDisposed).isFalse()
+    }
+
+    @Test
+    fun `isDisposed returns true if Knot has been disposed`() {
+        val knot = knot<State, Change, Action> {
+            state { initial = State("empty") }
+            changes { reduce { only } }
+        }
+        knot.dispose()
+        assertThat(knot.isDisposed).isTrue()
+    }
+
+    @Test
+    fun `Disposed Knot disposes events`() {
+        val events = PublishSubject.create<Unit>()
+        val isDisposed = AtomicBoolean()
+        val knot = knot<State, Change, Action> {
+            state { initial = State("empty") }
+            changes { reduce { only } }
+            events {
+                source {
+                    events
+                        .doOnDispose { isDisposed.set(true) }
+                        .map { Change }
+                }
+            }
+        }
+        knot.dispose()
+        assertThat(isDisposed.get()).isTrue()
+    }
+
+    @Test
+    fun `Disposed Knot disposes actions`() {
+        val actions = PublishSubject.create<Unit>()
+        val isDisposed = AtomicBoolean()
+        val knot = knot<State, Change, Action> {
+            state { initial = State("empty") }
+            changes { reduce { only } }
+            actions {
+                perform<Action> {
+                    actions
+                        .doOnDispose { isDisposed.set(true) }
+                        .map { Change }
+                }
+            }
+        }
+        knot.dispose()
+        assertThat(isDisposed.get()).isTrue()
     }
 }
