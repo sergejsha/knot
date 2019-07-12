@@ -8,7 +8,6 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
-import java.util.concurrent.atomic.AtomicBoolean
 
 class KnotTest {
 
@@ -224,38 +223,38 @@ class KnotTest {
     @Test
     fun `Disposed Knot disposes events`() {
         val events = PublishSubject.create<Unit>()
-        val isDisposed = AtomicBoolean()
+        var isDisposed = false
         val knot = knot<State, Change, Action> {
             state { initial = State("empty") }
             changes { reduce { only } }
             events {
                 source {
                     events
-                        .doOnDispose { isDisposed.set(true) }
+                        .doOnDispose { isDisposed = true }
                         .map { Change }
                 }
             }
         }
         knot.dispose()
-        assertThat(isDisposed.get()).isTrue()
+        assertThat(isDisposed).isTrue()
     }
 
     @Test
     fun `Disposed Knot disposes actions`() {
         val actions = PublishSubject.create<Unit>()
-        val isDisposed = AtomicBoolean()
+        var isDisposed = false
         val knot = knot<State, Change, Action> {
             state { initial = State("empty") }
             changes { reduce { only } }
             actions {
                 perform<Action> {
                     actions
-                        .doOnDispose { isDisposed.set(true) }
+                        .doOnDispose { isDisposed = true }
                         .map { Change }
                 }
             }
         }
         knot.dispose()
-        assertThat(isDisposed.get()).isTrue()
+        assertThat(isDisposed).isTrue()
     }
 }
