@@ -1,5 +1,6 @@
 package de.halfbit.knot
 
+import com.google.common.truth.Truth
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -93,5 +94,73 @@ class TestCompositeKnotTest {
             Change("one"),
             Change("two")
         )
+    }
+
+    @Test
+    fun `isDisposed returns false if not has not been disposed`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Unit> {
+            changes { reduce<Change> { only } }
+        }
+        Truth.assertThat(knot.isDisposed).isFalse()
+    }
+
+    @Test
+    fun `isDisposed returns true if Knot has been disposed`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Unit> {
+            changes { reduce<Change> { only } }
+        }
+        knot.compose()
+        knot.dispose()
+        Truth.assertThat(knot.isDisposed).isTrue()
+    }
+
+    @Test
+    fun `Disposed Knot disposes events`() {
+        val events = PublishSubject.create<Unit>()
+        var isDisposed = false
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes { reduce<Change> { only } }
+            events {
+                source {
+                    events
+                        .doOnDispose { isDisposed = true }
+                        .map { Change("change") }
+                }
+            }
+        }
+        knot.compose()
+        knot.dispose()
+        Truth.assertThat(isDisposed).isTrue()
+    }
+
+    @Test
+    fun `Disposed Knot disposes actions`() {
+        val actions = PublishSubject.create<Unit>()
+        var isDisposed = false
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes { reduce<Change> { only } }
+            actions {
+                perform<Action> {
+                    actions
+                        .doOnDispose { isDisposed = true }
+                        .map { Change("change") }
+                }
+            }
+        }
+        knot.compose()
+        knot.dispose()
+        Truth.assertThat(isDisposed).isTrue()
     }
 }
