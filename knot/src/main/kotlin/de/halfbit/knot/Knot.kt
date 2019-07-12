@@ -76,13 +76,10 @@ interface Knot<State : Any, Change : Any> : Store<State> {
 }
 
 /** Store is a disposable container for a [State]. */
-interface Store<State : Any> {
+interface Store<State : Any> : Disposable {
 
     /** Observable state. */
     val state: Observable<State>
-
-    /** Container disposer. Disposed store stops operating and releases all resources. */
-    val disposable: Disposable
 }
 
 /** Convenience wrapper around [State] and optional [Action]. */
@@ -145,8 +142,10 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
 
     private val changeSubject = PublishSubject.create<Change>()
     private val actionSubject = PublishSubject.create<Action>()
+    private val disposables = CompositeDisposable()
 
-    override val disposable = CompositeDisposable()
+    override fun isDisposed(): Boolean = disposables.isDisposed
+    override fun dispose() = disposables.dispose()
     override val change: Consumer<Change> = Consumer { changeSubject.onNext(it) }
     override val state: Observable<State> = Observable
         .merge(
@@ -166,8 +165,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
         .intercept(stateInterceptors)
         .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
         .replay(1)
-        .also { disposable.add(it.connect()) }
-
+        .also { disposables.add(it.connect()) }
 }
 
 internal fun <State : Any, Action : Any> Effect<State, Action>.emitActions(

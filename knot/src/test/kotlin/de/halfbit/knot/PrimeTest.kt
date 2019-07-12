@@ -170,7 +170,7 @@ class PrimeTest {
 
         val observer = knot.state.test()
         knot.compose()
-        knot.disposable.dispose()
+        knot.dispose()
 
         knot.change.accept(Change.A)
 
@@ -200,7 +200,7 @@ class PrimeTest {
 
         val observer = knot.state.test()
         knot.compose()
-        knot.disposable.dispose()
+        knot.dispose()
 
         eventSource.onNext(Unit)
 
@@ -252,7 +252,7 @@ class PrimeTest {
         }
 
         knot.compose()
-        knot.disposable.dispose()
+        knot.dispose()
         assertThat(eventSource.hasObservers()).isFalse()
     }
 
@@ -672,4 +672,71 @@ class PrimeTest {
         )
     }
 
+    @Test
+    fun `isDisposed returns false if not has not been disposed`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Unit> {
+            changes { reduce<Change> { only } }
+        }
+        assertThat(knot.isDisposed).isFalse()
+    }
+
+    @Test
+    fun `isDisposed returns true if Knot has been disposed`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Unit> {
+            changes { reduce<Change> { only } }
+        }
+        knot.compose()
+        knot.dispose()
+        assertThat(knot.isDisposed).isTrue()
+    }
+
+    @Test
+    fun `Disposed Knot disposes events`() {
+        val events = PublishSubject.create<Unit>()
+        var isDisposed = false
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes { reduce<Change.A> { only } }
+            events {
+                source {
+                    events
+                        .doOnDispose { isDisposed = true }
+                        .map { Change.A }
+                }
+            }
+        }
+        knot.compose()
+        knot.dispose()
+        assertThat(isDisposed).isTrue()
+    }
+
+    @Test
+    fun `Disposed Knot disposes actions`() {
+        val actions = PublishSubject.create<Unit>()
+        var isDisposed = false
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes { reduce<Change.A> { only } }
+            actions {
+                perform<Action.A> {
+                    actions
+                        .doOnDispose { isDisposed = true }
+                        .map { Change.A }
+                }
+            }
+        }
+        knot.compose()
+        knot.dispose()
+        assertThat(isDisposed).isTrue()
+    }
 }
