@@ -97,7 +97,7 @@ Notice how inside the `reduce` function a new `State` can be combined with an `A
 
 # Decomposition
 
-If your knot becomes complex and you want to improve its redability and maintainability, you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
+If your knot becomes complex and you want to improve its readability and maintainability, you may consider to decompose it. You start decomposition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
 
 <img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
 
