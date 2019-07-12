@@ -98,7 +98,7 @@ class TestCompositeKnotTest {
 
     @Test
     fun `isDisposed returns false if not has not been disposed`() {
-        val knot = compositeKnot<State> {
+        val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Unit> {
@@ -109,7 +109,7 @@ class TestCompositeKnotTest {
 
     @Test
     fun `isDisposed returns true if Knot has been disposed`() {
-        val knot = compositeKnot<State> {
+        val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Unit> {
@@ -124,7 +124,7 @@ class TestCompositeKnotTest {
     fun `Disposed Knot disposes events`() {
         val events = PublishSubject.create<Unit>()
         var isDisposed = false
-        val knot = compositeKnot<State> {
+        val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
@@ -146,7 +146,7 @@ class TestCompositeKnotTest {
     fun `Disposed Knot disposes actions`() {
         val actions = PublishSubject.create<Unit>()
         var isDisposed = false
-        val knot = compositeKnot<State> {
+        val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
