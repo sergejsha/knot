@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
 /**
  * If your [Knot] becomes big and you want to improve its readability and maintainability, you may consider
  * to decompose it. You start decomposition by grouping related functionality into, in a certain sense,
- * undecomposable pieces called `Primes`.
+ * indecomposable pieces called `Primes`.
  *
  * [Flowchart diagram](https://github.com/beworker/knot/raw/master/docs/diagrams/flowchart-composite-knot.png)
  *
