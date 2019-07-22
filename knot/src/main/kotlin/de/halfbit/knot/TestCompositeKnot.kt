@@ -6,7 +6,7 @@ import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Creates a [TestCompositeKnot]. This function should ony be used in tests.
+ * Creates a [TestCompositeKnot]. This function should only be used in tests.
  * For creating a productive composite knot use [compositeKnot] function.
  */
 fun <State : Any> testCompositeKnot(
@@ -27,7 +27,7 @@ fun <State : Any> testCompositeKnot(
 /**
  * `TestCompositeKnot` is used for testing knot primes in isolation. Create test composition
  * knot, add a knot `Prime` to it you want to test and start testing it. In addition to standard
- * `CompositeKnot` functionality `TestCompositeKnot` let you observe and emit actions.
+ * `CompositeKnot` functionality `TestCompositeKnot` lets you observe and emit actions.
  */
 interface TestCompositeKnot<State : Any> : CompositeKnot<State> {
 
