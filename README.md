@@ -24,6 +24,8 @@ Knot helps managing application state by reacting on events and performing async
 
 `Effect` is a convenient wrapper class containing the new `State` and an optional `Action`. If `Action` is present, Knot will perform it and provide resulting `Change` (if any) back to the `Reducer`.
 
+In addition to that each Knot can subscribe to `Events` coming from external sources and turn them into `Changes` for further processing.
+
 # Unique Features
 
 * **DSL**. Knot provides a concise and easy to understand DLS for writing state container logic.
