@@ -80,6 +80,7 @@ internal constructor() {
 
         /** An optional [Scheduler] used for reduce function. */
         var reduceOn: Scheduler? = null
+        var watchOn: Scheduler? = null
 
         /**
          * Mandatory reduce function which receives the current [State] and a [Change]
@@ -112,7 +113,7 @@ internal constructor() {
 
         /** A function for watching [Change] emissions. */
         fun watchAll(watcher: Watcher<Change>) {
-            changeInterceptors += WatchingInterceptor(watcher)
+            changeInterceptors += WatchingInterceptor(watcher, watchOn)
         }
 
         /** A function for watching emissions of all `Changes`. */
@@ -142,6 +143,7 @@ internal constructor(
 
     /** An optional [Scheduler] used for dispatching state changes. */
     var observeOn: Scheduler? = null
+    var watchOn: Scheduler? = null
 
     /** A function for intercepting [State] mutations. */
     fun intercept(interceptor: Interceptor<State>) {
@@ -150,7 +152,7 @@ internal constructor(
 
     /** A function for watching mutations of any [State]. */
     fun watchAll(watcher: Watcher<State>) {
-        stateInterceptors += WatchingInterceptor(watcher)
+        stateInterceptors += WatchingInterceptor(watcher, watchOn)
     }
 
     /** A function for watching mutations of all `States`. */
@@ -166,6 +168,8 @@ internal constructor(
     private val actionTransformers: MutableList<ActionTransformer<Action, Change>>,
     private val actionInterceptors: MutableList<Interceptor<Action>>
 ) {
+
+    var watchOn: Scheduler? = null
 
     /** A function used for declaring an [ActionTransformer] function. */
     @PublishedApi
@@ -198,7 +202,7 @@ internal constructor(
 
     /** A function for watching [Action] emissions. */
     fun watchAll(watcher: Watcher<Action>) {
-        actionInterceptors += WatchingInterceptor(watcher)
+        actionInterceptors += WatchingInterceptor(watcher, watchOn)
     }
 
     /** A function for watching emissions of all `Changes`. */
@@ -242,8 +246,12 @@ internal class TypedActionTransformer<Action : Any, Change : Any, A : Action>(
     }
 }
 
-internal class WatchingInterceptor<T>(private val watcher: Watcher<T>) : Interceptor<T> {
-    override fun invoke(stream: Observable<T>): Observable<T> = stream.doOnNext(watcher)
+internal class WatchingInterceptor<T>(
+    private val watcher: Watcher<T>,
+    private val watchOn: Scheduler?
+) : Interceptor<T> {
+    override fun invoke(stream: Observable<T>): Observable<T> =
+        stream.let { if (watchOn != null) it.observeOn(watchOn) else it }.doOnNext(watcher)
 }
 
 @PublishedApi

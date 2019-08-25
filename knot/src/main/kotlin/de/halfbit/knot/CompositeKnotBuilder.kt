@@ -71,10 +71,11 @@ internal constructor() {
     ) {
         /** An optional [Scheduler] used for reduce function. */
         var reduceOn: Scheduler? = null
+        var watchOn: Scheduler? = null
 
         /** A function for watching `Change` emissions. */
         fun watchAll(watcher: Watcher<Any>) {
-            changeInterceptors += WatchingInterceptor(watcher)
+            changeInterceptors += WatchingInterceptor(watcher, watchOn)
         }
     }
 
@@ -84,10 +85,11 @@ internal constructor() {
     internal constructor(
         private val actionInterceptors: MutableList<Interceptor<Any>>
     ) {
+        var watchOn: Scheduler? = null
 
         /** A function for watching `Action` emissions. */
         fun watchAll(watcher: Watcher<Any>) {
-            actionInterceptors += WatchingInterceptor(watcher)
+            actionInterceptors += WatchingInterceptor(watcher, watchOn)
         }
     }
 }
@@ -130,6 +132,7 @@ internal constructor(
     internal constructor(
         private val stateInterceptors: MutableList<Interceptor<State>>
     ) {
+        var watchOn: Scheduler? = null
 
         /** A function for intercepting [State] mutations. */
         fun intercept(interceptor: Interceptor<State>) {
@@ -138,7 +141,7 @@ internal constructor(
 
         /** A function for watching mutations of any [State]. */
         fun watchAll(watcher: Watcher<State>) {
-            stateInterceptors += WatchingInterceptor(watcher)
+            stateInterceptors += WatchingInterceptor(watcher, watchOn)
         }
 
         /** A function for watching mutations of all `States`. */
@@ -154,6 +157,8 @@ internal constructor(
         private val reducers: MutableMap<KClass<out Change>, Reducer<State, Change, Action>>,
         private val changeInterceptors: MutableList<Interceptor<Change>>
     ) {
+
+        var watchOn: Scheduler? = null
 
         /**
          * Mandatory reduce function which receives the current [State] and a [Change]
@@ -196,7 +201,7 @@ internal constructor(
 
         /** A function for watching [Change] emissions. */
         fun watchAll(watcher: Watcher<Change>) {
-            changeInterceptors += WatchingInterceptor(watcher)
+            changeInterceptors += WatchingInterceptor(watcher, watchOn)
         }
 
         /** Turns [State] into an [Effect] without [Action]. */
