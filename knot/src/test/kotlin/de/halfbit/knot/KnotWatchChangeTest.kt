@@ -1,6 +1,8 @@
 package de.halfbit.knot
 
+import com.google.common.truth.Truth.assertThat
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -130,5 +132,48 @@ class KnotWatchChangeTest {
         observer.assertValues(
             Change.Two
         )
+    }
+
+    @Test
+    fun `changes { watchOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from {
+            visited = true
+            it.run()
+        }
+        val knot = knot<State, Change, Action> {
+            state { initial = State }
+            changes {
+                reduce { this.only }
+                watchOn = scheduler
+                watch<Change.One> { }
+            }
+        }
+        knot.change.accept(Change.One)
+        assertThat(visited).isTrue()
+    }
+
+    @Test
+    fun `changes { watchOn } is null by default`() {
+        knot<State, Change, Action> {
+            state { initial = State }
+            changes {
+                reduce { this.only }
+                assertThat(watchOn).isNull()
+                watch<Change.One> { }
+            }
+        }
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `changes { watchOn } fails if declared after a watcher`() {
+        knot<State, Change, Action> {
+            state { initial = State }
+            changes {
+                reduce { this.only }
+                watch<Change.One> { }
+                watchOn = Schedulers.from { }
+            }
+        }
     }
 }

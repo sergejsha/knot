@@ -1,5 +1,7 @@
 package de.halfbit.knot
 
+import com.google.common.truth.Truth.assertThat
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -112,5 +114,71 @@ class KnotWatchActionTest {
         }
         knot.change.accept(Change.PerformAction)
         observer.assertNoValues()
+    }
+
+    @Test
+    fun `actions { watchOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from {
+            visited = true
+            it.run()
+        }
+
+        val knot = knot<State, Change, Action> {
+            state { initial = State }
+            changes {
+                reduce { change ->
+                    when (change) {
+                        Change.PerformAction -> this + Action.One
+                        Change.Done -> this.only
+                    }
+                }
+            }
+            actions {
+                watchOn = scheduler
+                watch<Action.One> { }
+            }
+        }
+
+        knot.change.accept(Change.PerformAction)
+        assertThat(visited).isTrue()
+    }
+
+    @Test
+    fun `actions { watchOn } is null by default`() {
+        knot<State, Change, Action> {
+            state { initial = State }
+            changes {
+                reduce { change ->
+                    when (change) {
+                        Change.PerformAction -> this + Action.One
+                        Change.Done -> this.only
+                    }
+                }
+            }
+            actions {
+                assertThat(watchOn).isNull()
+                watch<Action.One> { }
+            }
+        }
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `actions { watchOn } fails if declared after a watcher`() {
+        knot<State, Change, Action> {
+            state { initial = State }
+            changes {
+                reduce { change ->
+                    when (change) {
+                        Change.PerformAction -> this + Action.One
+                        Change.Done -> this.only
+                    }
+                }
+            }
+            actions {
+                watch<Action.One> { }
+                watchOn = Schedulers.from { }
+            }
+        }
     }
 }

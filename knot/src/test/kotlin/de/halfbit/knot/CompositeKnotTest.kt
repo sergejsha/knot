@@ -1,6 +1,6 @@
 package de.halfbit.knot
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import io.reactivex.schedulers.Schedulers
 import org.junit.Test
 
@@ -57,10 +57,7 @@ class CompositeKnotTest {
     @Test
     fun `state { observeOn } gets applied`() {
         var visited = false
-        val scheduler = Schedulers.from {
-            visited = true
-            it.run()
-        }
+        val scheduler = Schedulers.from { visited = true; it.run() }
         val knot = compositeKnot<State> {
             state {
                 initial = State
@@ -69,7 +66,45 @@ class CompositeKnotTest {
         }
         knot.state.test()
         knot.compose()
-        Truth.assertThat(visited).isTrue()
+        assertThat(visited).isTrue()
+    }
+
+    @Test
+    fun `state { watchOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from { visited = true; it.run() }
+        val knot = compositeKnot<State> {
+            state {
+                initial = State
+                watchOn = scheduler
+                watchAll { }
+            }
+        }
+        knot.state.test()
+        knot.compose()
+        assertThat(visited).isTrue()
+    }
+
+    @Test
+    fun `state { watchOn } is null by default`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State
+                assertThat(watchOn).isNull()
+            }
+        }
+        knot.compose()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `state { watchOn } fails if declared after a watcher`() {
+        compositeKnot<State> {
+            state {
+                initial = State
+                watchAll { }
+                watchOn = Schedulers.from { }
+            }
+        }.compose()
     }
 
     @Test(expected = IllegalStateException::class)
