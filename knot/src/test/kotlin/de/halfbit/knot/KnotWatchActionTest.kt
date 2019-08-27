@@ -117,6 +117,25 @@ class KnotWatchActionTest {
     }
 
     @Test
+    fun `actions { watchOn } is empty by default`() {
+        knot<State, Change, Action> {
+            state { initial = State }
+            changes {
+                reduce { change ->
+                    when (change) {
+                        Change.PerformAction -> this + Action.One
+                        Change.Done -> this.only
+                    }
+                }
+            }
+            actions {
+                assertThat(watchOn).isNull()
+                watch<Action.One> { }
+            }
+        }
+    }
+
+    @Test
     fun `actions { watchOn } gets applied`() {
         var visited = false
         val scheduler = Schedulers.from {
