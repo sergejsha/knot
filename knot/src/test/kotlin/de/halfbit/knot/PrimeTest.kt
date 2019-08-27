@@ -1,6 +1,5 @@
 package de.halfbit.knot
 
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
@@ -153,7 +152,7 @@ class PrimeTest {
         knot.state.test()
         knot.change.accept(Change.A)
 
-        Truth.assertThat(visited).isTrue()
+        assertThat(visited).isTrue()
     }
 
     @Test

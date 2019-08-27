@@ -169,7 +169,12 @@ internal constructor(
     private val actionInterceptors: MutableList<Interceptor<Action>>
 ) {
 
+    private var watchAllVisited = false
     var watchOn: Scheduler? = null
+        set(value) {
+            if (watchAllVisited) error("'watchOn' must be set before any watching function.")
+            field = value
+        }
 
     /** A function used for declaring an [ActionTransformer] function. */
     @PublishedApi
@@ -203,6 +208,7 @@ internal constructor(
     /** A function for watching [Action] emissions. */
     fun watchAll(watcher: Watcher<Action>) {
         actionInterceptors += WatchingInterceptor(watcher, watchOn)
+        watchAllVisited = true
     }
 
     /** A function for watching emissions of all `Changes`. */
