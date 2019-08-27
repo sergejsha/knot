@@ -82,7 +82,7 @@ internal constructor() {
         /** An optional [Scheduler] used for reduce function. */
         var reduceOn: Scheduler? = null
 
-        /** An optional [Scheduler] used for watching changes. */
+        /** An optional [Scheduler] used for watching *Changes*. */
         var watchOn: Scheduler? = null
             set(value) {
                 if (watcherVisited) error(WATCH_ON_ERROR)
@@ -151,10 +151,10 @@ internal constructor(
     /** Mandatory initial [State] of the [Knot]. */
     var initial: State? = null
 
-    /** An optional [Scheduler] used for dispatching state updates. */
+    /** An optional [Scheduler] used for observing *State* updates. */
     var observeOn: Scheduler? = null
 
-    /** An optional [Scheduler] used for watching state updates. */
+    /** An optional [Scheduler] used for watching *State* updates. */
     var watchOn: Scheduler? = null
         set(value) {
             if (watcherVisited) error(WATCH_ON_ERROR)
@@ -185,12 +185,12 @@ internal constructor(
     private val actionTransformers: MutableList<ActionTransformer<Action, Change>>,
     private val actionInterceptors: MutableList<Interceptor<Action>>
 ) {
-    private var watchAllVisited = false
+    private var watcherVisited = false
 
-    /** An optional [Scheduler] used for watching actions. */
+    /** An optional [Scheduler] used for watching *Actions*. */
     var watchOn: Scheduler? = null
         set(value) {
-            if (watchAllVisited) error(WATCH_ON_ERROR)
+            if (watcherVisited) error(WATCH_ON_ERROR)
             field = value
         }
 
@@ -226,7 +226,7 @@ internal constructor(
     /** A function for watching [Action] emissions. */
     fun watchAll(watcher: Watcher<Action>) {
         actionInterceptors += WatchingInterceptor(watcher, watchOn)
-        watchAllVisited = true
+        watcherVisited = true
     }
 
     /** A function for watching emissions of all `Changes`. */
@@ -290,4 +290,4 @@ internal class TypedWatcher<Type : Any, T : Type>(
     }
 }
 
-private const val WATCH_ON_ERROR = "'watchOn' must be defined just once before any watching function."
+internal const val WATCH_ON_ERROR = "'watchOn' must be defined just once and before any watching function."

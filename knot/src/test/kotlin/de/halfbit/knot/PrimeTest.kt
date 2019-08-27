@@ -156,6 +156,47 @@ class PrimeTest {
     }
 
     @Test
+    fun `changes { watchOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from { visited = true; it.run() }
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+            changes {
+                watchOn = scheduler
+                watchAll { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change> { only }
+            }
+        }
+
+        knot.compose()
+        knot.state.test()
+        knot.change.accept(Change.A)
+
+        assertThat(visited).isTrue()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `changes { watchOn } fails if declared after a watcher`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+            changes {
+                watchAll { }
+                watchOn = Schedulers.from { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change> { only }
+            }
+        }
+        knot.compose()
+    }
+
+    @Test
     fun `Disposed CompositeKnot ignores emitted changes`() {
 
         val knot = compositeKnot<State> {
@@ -318,6 +359,44 @@ class PrimeTest {
     }
 
     @Test
+    fun `Prime actions { watchOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from { visited = true; it.run() }
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+            actions {
+                watchOn = scheduler
+                watchAll { }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        assertThat(visited).isTrue()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `Prime actions { watchOn } fails if declared after a watcher`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+            actions {
+                watchAll { }
+                watchOn = Schedulers.from { }
+            }
+        }
+        knot.compose()
+    }
+
+    @Test
     fun `Prime actions { intercept } receives Action`() {
         val watcher = PublishSubject.create<Action>()
         val observer = watcher.test()
@@ -377,6 +456,40 @@ class PrimeTest {
         observer.assertValues(
             Change.A
         )
+    }
+
+    @Test
+    fun `Prime changes { watchOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from { visited = true; it.run() }
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+                watchOn = scheduler
+                watchAll { }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        assertThat(visited).isTrue()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `Prime changes { watchOn } fails if declared after a watcher`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+                watchAll { }
+                watchOn = Schedulers.from { }
+            }
+        }
+        knot.compose()
     }
 
     @Test
@@ -453,6 +566,86 @@ class PrimeTest {
     }
 
     @Test
+    fun `CompositeKnot state { watchOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from { visited = true; it.run() }
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+                watchOn = scheduler
+                watchAll { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { State("one").only }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        assertThat(visited).isTrue()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `CompositeKnot state { watchOn } fails if declared after a watcher`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+                watchAll { }
+                watchOn = Schedulers.from { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { State("one").only }
+            }
+        }
+        knot.compose()
+    }
+
+    @Test
+    fun `CompositeKnot actions { watchOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from { visited = true; it.run() }
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+            actions {
+                watchOn = scheduler
+                watchAll { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        assertThat(visited).isTrue()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `CompositeKnot actions { watchOn } fails if declared after a watcher`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+            actions {
+                watchAll { }
+                watchOn = Schedulers.from { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+        }
+        knot.compose()
+    }
+
+    @Test
     fun `CompositeKnot changes { watchAll } receives Change`() {
         val watcher = PublishSubject.create<Any>()
         val knot = compositeKnot<State> {
@@ -476,6 +669,48 @@ class PrimeTest {
         observer.assertValues(
             Change.A
         )
+    }
+
+    @Test
+    fun `CompositeKnot changes { watchOn } gets applied`() {
+        var visited = false
+        val scheduler = Schedulers.from { visited = true; it.run() }
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+            changes {
+                watchOn = scheduler
+                watchAll { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { only }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        assertThat(visited).isTrue()
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `CompositeKnot changes { watchOn } fails if declared after a watcher`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+            changes {
+                watchAll { }
+                watchOn = Schedulers.from { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+        }
+        knot.compose()
     }
 
     @Test
