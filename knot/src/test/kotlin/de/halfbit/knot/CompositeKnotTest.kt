@@ -57,10 +57,7 @@ class CompositeKnotTest {
     @Test
     fun `state { observeOn } gets applied`() {
         var visited = false
-        val scheduler = Schedulers.from {
-            visited = true
-            it.run()
-        }
+        val scheduler = Schedulers.from { visited = true; it.run() }
         val knot = compositeKnot<State> {
             state {
                 initial = State
@@ -75,10 +72,7 @@ class CompositeKnotTest {
     @Test
     fun `state { watchOn } gets applied`() {
         var visited = false
-        val scheduler = Schedulers.from {
-            visited = true
-            it.run()
-        }
+        val scheduler = Schedulers.from { visited = true; it.run() }
         val knot = compositeKnot<State> {
             state {
                 initial = State
