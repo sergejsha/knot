@@ -77,10 +77,17 @@ internal constructor() {
         private val changeInterceptors: MutableList<Interceptor<Change>>
     ) {
         internal var reducer: Reducer<State, Change, Action>? = null
+        private var watcherVisited = false
 
         /** An optional [Scheduler] used for reduce function. */
         var reduceOn: Scheduler? = null
+
+        /** An optional [Scheduler] used for watching changes. */
         var watchOn: Scheduler? = null
+            set(value) {
+                if (watcherVisited) error(WATCH_ON_ERROR)
+                field = value
+            }
 
         /**
          * Mandatory reduce function which receives the current [State] and a [Change]
@@ -114,6 +121,7 @@ internal constructor() {
         /** A function for watching [Change] emissions. */
         fun watchAll(watcher: Watcher<Change>) {
             changeInterceptors += WatchingInterceptor(watcher, watchOn)
+            watcherVisited = true
         }
 
         /** A function for watching emissions of all `Changes`. */
@@ -138,12 +146,20 @@ class StateBuilder<State : Any>
 internal constructor(
     private val stateInterceptors: MutableList<Interceptor<State>>
 ) {
+    private var watcherVisited = false
+
     /** Mandatory initial [State] of the [Knot]. */
     var initial: State? = null
 
-    /** An optional [Scheduler] used for dispatching state changes. */
+    /** An optional [Scheduler] used for dispatching state updates. */
     var observeOn: Scheduler? = null
+
+    /** An optional [Scheduler] used for watching state updates. */
     var watchOn: Scheduler? = null
+        set(value) {
+            if (watcherVisited) error(WATCH_ON_ERROR)
+            field = value
+        }
 
     /** A function for intercepting [State] mutations. */
     fun intercept(interceptor: Interceptor<State>) {
@@ -153,6 +169,7 @@ internal constructor(
     /** A function for watching mutations of any [State]. */
     fun watchAll(watcher: Watcher<State>) {
         stateInterceptors += WatchingInterceptor(watcher, watchOn)
+        watcherVisited = true
     }
 
     /** A function for watching mutations of all `States`. */
@@ -168,11 +185,12 @@ internal constructor(
     private val actionTransformers: MutableList<ActionTransformer<Action, Change>>,
     private val actionInterceptors: MutableList<Interceptor<Action>>
 ) {
-
     private var watchAllVisited = false
+
+    /** An optional [Scheduler] used for watching actions. */
     var watchOn: Scheduler? = null
         set(value) {
-            if (watchAllVisited) error("'watchOn' must be set before any watching function.")
+            if (watchAllVisited) error(WATCH_ON_ERROR)
             field = value
         }
 
@@ -271,3 +289,5 @@ internal class TypedWatcher<Type : Any, T : Type>(
         }
     }
 }
+
+private const val WATCH_ON_ERROR = "'watchOn' must be defined just once before any watching function."
