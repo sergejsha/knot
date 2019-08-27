@@ -154,7 +154,7 @@ class KnotWatchChangeTest {
     }
 
     @Test
-    fun `changes { watchOn } is empty by default`() {
+    fun `changes { watchOn } is null by default`() {
         knot<State, Change, Action> {
             state { initial = State }
             changes {

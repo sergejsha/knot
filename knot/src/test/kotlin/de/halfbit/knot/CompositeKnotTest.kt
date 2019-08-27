@@ -91,6 +91,17 @@ class CompositeKnotTest {
         assertThat(visited).isTrue()
     }
 
+    @Test
+    fun `state { watchOn } is null by default`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State
+                assertThat(watchOn).isNull()
+            }
+        }
+        knot.compose()
+    }
+
     @Test(expected = IllegalStateException::class)
     fun `state { watchOn } fails if declared after a watcher`() {
         compositeKnot<State> {

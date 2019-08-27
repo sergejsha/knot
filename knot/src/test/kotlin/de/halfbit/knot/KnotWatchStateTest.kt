@@ -1,6 +1,6 @@
 package de.halfbit.knot
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
@@ -126,7 +126,20 @@ class KnotWatchStateTest {
                 reduce { this.only }
             }
         }
-        Truth.assertThat(visited).isTrue()
+        assertThat(visited).isTrue()
+    }
+
+    @Test
+    fun `changes { watchOn } is null by default`() {
+        knot<State, Change, Action> {
+            state {
+                initial = State.Zero
+                assertThat(watchOn).isNull()
+            }
+            changes {
+                reduce { this.only }
+            }
+        }
     }
 
     @Test(expected = IllegalStateException::class)

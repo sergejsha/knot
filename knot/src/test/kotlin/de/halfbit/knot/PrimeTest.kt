@@ -179,6 +179,22 @@ class PrimeTest {
         assertThat(visited).isTrue()
     }
 
+    @Test
+    fun `changes { watchOn } is null by default`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+            changes {
+                assertThat(watchOn).isNull()
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change> { only }
+            }
+        }
+        knot.compose()
+    }
+
     @Test(expected = IllegalStateException::class)
     fun `changes { watchOn } fails if declared after a watcher`() {
         val knot = compositeKnot<State> {
@@ -379,6 +395,23 @@ class PrimeTest {
         assertThat(visited).isTrue()
     }
 
+    @Test
+    fun `Prime actions { watchOn } is null by default`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+            actions {
+                assertThat(watchOn).isNull()
+                watchAll { }
+            }
+        }
+        knot.compose()
+    }
+
     @Test(expected = IllegalStateException::class)
     fun `Prime actions { watchOn } fails if declared after a watcher`() {
         val knot = compositeKnot<State> {
@@ -475,6 +508,21 @@ class PrimeTest {
         knot.compose()
         knot.change.accept(Change.A)
         assertThat(visited).isTrue()
+    }
+
+    @Test
+    fun `Prime changes { watchOn } is null by default`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+                assertThat(watchOn).isNull()
+                watchAll { }
+            }
+        }
+        knot.compose()
     }
 
     @Test(expected = IllegalStateException::class)
@@ -586,6 +634,23 @@ class PrimeTest {
         assertThat(visited).isTrue()
     }
 
+    @Test
+    fun `CompositeKnot state { watchOn } is null by default`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+                assertThat(watchOn).isNull()
+                watchAll { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { State("one").only }
+            }
+        }
+        knot.compose()
+    }
+
     @Test(expected = IllegalStateException::class)
     fun `CompositeKnot state { watchOn } fails if declared after a watcher`() {
         val knot = compositeKnot<State> {
@@ -624,6 +689,23 @@ class PrimeTest {
         knot.compose()
         knot.change.accept(Change.A)
         assertThat(visited).isTrue()
+    }
+
+    @Test
+    fun `CompositeKnot actions { watchOn } is null by defaul`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+            actions {
+                assertThat(watchOn).isNull()
+                watchAll { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+        }
+        knot.compose()
     }
 
     @Test(expected = IllegalStateException::class)
@@ -692,6 +774,23 @@ class PrimeTest {
         knot.compose()
         knot.change.accept(Change.A)
         assertThat(visited).isTrue()
+    }
+
+    @Test
+    fun `CompositeKnot changes { watchOn } is null by default`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+            changes {
+                assertThat(watchOn).isNull()
+                watchAll { }
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { only }
+            }
+        }
+        knot.compose()
     }
 
     @Test(expected = IllegalStateException::class)
