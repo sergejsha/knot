@@ -1,6 +1,7 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
+import de.halfbit.knot.utils.SchedulerTester
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
@@ -157,12 +158,11 @@ class PrimeTest {
 
     @Test
     fun `changes { watchOn } gets applied`() {
-        var visited = false
-        val scheduler = Schedulers.from { visited = true; it.run() }
+        val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
             changes {
-                watchOn = scheduler
+                watchOn = schedulerTester.scheduler("one")
                 watchAll { }
             }
         }
@@ -176,7 +176,7 @@ class PrimeTest {
         knot.state.test()
         knot.change.accept(Change.A)
 
-        assertThat(visited).isTrue()
+        schedulerTester.assertSchedulers("one")
     }
 
     @Test
@@ -195,13 +195,16 @@ class PrimeTest {
         knot.compose()
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `changes { watchOn } fails if declared after a watcher`() {
+    @Test
+    fun `changes { watchOn } gets applied before each watcher`() {
+        val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
             changes {
+                watchOn = schedulerTester.scheduler("one")
                 watchAll { }
-                watchOn = Schedulers.from { }
+                watchOn = schedulerTester.scheduler("two")
+                watchAll { }
             }
         }
         knot.registerPrime<Change, Action> {
@@ -210,6 +213,10 @@ class PrimeTest {
             }
         }
         knot.compose()
+        knot.state.test()
+        knot.change.accept(Change.A)
+
+        schedulerTester.assertSchedulers("one", "two")
     }
 
     @Test
@@ -412,8 +419,9 @@ class PrimeTest {
         knot.compose()
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `Prime actions { watchOn } fails if declared after a watcher`() {
+    @Test
+    fun `Prime actions { watchOn } gets applied before each watcher`() {
+        val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
@@ -422,11 +430,15 @@ class PrimeTest {
                 reduce<Change.A> { this + Action.A }
             }
             actions {
+                watchOn = schedulerTester.scheduler("one")
                 watchAll { }
-                watchOn = Schedulers.from { }
+                watchOn = schedulerTester.scheduler("two")
+                watchAll { }
             }
         }
         knot.compose()
+        knot.change.accept(Change.A)
+        schedulerTester.assertSchedulers("one", "two")
     }
 
     @Test
@@ -525,19 +537,24 @@ class PrimeTest {
         knot.compose()
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `Prime changes { watchOn } fails if declared after a watcher`() {
+    @Test
+    fun `Prime changes { watchOn } gets applied before each watcher`() {
+        val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
+                watchOn = schedulerTester.scheduler("one")
                 watchAll { }
-                watchOn = Schedulers.from { }
+                watchOn = schedulerTester.scheduler("two")
+                watchAll { }
             }
         }
         knot.compose()
+        knot.change.accept(Change.A)
+        schedulerTester.assertSchedulers("one", "two")
     }
 
     @Test
@@ -651,13 +668,16 @@ class PrimeTest {
         knot.compose()
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `CompositeKnot state { watchOn } fails if declared after a watcher`() {
+    @Test
+    fun `CompositeKnot state { watchOn } gets applied before each watcher`() {
+        val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
+                watchOn = schedulerTester.scheduler("one")
                 watchAll { }
-                watchOn = Schedulers.from { }
+                watchOn = schedulerTester.scheduler("two")
+                watchAll { }
             }
         }
         knot.registerPrime<Change, Action> {
@@ -666,10 +686,12 @@ class PrimeTest {
             }
         }
         knot.compose()
+        knot.change.accept(Change.A)
+        schedulerTester.assertSchedulers("one", "two")
     }
 
     @Test
-    fun `CompositeKnot actions { watchOn } gets applied`() {
+    fun `CompositeKnot actions { watchOn } in knot gets applied in knot`() {
         var visited = false
         val scheduler = Schedulers.from { visited = true; it.run() }
         val knot = compositeKnot<State> {
@@ -692,6 +714,55 @@ class PrimeTest {
     }
 
     @Test
+    fun `CompositeKnot actions { watchOn } in knot gets applied in prime`() {
+        val schedulerTester = SchedulerTester()
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+            actions {
+                watchOn = schedulerTester.scheduler("knot")
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+            actions {
+                watchAll { }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        schedulerTester.assertSchedulers("knot")
+    }
+
+    @Test
+    fun `CompositeKnot actions { watchOn } in knot can be overrided in prime`() {
+        val schedulerTester = SchedulerTester()
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+            actions {
+                watchOn = schedulerTester.scheduler("knot")
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { this + Action.A }
+            }
+            actions {
+                watchOn = schedulerTester.scheduler("prime")
+                watchAll { }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        schedulerTester.assertSchedulers("knot", "prime")
+    }
+
+    @Test
     fun `CompositeKnot actions { watchOn } is null by defaul`() {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
@@ -708,15 +779,18 @@ class PrimeTest {
         knot.compose()
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `CompositeKnot actions { watchOn } fails if declared after a watcher`() {
+    @Test
+    fun `CompositeKnot actions { watchOn } gets applied before each watcher`() {
+        val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
             }
             actions {
+                watchOn = schedulerTester.scheduler("one")
                 watchAll { }
-                watchOn = Schedulers.from { }
+                watchOn = schedulerTester.scheduler("two")
+                watchAll { }
             }
         }
         knot.registerPrime<Change, Action> {
@@ -725,6 +799,8 @@ class PrimeTest {
             }
         }
         knot.compose()
+        knot.change.accept(Change.A)
+        schedulerTester.assertSchedulers("one", "two")
     }
 
     @Test
@@ -754,7 +830,7 @@ class PrimeTest {
     }
 
     @Test
-    fun `CompositeKnot changes { watchOn } gets applied`() {
+    fun `CompositeKnot changes { watchOn } in knot gets applied in knot`() {
         var visited = false
         val scheduler = Schedulers.from { visited = true; it.run() }
         val knot = compositeKnot<State> {
@@ -777,6 +853,28 @@ class PrimeTest {
     }
 
     @Test
+    fun `CompositeKnot changes { watchOn } in knot gets applied in prime`() {
+        val schedulerTester = SchedulerTester()
+        val knot = compositeKnot<State> {
+            state {
+                initial = State("empty")
+            }
+            changes {
+                watchOn = schedulerTester.scheduler("one")
+            }
+        }
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { only }
+                watchAll { }
+            }
+        }
+        knot.compose()
+        knot.change.accept(Change.A)
+        schedulerTester.assertSchedulers("one")
+    }
+
+    @Test
     fun `CompositeKnot changes { watchOn } is null by default`() {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
@@ -793,15 +891,18 @@ class PrimeTest {
         knot.compose()
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `CompositeKnot changes { watchOn } fails if declared after a watcher`() {
+    @Test
+    fun `CompositeKnot changes { watchOn } gets applied before each watcher`() {
+        val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
             }
             changes {
+                watchOn = schedulerTester.scheduler("one")
                 watchAll { }
-                watchOn = Schedulers.from { }
+                watchOn = schedulerTester.scheduler("two")
+                watchAll { }
             }
         }
         knot.registerPrime<Change, Action> {
@@ -810,6 +911,8 @@ class PrimeTest {
             }
         }
         knot.compose()
+        knot.change.accept(Change.A)
+        schedulerTester.assertSchedulers("one", "two")
     }
 
     @Test

@@ -1,8 +1,8 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
+import de.halfbit.knot.utils.SchedulerTester
 import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -136,21 +136,17 @@ class KnotWatchChangeTest {
 
     @Test
     fun `changes { watchOn } gets applied`() {
-        var visited = false
-        val scheduler = Schedulers.from {
-            visited = true
-            it.run()
-        }
+        val schedulerTester = SchedulerTester()
         val knot = knot<State, Change, Action> {
             state { initial = State }
             changes {
                 reduce { this.only }
-                watchOn = scheduler
-                watch<Change.One> { }
+                watchOn = schedulerTester.scheduler("one")
+                watchAll { }
             }
         }
         knot.change.accept(Change.One)
-        assertThat(visited).isTrue()
+        schedulerTester.assertSchedulers("one")
     }
 
     @Test
@@ -160,20 +156,25 @@ class KnotWatchChangeTest {
             changes {
                 reduce { this.only }
                 assertThat(watchOn).isNull()
-                watch<Change.One> { }
+                watchAll { }
             }
         }
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `changes { watchOn } fails if declared after a watcher`() {
-        knot<State, Change, Action> {
+    @Test
+    fun `changes { watchOn } gets applied before each watcher`() {
+        val schedulerTester = SchedulerTester()
+        val knot = knot<State, Change, Action> {
             state { initial = State }
             changes {
                 reduce { this.only }
-                watch<Change.One> { }
-                watchOn = Schedulers.from { }
+                watchOn = schedulerTester.scheduler("one")
+                watchAll { }
+                watchOn = schedulerTester.scheduler("two")
+                watchAll { }
             }
         }
+        knot.change.accept(Change.One)
+        schedulerTester.assertSchedulers("one", "two")
     }
 }
