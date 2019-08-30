@@ -1,7 +1,7 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
-import io.reactivex.schedulers.Schedulers
+import de.halfbit.knot.utils.SchedulerTester
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -118,12 +118,7 @@ class KnotWatchActionTest {
 
     @Test
     fun `actions { watchOn } gets applied`() {
-        var visited = false
-        val scheduler = Schedulers.from {
-            visited = true
-            it.run()
-        }
-
+        val schedulerTester = SchedulerTester()
         val knot = knot<State, Change, Action> {
             state { initial = State }
             changes {
@@ -135,13 +130,13 @@ class KnotWatchActionTest {
                 }
             }
             actions {
-                watchOn = scheduler
-                watch<Action.One> { }
+                watchOn = schedulerTester.scheduler("one")
+                watchAll { }
             }
         }
 
         knot.change.accept(Change.PerformAction)
-        assertThat(visited).isTrue()
+        schedulerTester.assertSchedulers("one")
     }
 
     @Test
@@ -163,9 +158,10 @@ class KnotWatchActionTest {
         }
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `actions { watchOn } fails if declared after a watcher`() {
-        knot<State, Change, Action> {
+    @Test
+    fun `actions { watchOn } gets applied before each watcher`() {
+        val schedulerTester = SchedulerTester()
+        val knot = knot<State, Change, Action> {
             state { initial = State }
             changes {
                 reduce { change ->
@@ -176,9 +172,13 @@ class KnotWatchActionTest {
                 }
             }
             actions {
-                watch<Action.One> { }
-                watchOn = Schedulers.from { }
+                watchOn = schedulerTester.scheduler("one")
+                watchAll { }
+                watchOn = schedulerTester.scheduler("two")
+                watchAll { }
             }
         }
+        knot.change.accept(Change.PerformAction)
+        schedulerTester.assertSchedulers("one", "two")
     }
 }

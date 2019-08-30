@@ -1,7 +1,7 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
-import io.reactivex.schedulers.Schedulers
+import de.halfbit.knot.utils.SchedulerTester
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -111,22 +111,18 @@ class KnotWatchStateTest {
 
     @Test
     fun `changes { watchOn } gets applied`() {
-        var visited = false
-        val scheduler = Schedulers.from {
-            visited = true
-            it.run()
-        }
+        val schedulerTester = SchedulerTester()
         knot<State, Change, Action> {
             state {
                 initial = State.Zero
-                watchOn = scheduler
-                watch<State.One> { }
+                watchOn = schedulerTester.scheduler("one")
+                watchAll { }
             }
             changes {
                 reduce { this.only }
             }
         }
-        assertThat(visited).isTrue()
+        schedulerTester.assertSchedulers("one")
     }
 
     @Test
@@ -142,17 +138,21 @@ class KnotWatchStateTest {
         }
     }
 
-    @Test(expected = IllegalStateException::class)
-    fun `changes { watchOn } fails if declared after a watcher`() {
+    @Test
+    fun `changes { watchOn } gets applied before each watcher`() {
+        val schedulerTester = SchedulerTester()
         knot<State, Change, Action> {
             state {
                 initial = State.Zero
-                watch<State.One> { }
-                watchOn = Schedulers.from { }
+                watchOn = schedulerTester.scheduler("one")
+                watchAll { }
+                watchOn = schedulerTester.scheduler("two")
+                watchAll { }
             }
             changes {
                 reduce { this.only }
             }
         }
+        schedulerTester.assertSchedulers("one")
     }
 }
