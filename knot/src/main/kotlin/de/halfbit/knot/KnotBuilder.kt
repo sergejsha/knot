@@ -288,5 +288,3 @@ internal class TypedWatcher<Type : Any, T : Type>(
         }
     }
 }
-
-internal const val WATCH_ON_ERROR = "'watchOn' must be defined just once and before any watching function."
