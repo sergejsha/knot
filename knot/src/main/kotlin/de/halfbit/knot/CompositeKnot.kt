@@ -79,7 +79,7 @@ internal class DefaultCompositeKnot<State : Any>(
 
     override val state: Observable<State> = stateSubject
         .doOnSubscribe { if (subscriberCount.getAndIncrement() == 0) maybeSubscribeColdEvents() }
-        .doFinally { if (subscriberCount.decrementAndGet() == 0) maybeUnsubscribeEvents() }
+        .doFinally { if (subscriberCount.decrementAndGet() == 0) maybeUnsubscribeColdEvents() }
 
     override val change: Consumer<Any> = Consumer {
         check(composed.get()) { "compose() must be called before emitting any change." }
@@ -112,7 +112,7 @@ internal class DefaultCompositeKnot<State : Any>(
     }
 
     @Synchronized
-    private fun maybeUnsubscribeEvents() {
+    private fun maybeUnsubscribeColdEvents() {
         coldEventsDisposable?.let {
             it.dispose()
             coldEventsDisposable = null

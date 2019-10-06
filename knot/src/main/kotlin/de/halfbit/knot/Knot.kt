@@ -140,6 +140,8 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
     actionInterceptors: List<Interceptor<Action>>
 ) : Knot<State, Change> {
 
+    // todo implement coldEventSources
+
     private val changeSubject = PublishSubject.create<Change>()
     private val actionSubject = PublishSubject.create<Action>()
     private val disposables = CompositeDisposable()
