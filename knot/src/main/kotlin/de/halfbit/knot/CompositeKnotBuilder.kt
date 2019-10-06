@@ -111,6 +111,7 @@ class PrimeBuilder<State : Any, Change : Any, Action : Any>
 internal constructor(
     private val reducers: MutableMap<KClass<out Change>, Reducer<State, Change, Action>>,
     private val eventSources: MutableList<EventSource<Change>>,
+    private val coldEventSources: Lazy<MutableList<EventSource<Change>>>,
     private val actionTransformers: MutableList<ActionTransformer<Action, Change>>,
     private val stateInterceptors: MutableList<Interceptor<State>>,
     private val changeInterceptors: MutableList<Interceptor<Change>>,
@@ -134,7 +135,7 @@ internal constructor(
 
     /** A section for `Event` related declarations. */
     fun events(block: EventsBuilder<Change>.() -> Unit) {
-        EventsBuilder(eventSources).also(block)
+        EventsBuilder(eventSources, coldEventSources).also(block)
     }
 
     /** A configuration builder for [State] related declarations. */

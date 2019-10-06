@@ -154,7 +154,8 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
                 actionSubject
                     .intercept(actionInterceptors)
                     .bind(actionTransformers) { this += it }
-                eventSources.map { transform -> this += transform() }
+                eventSources
+                    .map { transform -> this += transform() }
             }
         )
         .let { stream -> reduceOn?.let { stream.observeOn(it) } ?: stream }

@@ -3,11 +3,13 @@ package de.halfbit.knot
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
 /**
@@ -46,11 +48,16 @@ internal class DefaultCompositeKnot<State : Any>(
     private val reducers = mutableMapOf<KClass<out Any>, Reducer<State, Any, Any>>()
     private val actionTransformers = mutableListOf<ActionTransformer<Any, Any>>()
     private val eventSources = mutableListOf<EventSource<Any>>()
+    private val coldEventSources = lazy { mutableListOf<EventSource<Any>>() }
     private val composed = AtomicBoolean(false)
     private val disposables = CompositeDisposable()
 
     private val stateSubject = BehaviorSubject.create<State>()
     private val changeSubject = PublishSubject.create<Any>()
+
+    private val subscriberCount = AtomicInteger()
+    private var coldEventsDisposable: Disposable? = null
+    private var coldEventsObservable: Observable<Any>? = null
 
     override fun <Change : Any, Action : Any> registerPrime(
         block: PrimeBuilder<State, Change, Action>.() -> Unit
@@ -59,6 +66,7 @@ internal class DefaultCompositeKnot<State : Any>(
         PrimeBuilder(
             reducers,
             eventSources,
+            coldEventSources,
             actionTransformers,
             stateInterceptors,
             changeInterceptors,
@@ -68,10 +76,47 @@ internal class DefaultCompositeKnot<State : Any>(
 
     override fun isDisposed(): Boolean = disposables.isDisposed
     override fun dispose() = disposables.dispose()
-    override val state = stateSubject
+
+    override val state: Observable<State> = stateSubject
+        .doOnSubscribe { if (subscriberCount.getAndIncrement() == 0) maybeSubscribeColdEvents() }
+        .doFinally { if (subscriberCount.decrementAndGet() == 0) maybeUnsubscribeEvents() }
+
     override val change: Consumer<Any> = Consumer {
         check(composed.get()) { "compose() must be called before emitting any change." }
         changeSubject.onNext(it)
+    }
+
+    @Synchronized
+    private fun maybeSubscribeColdEvents() {
+        if (subscriberCount.get() > 0) {
+            val coldEventsDisposable = this.coldEventsDisposable
+            if (coldEventsDisposable == null) {
+                var coldEventsObservable = this.coldEventsObservable
+                if (coldEventsObservable == null && coldEventSources.isInitialized()) {
+                    coldEventsObservable = Observable.merge(
+                        mutableListOf<Observable<Any>>().apply {
+                            coldEventSources.value.map { source -> this += source() }
+                        }
+                    )
+                    this.coldEventsObservable = coldEventsObservable
+                }
+                if (coldEventsObservable != null) {
+                    this.coldEventsDisposable = coldEventsObservable
+                        .subscribe(
+                            changeSubject::onNext,
+                            changeSubject::onError
+                        )
+                }
+            }
+        }
+    }
+
+    @Synchronized
+    private fun maybeUnsubscribeEvents() {
+        coldEventsDisposable?.let {
+            it.dispose()
+            coldEventsDisposable = null
+        }
     }
 
     override fun compose() {
@@ -84,7 +129,8 @@ internal class DefaultCompositeKnot<State : Any>(
                         actionSubject
                             .intercept(actionInterceptors)
                             .bind(actionTransformers) { this += it }
-                        eventSources.map { source -> this += source() }
+                        eventSources
+                            .map { source -> this += source() }
                     }
                 )
                 .let { stream -> reduceOn?.let { stream.observeOn(it) } ?: stream }
@@ -98,9 +144,10 @@ internal class DefaultCompositeKnot<State : Any>(
                 .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
                 .intercept(stateInterceptors)
                 .subscribe(
-                    { stateSubject.onNext(it) },
-                    { stateSubject.onError(it) }
+                    stateSubject::onNext,
+                    stateSubject::onError
                 )
         )
+        maybeSubscribeColdEvents()
     }
 }

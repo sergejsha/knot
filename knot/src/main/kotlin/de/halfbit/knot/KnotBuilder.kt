@@ -24,6 +24,7 @@ internal constructor() {
     private var reduceOn: Scheduler? = null
     private var reducer: Reducer<State, Change, Action>? = null
     private val eventSources = mutableListOf<EventSource<Change>>()
+    private val hotEventSources = lazy { mutableListOf<EventSource<Change>>() }
     private val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
     private val stateInterceptors = mutableListOf<Interceptor<State>>()
     private val changeInterceptors = mutableListOf<Interceptor<Change>>()
@@ -56,7 +57,7 @@ internal constructor() {
 
     /** A section for *Event* related declarations. */
     fun events(block: EventsBuilder<Change>.() -> Unit) {
-        EventsBuilder(eventSources).also(block)
+        EventsBuilder(eventSources, hotEventSources).also(block)
     }
 
     internal fun build(): Knot<State, Change> = DefaultKnot(
@@ -231,7 +232,8 @@ internal constructor(
 @KnotDsl
 class EventsBuilder<Change : Any>
 internal constructor(
-    private val eventSources: MutableList<EventSource<Change>>
+    private val eventSources: MutableList<EventSource<Change>>,
+    private val coldEventsSources: Lazy<MutableList<EventSource<Change>>>
 ) {
 
     /**
@@ -249,6 +251,10 @@ internal constructor(
      */
     fun source(source: EventSource<Change>) {
         eventSources += source
+    }
+
+    fun coldSource(source: EventSource<Change>) {
+        coldEventsSources.value += source
     }
 }
 
