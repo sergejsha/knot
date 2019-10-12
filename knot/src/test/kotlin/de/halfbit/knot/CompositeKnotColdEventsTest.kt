@@ -193,13 +193,16 @@ class CompositeKnotColdEventsTest {
         knot.compose()
 
         val first = knot.state.subscribe { }
-        first.dispose()
-
         val second = knot.state.subscribe { }
-        second.dispose()
+        assertThat(changeASubscribed.get()).isEqualTo(1)
+        assertThat(changeBSubscribed.get()).isEqualTo(1)
 
+        first.dispose()
+        assertThat(changeASubscribed.get()).isEqualTo(1)
+        assertThat(changeBSubscribed.get()).isEqualTo(1)
+
+        second.dispose()
         assertThat(changeASubscribed.get()).isEqualTo(0)
         assertThat(changeBSubscribed.get()).isEqualTo(0)
     }
-
 }
