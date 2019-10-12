@@ -33,6 +33,13 @@ tasks {
     check {
         dependsOn(jacocoTestReport)
     }
+    compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
 }
 
 publishing {
