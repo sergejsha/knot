@@ -133,6 +133,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
     observeOn: Scheduler?,
     reduceOn: Scheduler?,
     reducer: Reducer<State, Change, Action>,
+    coldEventSources: Lazy<List<EventSource<Change>>>,
     eventSources: List<EventSource<Change>>,
     actionTransformers: List<ActionTransformer<Action, Change>>,
     stateInterceptors: List<Interceptor<State>>,
@@ -140,22 +141,27 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
     actionInterceptors: List<Interceptor<Action>>
 ) : Knot<State, Change> {
 
-    // todo implement coldEventSources
-
     private val changeSubject = PublishSubject.create<Change>()
     private val actionSubject = PublishSubject.create<Action>()
     private val disposables = CompositeDisposable()
 
+    private var subscriberCount: Int = 0
+    private var coldEventsObservable: Observable<Change>? = null
+    private var coldEventsDisposable: Disposable? = null
+
     override fun isDisposed(): Boolean = disposables.isDisposed
     override fun dispose() = disposables.dispose()
+
     override val change: Consumer<Change> = Consumer { changeSubject.onNext(it) }
     override val state: Observable<State> = Observable
         .merge(
             mutableListOf<Observable<Change>>().apply {
                 this += changeSubject
+
                 actionSubject
                     .intercept(actionInterceptors)
                     .bind(actionTransformers) { this += it }
+
                 eventSources
                     .map { transform -> this += transform() }
             }
@@ -168,7 +174,37 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
         .intercept(stateInterceptors)
         .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
         .replay(1)
-        .also { disposables.add(it.connect()) }
+        .also {
+            if (coldEventSources.isInitialized()) {
+                coldEventsObservable = coldEventSources.mergeIntoObservable()
+            }
+            disposables.add(it.connect())
+        }
+        .doOnSubscribe(::doOnSubscribe)
+        .doFinally(::doFinally)
+
+    @Synchronized
+    private fun doOnSubscribe(disposable: Disposable) {
+        if (subscriberCount++ == 0) {
+            coldEventsObservable?.let {
+                check(coldEventsDisposable == null)
+                coldEventsDisposable = it.subscribe(
+                    changeSubject::onNext,
+                    changeSubject::onError
+                )
+            }
+        }
+    }
+
+    @Synchronized
+    private fun doFinally() {
+        if (--subscriberCount == 0) {
+            coldEventsDisposable?.let {
+                it.dispose()
+                coldEventsDisposable = null
+            }
+        }
+    }
 }
 
 internal fun <State : Any, Action : Any> Effect<State, Action>.emitActions(
@@ -194,3 +230,10 @@ internal fun <Action, Change> Observable<Action>.bind(
     if (actionTransformers.isEmpty()) append(flatMap { Observable.empty<Change>() })
     else share().let { shared -> actionTransformers.map { transform -> append(transform(shared)) } }
 }
+
+internal fun <Change> Lazy<List<EventSource<Change>>>.mergeIntoObservable(): Observable<Change> =
+    Observable.merge(
+        mutableListOf<Observable<Change>>().apply {
+            value.map { source -> this += source() }
+        }
+    )

@@ -88,26 +88,22 @@ internal class DefaultCompositeKnot<State : Any>(
 
     @Synchronized
     private fun maybeSubscribeColdEvents() {
-        if (subscriberCount.get() > 0) {
-            val coldEventsDisposable = this.coldEventsDisposable
-            if (coldEventsDisposable == null) {
-                var coldEventsObservable = this.coldEventsObservable
-                if (coldEventsObservable == null && coldEventSources.isInitialized()) {
-                    coldEventsObservable = Observable.merge(
-                        mutableListOf<Observable<Any>>().apply {
-                            coldEventSources.value.map { source -> this += source() }
-                        }
+        if (coldEventSources.isInitialized() &&
+            coldEventsDisposable == null &&
+            subscriberCount.get() > 0
+        ) {
+            val coldEventsObservable =
+                this.coldEventsObservable
+                    ?: coldEventSources
+                        .mergeIntoObservable()
+                        .also { this.coldEventsObservable = it }
+
+            coldEventsDisposable =
+                coldEventsObservable
+                    .subscribe(
+                        changeSubject::onNext,
+                        changeSubject::onError
                     )
-                    this.coldEventsObservable = coldEventsObservable
-                }
-                if (coldEventsObservable != null) {
-                    this.coldEventsDisposable = coldEventsObservable
-                        .subscribe(
-                            changeSubject::onNext,
-                            changeSubject::onError
-                        )
-                }
-            }
         }
     }
 
