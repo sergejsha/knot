@@ -24,6 +24,7 @@ internal constructor() {
     private var reduceOn: Scheduler? = null
     private var reducer: Reducer<State, Change, Action>? = null
     private val eventSources = mutableListOf<EventSource<Change>>()
+    private val coldEventSources = lazy { mutableListOf<EventSource<Change>>() }
     private val actionTransformers = mutableListOf<ActionTransformer<Action, Change>>()
     private val stateInterceptors = mutableListOf<Interceptor<State>>()
     private val changeInterceptors = mutableListOf<Interceptor<Change>>()
@@ -56,7 +57,7 @@ internal constructor() {
 
     /** A section for *Event* related declarations. */
     fun events(block: EventsBuilder<Change>.() -> Unit) {
-        EventsBuilder(eventSources).also(block)
+        EventsBuilder(eventSources, coldEventSources).also(block)
     }
 
     internal fun build(): Knot<State, Change> = DefaultKnot(
@@ -65,6 +66,7 @@ internal constructor() {
         reduceOn = reduceOn,
         reducer = checkNotNull(reducer) { "changes { reduce } must be declared" },
         eventSources = eventSources,
+        coldEventSources = coldEventSources,
         actionTransformers = actionTransformers,
         stateInterceptors = stateInterceptors,
         changeInterceptors = changeInterceptors,
@@ -231,7 +233,8 @@ internal constructor(
 @KnotDsl
 class EventsBuilder<Change : Any>
 internal constructor(
-    private val eventSources: MutableList<EventSource<Change>>
+    private val eventSources: MutableList<EventSource<Change>>,
+    private val coldEventsSources: Lazy<MutableList<EventSource<Change>>>
 ) {
 
     /**
@@ -249,6 +252,27 @@ internal constructor(
      */
     fun source(source: EventSource<Change>) {
         eventSources += source
+    }
+
+    /**
+     * A function used for turning an external observable *Event* into a [Change]. In contrast
+     * to `source` function, `coldSource` function gets
+     *
+     * - subscribed when the first observer to [Knot.state] is subscribed
+     * - unsubscribed when the last observer of [Knot.state]  is unsubscribed
+     *
+     * Example:
+     * ```
+     *  events {
+     *      coldSource {
+     *          userLocationObserver
+     *              .map { Change.UserLocationUpdated(it) }
+     *      }
+     *  }
+     * ```
+     */
+    fun coldSource(source: EventSource<Change>) {
+        coldEventsSources.value += source
     }
 }
 
