@@ -8,8 +8,8 @@ import io.reactivex.functions.Consumer
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
 
 /**
@@ -39,39 +39,45 @@ internal class DefaultCompositeKnot<State : Any>(
     private val initialState: State,
     private val observeOn: Scheduler?,
     private val reduceOn: Scheduler?,
-    private val stateInterceptors: MutableList<Interceptor<State>>,
-    private val changeInterceptors: MutableList<Interceptor<Any>>,
-    private val actionInterceptors: MutableList<Interceptor<Any>>,
-    private val actionSubject: Subject<Any>
+    stateInterceptors: MutableList<Interceptor<State>>,
+    changeInterceptors: MutableList<Interceptor<Any>>,
+    actionInterceptors: MutableList<Interceptor<Any>>,
+    actionSubject: Subject<Any>
 ) : CompositeKnot<State> {
 
-    private val reducers = mutableMapOf<KClass<out Any>, Reducer<State, Any, Any>>()
-    private val actionTransformers = mutableListOf<ActionTransformer<Any, Any>>()
-    private val eventSources = mutableListOf<EventSource<Any>>()
     private val coldEventSources = lazy { mutableListOf<EventSource<Any>>() }
-    private val composed = AtomicBoolean(false)
-    private val disposables = CompositeDisposable()
+    private val composition = AtomicReference(
+        Composition(
+            stateInterceptors,
+            changeInterceptors,
+            actionInterceptors,
+            actionSubject
+        )
+    )
 
     private val stateSubject = BehaviorSubject.create<State>()
     private val changeSubject = PublishSubject.create<Any>()
+    private val disposables = CompositeDisposable()
 
     private val subscriberCount = AtomicInteger()
     private var coldEventsDisposable: Disposable? = null
     private var coldEventsObservable: Observable<Any>? = null
 
+    @Suppress("UNCHECKED_CAST")
     override fun <Change : Any, Action : Any> registerPrime(
         block: PrimeBuilder<State, Change, Action>.() -> Unit
     ) {
-        @Suppress("UNCHECKED_CAST")
-        PrimeBuilder(
-            reducers,
-            eventSources,
-            coldEventSources,
-            actionTransformers,
-            stateInterceptors,
-            changeInterceptors,
-            actionInterceptors
-        ).also(block as PrimeBuilder<State, Any, Any>.() -> Unit)
+        composition.get()?.let {
+            PrimeBuilder(
+                it.reducers,
+                it.eventSources,
+                coldEventSources,
+                it.actionTransformers,
+                it.stateInterceptors,
+                it.changeInterceptors,
+                it.actionInterceptors
+            ).also(block as PrimeBuilder<State, Any, Any>.() -> Unit)
+        } ?: error("Primes cannot be registered after compose() was called")
     }
 
     override fun isDisposed(): Boolean = disposables.isDisposed
@@ -82,7 +88,7 @@ internal class DefaultCompositeKnot<State : Any>(
         .doFinally { if (subscriberCount.decrementAndGet() == 0) maybeUnsubscribeColdEvents() }
 
     override val change: Consumer<Any> = Consumer {
-        check(composed.get()) { "compose() must be called before emitting any change." }
+        check(composition.get() == null) { "compose() must be called before emitting any change." }
         changeSubject.onNext(it)
     }
 
@@ -116,34 +122,46 @@ internal class DefaultCompositeKnot<State : Any>(
     }
 
     override fun compose() {
-        check(!composed.getAndSet(true)) { "compose() must be called just once." }
-        disposables.add(
-            Observable
-                .merge(
-                    mutableListOf<Observable<Any>>().apply {
-                        this += changeSubject
-                        actionSubject
-                            .intercept(actionInterceptors)
-                            .bind(actionTransformers) { this += it }
-                        eventSources
-                            .map { source -> this += source() }
+        composition.getAndSet(null)?.let { composition ->
+            disposables.add(
+                Observable
+                    .merge(
+                        mutableListOf<Observable<Any>>().apply {
+                            this += changeSubject
+                            composition.actionSubject
+                                .intercept(composition.actionInterceptors)
+                                .bind(composition.actionTransformers) { this += it }
+                            composition.eventSources
+                                .map { source -> this += source() }
+                        }
+                    )
+                    .let { stream -> reduceOn?.let { stream.observeOn(it) } ?: stream }
+                    .serialize()
+                    .intercept(composition.changeInterceptors)
+                    .scan(initialState) { state, change ->
+                        val reducer = composition.reducers[change::class] ?: error("Cannot find reducer for $change")
+                        reducer(state, change).emitActions(composition.actionSubject)
                     }
-                )
-                .let { stream -> reduceOn?.let { stream.observeOn(it) } ?: stream }
-                .serialize()
-                .intercept(changeInterceptors)
-                .scan(initialState) { state, change ->
-                    val reducer = reducers[change::class] ?: error("Cannot find reducer for $change")
-                    reducer(state, change).emitActions(actionSubject)
-                }
-                .distinctUntilChanged { prev, curr -> prev === curr }
-                .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
-                .intercept(stateInterceptors)
-                .subscribe(
-                    stateSubject::onNext,
-                    stateSubject::onError
-                )
-        )
-        maybeSubscribeColdEvents()
+                    .distinctUntilChanged { prev, curr -> prev === curr }
+                    .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
+                    .intercept(composition.stateInterceptors)
+                    .subscribe(
+                        stateSubject::onNext,
+                        stateSubject::onError
+                    )
+            )
+            maybeSubscribeColdEvents()
+        } ?: error("compose() must be called just once.")
+    }
+
+    private class Composition<State : Any>(
+        val stateInterceptors: MutableList<Interceptor<State>>,
+        val changeInterceptors: MutableList<Interceptor<Any>>,
+        val actionInterceptors: MutableList<Interceptor<Any>>,
+        val actionSubject: Subject<Any>
+    ) {
+        val reducers = mutableMapOf<KClass<out Any>, Reducer<State, Any, Any>>()
+        val actionTransformers = mutableListOf<ActionTransformer<Any, Any>>()
+        val eventSources = mutableListOf<EventSource<Any>>()
     }
 }
