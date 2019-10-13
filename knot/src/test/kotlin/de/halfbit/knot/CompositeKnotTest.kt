@@ -55,6 +55,17 @@ class CompositeKnotTest {
         knot.compose()
     }
 
+    @Test(expected = IllegalStateException::class)
+    fun `When composed, knot fails to access new primes`() {
+        val knot = compositeKnot<State> {
+            state {
+                initial = State
+            }
+        }
+        knot.compose()
+        knot.registerPrime<Unit, Unit> { }
+    }
+
     @Test
     fun `state { observeOn } gets applied`() {
         var visited = false
