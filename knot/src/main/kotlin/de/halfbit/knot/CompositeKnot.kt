@@ -131,9 +131,11 @@ internal class DefaultCompositeKnot<State : Any>(
                     .merge(
                         mutableListOf<Observable<Any>>().apply {
                             this += changeSubject
+
                             composition.actionSubject
                                 .intercept(composition.actionInterceptors)
                                 .bind(composition.actionTransformers) { this += it }
+
                             composition.eventSources
                                 .map { source -> this += source() }
                         }
