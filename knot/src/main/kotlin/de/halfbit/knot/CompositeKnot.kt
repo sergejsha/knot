@@ -36,9 +36,9 @@ interface CompositeKnot<State : Any> : Knot<State, Any> {
 }
 
 internal class DefaultCompositeKnot<State : Any>(
-    private val initialState: State,
-    private val observeOn: Scheduler?,
-    private val reduceOn: Scheduler?,
+    initialState: State,
+    observeOn: Scheduler?,
+    reduceOn: Scheduler?,
     stateInterceptors: MutableList<Interceptor<State>>,
     changeInterceptors: MutableList<Interceptor<Any>>,
     actionInterceptors: MutableList<Interceptor<Any>>,
@@ -48,6 +48,9 @@ internal class DefaultCompositeKnot<State : Any>(
     private val coldEventSources = lazy { mutableListOf<EventSource<Any>>() }
     private val composition = AtomicReference(
         Composition(
+            initialState,
+            observeOn,
+            reduceOn,
             stateInterceptors,
             changeInterceptors,
             actionInterceptors,
@@ -135,15 +138,15 @@ internal class DefaultCompositeKnot<State : Any>(
                                 .map { source -> this += source() }
                         }
                     )
-                    .let { stream -> reduceOn?.let { stream.observeOn(it) } ?: stream }
+                    .let { stream -> composition.reduceOn?.let { stream.observeOn(it) } ?: stream }
                     .serialize()
                     .intercept(composition.changeInterceptors)
-                    .scan(initialState) { state, change ->
+                    .scan(composition.initialState) { state, change ->
                         val reducer = composition.reducers[change::class] ?: error("Cannot find reducer for $change")
                         reducer(state, change).emitActions(composition.actionSubject)
                     }
                     .distinctUntilChanged { prev, curr -> prev === curr }
-                    .let { stream -> observeOn?.let { stream.observeOn(it) } ?: stream }
+                    .let { stream -> composition.observeOn?.let { stream.observeOn(it) } ?: stream }
                     .intercept(composition.stateInterceptors)
                     .subscribe(
                         stateSubject::onNext,
@@ -155,6 +158,9 @@ internal class DefaultCompositeKnot<State : Any>(
     }
 
     private class Composition<State : Any>(
+        val initialState: State,
+        val observeOn: Scheduler?,
+        val reduceOn: Scheduler?,
         val stateInterceptors: MutableList<Interceptor<State>>,
         val changeInterceptors: MutableList<Interceptor<Any>>,
         val actionInterceptors: MutableList<Interceptor<Any>>,
