@@ -20,12 +20,16 @@ class PrimeInterceptChangeTest {
         knot.registerPrime<ChangeA, Action> {
             changes {
                 reduce<ChangeA> { this + Action }
-                intercept<ChangeA> { change -> change.doOnNext { watcher.onNext(it) } }
+                intercept<ChangeA> { change ->
+                    change.doOnNext {
+                        watcher.onNext(it.copy(value = "${it.value} intercepted"))
+                    }
+                }
             }
         }
         knot.compose()
-        knot.change.accept(ChangeA("changed"))
-        observer.assertValues(ChangeA("changed"))
+        knot.change.accept(ChangeA("change a"))
+        observer.assertValues(ChangeA("change a intercepted"))
     }
 
     @Test
@@ -42,7 +46,9 @@ class PrimeInterceptChangeTest {
                 reduce<ChangeA> { only }
                 intercept<ChangeA> { change ->
                     change.doOnNext {
-                        watcher.onNext(it)
+                        if (it.value == "change a") {
+                            watcher.onNext(it.copy(value = "${it.value} intercepted"))
+                        }
                     }
                 }
             }
@@ -53,18 +59,20 @@ class PrimeInterceptChangeTest {
                 reduce<ChangeB> { only }
                 intercept<ChangeB> { change ->
                     change.doOnNext {
-                        watcher.onNext(it)
+                        if (it.value == "change b") {
+                            watcher.onNext(it.copy(value = "${it.value} intercepted"))
+                        }
                     }
                 }
             }
         }
 
         knot.compose()
-        knot.change.accept(ChangeA("changed"))
-        knot.change.accept(ChangeB("changed"))
+        knot.change.accept(ChangeA("change a"))
+        knot.change.accept(ChangeB("change b"))
         observer.assertValues(
-            ChangeA("changed"),
-            ChangeB("changed")
+            ChangeA("change a intercepted"),
+            ChangeB("change b intercepted")
         )
     }
 }
