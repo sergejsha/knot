@@ -1,5 +1,6 @@
 package de.halfbit.knot
 
+import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
@@ -172,7 +173,7 @@ internal constructor(
     class ChangesBuilder<State : Any, Change : Any, Action : Any>
     internal constructor(
         private val reducers: MutableMap<KClass<out Change>, Reducer<State, Change, Action>>,
-        private val changeInterceptors: MutableList<Interceptor<Change>>
+        @PublishedApi internal val changeInterceptors: MutableList<Interceptor<Change>>
     ) {
         /** An optional [Scheduler] used for watching *Changes*. */
         var watchOn: Scheduler? = null
@@ -211,8 +212,8 @@ internal constructor(
         }
 
         /** A function for intercepting [Change] emissions. */
-        fun intercept(interceptor: Interceptor<Change>) {
-            changeInterceptors += interceptor
+        inline fun <reified C : Change> intercept(noinline interceptor: Interceptor<Change>) {
+            changeInterceptors += TypedInterceptor(C::class.java, interceptor)
         }
 
         /** A function for watching emissions of all `Changes`. */
@@ -234,4 +235,17 @@ internal constructor(
         /** Throws [IllegalStateException] with current [State] and given [Change] in its message. */
         fun State.unexpected(change: Change): Nothing = error("Unexpected $change in $this")
     }
+}
+
+@PublishedApi
+internal class TypedInterceptor<Type : Any, T : Type>(
+    private val type: Class<T>,
+    private val interceptor: Interceptor<Type>
+) : Interceptor<Type> {
+    override fun invoke(value: Observable<Type>): Observable<Type> =
+        value.flatMap { change ->
+            Observable.just(change).let {
+                if (type.isInstance(change)) interceptor.invoke(it) else it
+            }
+        }
 }
