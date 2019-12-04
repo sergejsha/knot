@@ -97,7 +97,7 @@ states.assertValues(
 
 Notice how inside the `reduce` function a new `State` can be combined with an `Action` using `+` operator. If only the `State` value should be returned from the reducer, the `.only` suffix is added to the `State`.
 
-Checkout [Co2Monitor sample app](https://github.com/beworker/co2monitor/tree/master/android-client) for more details.
+Checkout [Co2Monitor sample app](https://github.com/beworker/co2monitor/blob/master/android-client/main-dashboard/src/main/java/de/halfbit/co2monitor/main/dashboard/DashboardViewModel.kt) for more details.
 
 # Decomposition
 
