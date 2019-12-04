@@ -6,10 +6,6 @@ plugins {
     id("jacoco")
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = Deps.Version.jvmTarget
-}
-
 dependencies {
     implementation(kotlin(Deps.kotlinJdk))
     implementation(Deps.rxJava)
@@ -34,11 +30,10 @@ tasks {
         dependsOn(jacocoTestReport)
     }
     compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = Deps.Version.jvmTarget
     }
-
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = Deps.Version.jvmTarget
     }
 }
 
