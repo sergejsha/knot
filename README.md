@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/beworker/knot/branch/master/graph/badge.svg)](https://codecov.io/gh/beworker/knot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
-# ➰ Knot
+# 🧶Knot
 
 Concise reactive state container library for Android applications.
 
