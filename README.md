@@ -126,8 +126,6 @@ repositories {
 }
 dependencies {
     implementation "de.halfbit:knot:<version>"
-    implementation "io.reactivex.rxjava2:rxjava:<rx2_version>"
-    implementation "io.reactivex.rxjava2:rxkotlin:<rx2_version>"
 }
 ```
 
