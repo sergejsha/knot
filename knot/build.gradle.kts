@@ -8,7 +8,7 @@ plugins {
 
 dependencies {
     implementation(kotlin(Deps.kotlinJdk))
-    implementation(Deps.rxJava)
+    api(Deps.rxJava)
 
     testImplementation(Deps.junit)
     testImplementation(Deps.truth)
