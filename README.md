@@ -39,7 +39,7 @@ The example below declares a Knot capable of loading data, handling *Success* an
 
 ```kotlin
 sealed class State {
-   object Empty : State()
+   object Initial : State()
    object Loading : State()
    data class Content(val data: String) : State()
    data class Failed(val error: Throwable) : State()
@@ -58,8 +58,7 @@ sealed class Action {
 
 val knot = knot<State, Change, Action> {
     state { 
-        initial = State.Empty 
-        watchAll { println("state: $it") }
+        initial = State.Initial 
     }
     changes {
         reduce { change ->
@@ -69,7 +68,6 @@ val knot = knot<State, Change, Action> {
                 is Change.Load.Failure -> State.Failed(error).only
             }
         }
-        watchAll { println("change: $it") }
     }
     actions {
         perform<Action.Load> {
@@ -77,7 +75,6 @@ val knot = knot<State, Change, Action> {
                 .map<Change> { Change.Load.Success(it) }
                 .onErrorReturn { Change.Load.Failure(it) }
         }
-        watchAll { println("action: $it") }
     }
     events {
         source {
