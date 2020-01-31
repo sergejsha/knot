@@ -12,5 +12,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "knotlib"
-include("knot", "sample")
+rootProject.name = "knot-library"
+include("knot", "knot-android-sample")

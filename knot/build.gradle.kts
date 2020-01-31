@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm")
     `maven-publish`
     id("org.gradle.signing")
-    id("org.jetbrains.dokka") version Deps.Version.dokka
+    id("org.jetbrains.dokka")
     id("jacoco")
 }
 

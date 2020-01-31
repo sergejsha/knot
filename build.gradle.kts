@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version Deps.Version.kotlin apply false
-    id("com.android.application") version Deps.Version.agp apply false // Only required for the sample
+    id("org.jetbrains.dokka") version Deps.Version.dokka apply false
+    id("com.android.application") version Deps.Version.agp apply false
 }
 
 allprojects {
