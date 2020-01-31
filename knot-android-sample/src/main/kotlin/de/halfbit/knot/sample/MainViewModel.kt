@@ -4,19 +4,33 @@ import androidx.lifecycle.ViewModel
 import de.halfbit.knot.knot
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 class MainViewModel : ViewModel() {
 
     private val knot = knot<State, Change, Action> {
-        state { initial = State.Init }
+        state {
+            initial = State.Initial
+
+            // make sure we observe events in Main thread
+            observeOn = AndroidSchedulers.mainThread()
+        }
         changes {
             reduce { change ->
                 // this is the current state
                 when (change) {
                     Change.Load -> when (this) {
-                        State.Init -> State.Loading + Action.Load
-                        else -> unexpected(change)
+                        State.Initial -> State.Loading + Action.Load
+
+                        // By returning "only" (the same state we received) from
+                        // here we ignore every follow up events coming from the
+                        // button.
+
+                        // If we used "unexpected(change)" here, the app would
+                        // crash if user succeeded to press "Load Movies" button
+                        // quick enough.
+                        else -> only
                     }
                     is Change.Load.Success -> when (this) {
                         State.Loading -> State.Ready(change.movies).only
@@ -33,9 +47,9 @@ class MainViewModel : ViewModel() {
             perform<Action.Load> {
                 this
                     .delay(
-                        3,
+                        5,
                         TimeUnit.SECONDS,
-                        AndroidSchedulers.mainThread()
+                        Schedulers.computation()
                     ) // To fake the loading
                     .map {
                         // Do a operation to load the movies
@@ -48,7 +62,7 @@ class MainViewModel : ViewModel() {
     }
 
     val showButton: Observable<Boolean> = knot.state
-        .map { it == State.Init }
+        .map { it == State.Initial }
         .distinctUntilChanged()
 
     val showLoading: Observable<Boolean> = knot.state
@@ -60,7 +74,9 @@ class MainViewModel : ViewModel() {
         .map { it.movies }
         .distinctUntilChanged()
 
-    val onButtonClick: () -> Unit = { knot.change.accept(Change.Load) }
+    fun onButtonClick() {
+        knot.change.accept(Change.Load)
+    }
 
     override fun onCleared() {
         super.onCleared()
@@ -69,7 +85,7 @@ class MainViewModel : ViewModel() {
 }
 
 sealed class State {
-    object Init : State()
+    object Initial : State()
     object Loading : State()
     data class Ready(val movies: List<Movie>) : State()
     object Error : State()

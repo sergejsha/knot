@@ -23,7 +23,9 @@ class MainActivity : AppCompatActivity() {
         }.also { disposable.add(it) }
 
         model.showLoading.subscribe {
-            loadingIndicator.visibility = if (it) VISIBLE else GONE
+            val visibility = if (it) VISIBLE else GONE
+            loadingIndicator.visibility = visibility
+            hint.visibility = visibility
         }.also { disposable.add(it) }
 
         model.showMovies.subscribe {
