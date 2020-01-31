@@ -18,4 +18,4 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 script:
-  - ./gradlew build
+  - ./gradlew :knot:build
