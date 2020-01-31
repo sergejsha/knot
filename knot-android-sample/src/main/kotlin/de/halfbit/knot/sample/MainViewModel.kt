@@ -28,8 +28,8 @@ class MainViewModel : ViewModel() {
                         // button.
 
                         // If we used "unexpected(change)" here, the app would
-                        // crash if user succeeded to press "Load Movies" button
-                        // quick enough.
+                        // crash if the user succeeded to press "Load Movies"
+                        // butto multiple times quick enough.
                         else -> only
                     }
                     is Change.Load.Success -> when (this) {
