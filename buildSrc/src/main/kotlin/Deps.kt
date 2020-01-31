@@ -4,6 +4,7 @@ object Deps {
         const val kotlin = "1.3.61"
         const val dokka = "0.9.17"
         const val jvmTarget = "1.8"
+        const val agp = "3.5.3"
     }
 
     const val rxJava = "io.reactivex.rxjava2:rxjava:2.2.17"
