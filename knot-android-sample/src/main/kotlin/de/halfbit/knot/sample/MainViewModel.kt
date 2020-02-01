@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import de.halfbit.knot.knot
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 class MainViewModel : ViewModel() {
@@ -46,14 +45,14 @@ class MainViewModel : ViewModel() {
         actions {
             perform<Action.Load> {
                 this
-                    .delay(
-                        5,
-                        TimeUnit.SECONDS,
-                        Schedulers.computation()
-                    ) // To fake the loading
+                    .delay(5, TimeUnit.SECONDS) // To fake the loading
                     .map {
                         // Do a operation to load the movies
-                        listOf(Movie("The day after tomorrow"), Movie("Joker"))
+                        listOf(
+                            Movie("The day after tomorrow"),
+                            Movie("Joker"),
+                            Movie("Avatar")
+                        )
                     }
                     .map { movies -> Change.Load.Success(movies) as Change }
                     .onErrorReturn { Change.Load.Fail }
