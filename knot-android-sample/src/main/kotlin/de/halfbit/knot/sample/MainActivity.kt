@@ -15,7 +15,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
 
+    override fun onStart() {
+        super.onStart()
         val model = ViewModelProvider(this).get(MainViewModel::class.java)
 
         model.showButton.subscribe {
@@ -35,8 +38,8 @@ class MainActivity : AppCompatActivity() {
         loadingButton.setOnClickListener { model.onButtonClick() }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        disposable.dispose()
+    override fun onStop() {
+        disposable.clear()
+        super.onStop()
     }
 }
