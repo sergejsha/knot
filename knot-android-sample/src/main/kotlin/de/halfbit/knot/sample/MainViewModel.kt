@@ -12,7 +12,7 @@ class MainViewModel : ViewModel() {
         state {
             initial = State.Initial
 
-            // make sure we observe events in Main thread
+            // observe state on Main thread
             observeOn = AndroidSchedulers.mainThread()
         }
         changes {
@@ -47,7 +47,7 @@ class MainViewModel : ViewModel() {
                 this
                     .delay(5, TimeUnit.SECONDS) // To fake the loading
                     .map {
-                        // Do a operation to load the movies
+                        // Do an operation to load the movies
                         listOf(
                             Movie("The day after tomorrow"),
                             Movie("Joker"),
