@@ -83,22 +83,20 @@ class MainViewModel : ViewModel() {
     }
 }
 
-sealed class State {
+private sealed class State {
     object Initial : State()
     object Loading : State()
     data class Ready(val movies: List<Movie>) : State()
     object Error : State()
 }
 
-sealed class Change {
+private sealed class Change {
     object Load : Change() {
         data class Success(val movies: List<Movie>) : Change()
         object Fail : Change()
     }
 }
 
-sealed class Action {
+private sealed class Action {
     object Load : Action()
 }
-
-data class Movie(val title: String)
