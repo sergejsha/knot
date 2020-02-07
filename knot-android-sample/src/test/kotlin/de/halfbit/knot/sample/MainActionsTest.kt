@@ -31,6 +31,6 @@ class MainActionsTest {
 
         testScheduler.advanceTimeBy(5, TimeUnit.SECONDS)
         val change = testObserver.values().first()
-        Truth.assertThat(change).isEqualTo(Change.Load.Fail)
+        Truth.assertThat(change).isEqualTo(Change.Load.Failure)
     }
 }

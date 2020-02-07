@@ -10,8 +10,7 @@ class MainViewModelTest {
 
     private val state = PublishSubject.create<State>()
     private val changeConsumer = ChangeConsumer()
-    private val disposable = EmptyDisposable()
-    private val model = MainViewModel(state, changeConsumer, disposable)
+    private val model = MainViewModel(state, changeConsumer, NopDisposable())
     private val buttonShowObserver = model.showButton.test()
     private val loadingShowObserver = model.showLoading.test()
     private val moviesShowObserver = model.showMovies.test()
@@ -64,19 +63,14 @@ class MainViewModelTest {
 private class ChangeConsumer : Consumer<Change> {
     val changes: MutableList<Change> = mutableListOf()
 
-    override fun accept(t: Change?) {
-        t?.let { changes.add(t) }
+    override fun accept(t: Change) {
+        changes.add(t)
     }
-
 }
 
-private class EmptyDisposable : Disposable {
-    override fun isDisposed(): Boolean {
-        return true
-    }
-
+private class NopDisposable : Disposable {
+    override fun isDisposed(): Boolean = true
     override fun dispose() {
-        //
+        // not
     }
-
 }

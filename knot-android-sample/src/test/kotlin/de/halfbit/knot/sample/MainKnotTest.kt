@@ -2,15 +2,15 @@ package de.halfbit.knot.sample
 
 import com.google.common.truth.Truth
 import io.reactivex.Observable
-import io.reactivex.schedulers.TestScheduler
+import io.reactivex.schedulers.Schedulers
 import org.junit.Test
+
+internal typealias LoadAction = (Observable<Action.Load>) -> Observable<Change>
 
 class MainKnotTest {
 
-    private val testScheduler = TestScheduler()
-    private val loadAction: (Observable<Action.Load>) -> Observable<Change> = {
-        it.map { Change.Load.Fail }
-    }
+    private fun loadAction(observable: Observable<Action.Load>): Observable<Change> =
+        observable.map { Change.Load.Failure }
 
     @Test
     fun `on knot ChangeLoad got accepted we will go into StateLoading`() {
@@ -19,22 +19,20 @@ class MainKnotTest {
 
         knot.change.accept(Change.Load)
 
-        testScheduler.triggerActions()
         Truth.assertThat(stateObserver.values()).contains(State.Loading)
     }
 
     @Test
     fun `on knot ChangeLoad got accepted the loadMoviesAction got called`() {
         var moviesActionWasCalled = false
-        val mockLoadMoviesAction: (Observable<Action.Load>) -> Observable<Change> = {
+        val mockLoadMoviesAction: LoadAction = {
             moviesActionWasCalled = true
-            it.map { Change.Load.Fail }
+            it.map { Change.Load.Failure }
         }
         val knot = createKnot(mockLoadMoviesAction)
 
         knot.change.accept(Change.Load)
 
-        testScheduler.triggerActions()
         Truth.assertThat(moviesActionWasCalled).isTrue()
     }
 
@@ -45,13 +43,12 @@ class MainKnotTest {
 
         knot.change.accept(Change.Load)
 
-        testScheduler.triggerActions()
         Truth.assertThat(stateObserver.values().last()).isEqualTo(State.Error)
     }
 
     @Test
     fun `on knot ChangeLoad got accepted we will go into StateReady when load movies action succeeded`() {
-        val loadMoviesAction: (Observable<Action.Load>) -> Observable<Change> = {
+        val loadMoviesAction: LoadAction = {
             it.map { Change.Load.Success(emptyList()) }
         }
         val knot = createKnot(loadMoviesAction)
@@ -59,10 +56,9 @@ class MainKnotTest {
 
         knot.change.accept(Change.Load)
 
-        testScheduler.triggerActions()
         Truth.assertThat(stateObserver.values().last()).isInstanceOf(State.Ready::class.java)
     }
 
-    private fun createKnot(loadAction: (Observable<Action.Load>) -> Observable<Change> = this.loadAction) =
-        createMainKnot(testScheduler, loadAction)
+    private fun createKnot(loadAction: LoadAction = this::loadAction) =
+        createMainKnot(Schedulers.trampoline(), loadAction)
 }

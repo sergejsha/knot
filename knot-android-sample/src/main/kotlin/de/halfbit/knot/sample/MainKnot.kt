@@ -37,7 +37,7 @@ fun createMainKnot(
                         State.Loading -> State.Ready(change.movies).only
                         else -> unexpected(change)
                     }
-                    Change.Load.Fail -> when (this) {
+                    Change.Load.Failure -> when (this) {
                         State.Loading -> State.Error.only
                         else -> unexpected(change)
                     }
@@ -60,7 +60,7 @@ sealed class State {
 sealed class Change {
     object Load : Change() {
         data class Success(val movies: List<Movie>) : Change()
-        object Fail : Change()
+        object Failure : Change()
     }
 }
 

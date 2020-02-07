@@ -6,23 +6,10 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 
-val mainViewModelFactory: ViewModelProvider.Factory
-    get() {
-        return object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                val knot = createMainKnot()
-                return modelClass
-                    .getConstructor(Observable::class.java, Consumer::class.java, Disposable::class.java)
-                    .newInstance(knot.state, knot.change, knot)
-            }
-
-        }
-    }
-
 class MainViewModel(
     stateObserver: Observable<State>,
     private val changeConsumer: Consumer<Change>,
-    private val knotDisposable: Disposable
+    private val disposable: Disposable
 ) : ViewModel() {
 
     val showButton: Observable<Boolean> = stateObserver
@@ -44,6 +31,17 @@ class MainViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        knotDisposable.dispose()
+        disposable.dispose()
     }
 }
+
+internal val mainViewModelFactory: ViewModelProvider.Factory
+    get() = object : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+                createMainKnot().let { knot ->
+                    @Suppress("UNCHECKED_CAST")
+                    MainViewModel(knot.state, knot.change, knot) as T
+                }
+            } else error("Unsupported model type: $modelClass")
+    }

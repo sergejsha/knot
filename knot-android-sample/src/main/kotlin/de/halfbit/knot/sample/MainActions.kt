@@ -5,7 +5,7 @@ import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-fun createLoadAction(
+internal fun createLoadAction(
     delayScheduler: Scheduler = Schedulers.computation()
 ): (Observable<Action.Load>) -> Observable<Change> = {
     it
@@ -19,5 +19,5 @@ fun createLoadAction(
             )
         }
         .map { movies -> Change.Load.Success(movies) as Change }
-        .onErrorReturn { Change.Load.Fail }
+        .onErrorReturn { Change.Load.Failure }
 }
