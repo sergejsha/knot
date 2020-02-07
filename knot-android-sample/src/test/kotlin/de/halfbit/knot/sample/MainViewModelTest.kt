@@ -69,8 +69,8 @@ private class ChangeConsumer : Consumer<Change> {
 }
 
 private class NopDisposable : Disposable {
-    override fun isDisposed(): Boolean = true
+    override fun isDisposed(): Boolean = false
     override fun dispose() {
-        // not
+        // nop
     }
 }
