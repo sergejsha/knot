@@ -41,4 +41,7 @@ dependencies {
 
     implementation(project(":knot"))
     implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
+
+    testImplementation(Deps.junit)
+    testImplementation(Deps.truth)
 }
