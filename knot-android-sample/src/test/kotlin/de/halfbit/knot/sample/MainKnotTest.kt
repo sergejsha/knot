@@ -65,5 +65,5 @@ class MainKnotTest {
     }
 
     private fun createKnot(loadAction: (Observable<Action.Load>) -> Observable<Change> = this.loadAction) =
-        mainKnotFactory(testScheduler, loadAction)
+        createMainKnot(testScheduler, loadAction)
 }

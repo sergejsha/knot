@@ -6,9 +6,9 @@ import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 
-fun mainKnotFactory(
+fun createMainKnot(
     stateObserver: Scheduler = AndroidSchedulers.mainThread(),
-    loadAction: (Observable<Action.Load>) -> Observable<Change> = loadActionFactory
+    loadAction: (Observable<Action.Load>) -> Observable<Change> = createLoadAction()
 ): Knot<State, Change> {
     return knot<State, Change, Action> {
         state {

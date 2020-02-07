@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        val model = ViewModelProvider(this).get(MainViewModel::class.java)
+        val model = ViewModelProvider(this, mainViewModelFactory).get(MainViewModel::class.java)
 
         model.showButton.subscribe {
             loadingButton.visibility = if (it) VISIBLE else GONE

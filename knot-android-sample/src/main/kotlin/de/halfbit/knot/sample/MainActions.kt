@@ -1,11 +1,15 @@
 package de.halfbit.knot.sample
 
 import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-val loadActionFactory: (Observable<Action.Load>) -> Observable<Change> = {
+fun createLoadAction(
+    delayScheduler: Scheduler = Schedulers.computation()
+): (Observable<Action.Load>) -> Observable<Change> = {
     it
-        .delay(5, TimeUnit.SECONDS) // To fake the loading
+        .delay(5, TimeUnit.SECONDS, delayScheduler) // To fake the loading
         .map {
             // Do an operation to load the movies
             listOf(
