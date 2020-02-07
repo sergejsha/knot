@@ -8,7 +8,6 @@ import org.junit.Test
 class MainKnotTest {
 
     private val testScheduler = TestScheduler()
-
     private val loadAction: (Observable<Action.Load>) -> Observable<Change> = {
         it.map { Change.Load.Fail }
     }
