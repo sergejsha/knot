@@ -118,13 +118,13 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Production ready - Knot is used in production.
 * Why not?
 
-# Download
+# Binaries
 ```kotlin
 repositories {
     mavenCentral()
 }
 dependencies {
-    implementation "de.halfbit:knot:<version>"
+    implementation "de.halfbit:knot3:3.0.0"
     
     // Becase Knot is not released for each and every RxJava version, 
     // it is recommended you also explicitly depend on RxJava's latest 
@@ -134,10 +134,10 @@ dependencies {
 ```
 
 # RxJava Compatibility
-| Knot version | RxJava |
+| Knot | RxJava |
 | ---- | ------ |
-| 1.8.1 | RxJava2 |  
-| 3.0.0 | RxJava3 |  
+| de.halfbit:knot:1.8.1 | RxJava2 |  
+| de.halfbit:knot3:3.0.0 | RxJava3 |  
 
 # Inspiration
 Knot was inspired by two awesome projects
