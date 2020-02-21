@@ -120,8 +120,10 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 
 # Binaries
 ```kotlin
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }
 dependencies {
     implementation "de.halfbit:knot3:3.0.0"
