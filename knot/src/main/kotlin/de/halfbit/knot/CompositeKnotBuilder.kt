@@ -1,9 +1,9 @@
 package de.halfbit.knot
 
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.Subject
 import kotlin.reflect.KClass
 
 /** Creates a [CompositeKnot]. */

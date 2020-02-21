@@ -7,7 +7,7 @@ object Deps {
         const val agp = "3.5.3"
     }
 
-    const val rxJava = "io.reactivex.rxjava2:rxjava:2.2.17"
+    const val rxJava = "io.reactivex.rxjava3:rxjava:3.0.0"
     const val kotlinJdk = "stdlib-jdk8"
     const val junit = "junit:junit:4.12"
     const val truth = "com.google.truth:truth:0.44"

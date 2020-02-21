@@ -1,13 +1,13 @@
 package de.halfbit.knot
 
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
-import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
-import io.reactivex.subjects.Subject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.functions.Consumer
+import io.reactivex.rxjava3.subjects.BehaviorSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.Subject
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.reflect.KClass
@@ -144,7 +144,8 @@ internal class DefaultCompositeKnot<State : Any>(
                     .serialize()
                     .intercept(composition.changeInterceptors)
                     .scan(composition.initialState) { state, change ->
-                        val reducer = composition.reducers[change::class] ?: error("Cannot find reducer for $change")
+                        val reducer = composition.reducers[change::class]
+                            ?: error("Cannot find reducer for $change")
                         reducer(state, change).emitActions(composition.actionSubject)
                     }
                     .distinctUntilChanged { prev, curr -> prev === curr }

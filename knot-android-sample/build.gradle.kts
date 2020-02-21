@@ -32,7 +32,7 @@ android {
 dependencies {
     implementation(kotlin(Deps.kotlinJdk))
     implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation("androidx.core:core-ktx:1.1.0")
+    implementation("androidx.core:core-ktx:1.2.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
 
     val lifecycleVersion = "2.2.0"
@@ -40,7 +40,7 @@ dependencies {
     kapt("androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion")
 
     implementation(project(":knot"))
-    implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
+    implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
 
     testImplementation(Deps.junit)
     testImplementation(Deps.truth)

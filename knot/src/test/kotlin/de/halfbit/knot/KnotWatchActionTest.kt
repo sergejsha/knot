@@ -2,7 +2,7 @@ package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
 import de.halfbit.knot.utils.SchedulerTester
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 
 class KnotWatchActionTest {

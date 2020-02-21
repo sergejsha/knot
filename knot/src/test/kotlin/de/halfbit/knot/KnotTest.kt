@@ -4,9 +4,9 @@ import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 
 class KnotTest {
@@ -156,7 +156,7 @@ class KnotTest {
     }
 
     @Test
-    fun `State gets gets filtered, if it's the same`() {
+    fun `State gets filtered, if it's the same`() {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")
@@ -178,7 +178,7 @@ class KnotTest {
     }
 
     @Test
-    fun `State gets gets dispatched, if it's equal but not the same`() {
+    fun `State gets dispatched, if it's equal but not the same`() {
         val knot = knot<State, Change, Action> {
             state {
                 initial = State("empty")

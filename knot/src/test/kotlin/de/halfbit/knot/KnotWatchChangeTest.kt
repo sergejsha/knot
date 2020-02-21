@@ -2,8 +2,8 @@ package de.halfbit.knot
 
 import com.google.common.truth.Truth.assertThat
 import de.halfbit.knot.utils.SchedulerTester
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 
 class KnotWatchChangeTest {
