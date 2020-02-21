@@ -1,8 +1,8 @@
 package de.halfbit.knot.sample
 
 import com.google.common.truth.Truth
-import io.reactivex.Observable
-import io.reactivex.schedulers.TestScheduler
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.TestScheduler
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 
