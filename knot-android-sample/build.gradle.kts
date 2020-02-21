@@ -39,7 +39,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     kapt("androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion")
 
-    implementation(project(":knot3"))
+    implementation(project(":knot"))
     implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
 
     testImplementation(Deps.junit)

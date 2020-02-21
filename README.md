@@ -1,4 +1,4 @@
-[![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot3.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.halfbit%22%20a%3A%22knot%22)
+[![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.halfbit%22%20a%3A%22knot%22)
 ![](https://img.shields.io/badge/production-ready-brightgreen.svg)
 [![Build Status](https://travis-ci.org/beworker/knot.svg?branch=master)](https://travis-ci.org/beworker/knot)
 [![codecov](https://codecov.io/gh/beworker/knot/branch/master/graph/badge.svg)](https://codecov.io/gh/beworker/knot)
@@ -126,7 +126,7 @@ allprojects {
     }
 }
 dependencies {
-    implementation "de.halfbit:knot3:3.0.0"
+    implementation "de.halfbit:knot:<version>"
     
     // Becase Knot is not released for each and every RxJava version, 
     // it is recommended you also explicitly depend on RxJava's latest 
@@ -138,8 +138,8 @@ dependencies {
 # RxJava Compatibility
 | Knot | RxJava |
 | ---- | ------ |
-| de.halfbit:knot:1.8.1 | RxJava2 |  
-| de.halfbit:knot3:3.0.0 | RxJava3 |  
+| 1.8.1 | RxJava2 |  
+| 3.0.1+ | RxJava3 |  
 
 # Inspiration
 Knot was inspired by two awesome projects
