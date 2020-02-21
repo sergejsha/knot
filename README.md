@@ -125,8 +125,19 @@ repositories {
 }
 dependencies {
     implementation "de.halfbit:knot:<version>"
+    
+    // Becase Knot is not released for each and every RxJava version, 
+    // it is recommended you also explicitly depend on RxJava's latest 
+    // version for bug fixes and new features.
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.0'    
 }
 ```
+
+# RxJava Compatibility
+| Knot version | RxJava |
+| ---- | ------ |
+| 1.8.1 | RxJava2 |  
+| 3.0.0 | RxJava3 |  
 
 # Inspiration
 Knot was inspired by two awesome projects
