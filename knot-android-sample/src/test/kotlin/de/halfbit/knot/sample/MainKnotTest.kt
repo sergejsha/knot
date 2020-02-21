@@ -1,8 +1,8 @@
 package de.halfbit.knot.sample
 
 import com.google.common.truth.Truth
-import io.reactivex.Observable
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.junit.Test
 
 internal typealias LoadAction = (Observable<Action.Load>) -> Observable<Change>

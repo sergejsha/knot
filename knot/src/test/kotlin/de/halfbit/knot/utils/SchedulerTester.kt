@@ -1,8 +1,8 @@
 package de.halfbit.knot.utils
 
 import com.google.common.truth.Truth.assertThat
-import io.reactivex.Scheduler
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.Executor
 
 class SchedulerTester {

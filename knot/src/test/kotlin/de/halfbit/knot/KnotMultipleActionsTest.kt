@@ -1,6 +1,6 @@
 package de.halfbit.knot
 
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import org.junit.Test
 
 class KnotMultipleActionsTest {

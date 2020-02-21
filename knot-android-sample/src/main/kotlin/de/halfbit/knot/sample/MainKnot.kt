@@ -2,9 +2,9 @@ package de.halfbit.knot.sample
 
 import de.halfbit.knot.Knot
 import de.halfbit.knot.knot
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Scheduler
 
 fun createMainKnot(
     stateObserver: Scheduler = AndroidSchedulers.mainThread(),

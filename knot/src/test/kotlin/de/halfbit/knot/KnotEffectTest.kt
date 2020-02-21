@@ -1,6 +1,6 @@
 package de.halfbit.knot
 
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 
 class KnotEffectTest {
@@ -40,7 +40,7 @@ class KnotEffectTest {
                 initial = State
             }
             changes {
-                reduce { only + null  }
+                reduce { only + null }
             }
             actions {
                 watchAll { actions.onNext(it) }
