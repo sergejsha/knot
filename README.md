@@ -152,12 +152,6 @@ dependencies {
 }
 ```
 
-# RxJava Compatibility
-| Knot | RxJava |
-| ---- | ------ |
-| de.halfbit:knot:&lt;version&gt; | RxJava2 |  
-| de.halfbit:knot3:&lt;version&gt; | RxJava3 |  
-
 # Inspiration
 Knot was inspired by two awesome projects
 * Krate https://github.com/gustavkarlsson/krate
