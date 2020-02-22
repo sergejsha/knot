@@ -118,23 +118,6 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Production ready - Knot is used in production.
 * Why not?
 
-# RxJava2 Binaries
-```kotlin
-allprojects {
-    repositories {
-        mavenCentral()
-    }
-}
-dependencies {
-    implementation "de.halfbit:knot:<version>"
-    
-    // Becase Knot is not released for each and every RxJava version, 
-    // it is recommended you also explicitly depend on RxJava's latest 
-    // version for bug fixes and new features.
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.18'
-}
-```
-
 # RxJava3 Binaries
 ```kotlin
 allprojects {
@@ -149,6 +132,23 @@ dependencies {
     // it is recommended you also explicitly depend on RxJava's latest 
     // version for bug fixes and new features.
     implementation 'io.reactivex.rxjava3:rxjava:3.0.0'    
+}
+```
+
+# RxJava2 Binaries
+```kotlin
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+dependencies {
+    implementation "de.halfbit:knot:<version>"
+    
+    // Becase Knot is not released for each and every RxJava version, 
+    // it is recommended you also explicitly depend on RxJava's latest 
+    // version for bug fixes and new features.
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.18'
 }
 ```
 
