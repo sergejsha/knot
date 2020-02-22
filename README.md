@@ -117,7 +117,7 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Production ready - Knot is used in production.
 * Why not?
 
-# RxJava3 Binaries
+# RxJava3 Binaries [![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot3.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.halfbit%22%20a%3A%22knot3%22)
 ```kotlin
 allprojects {
     repositories {
@@ -133,9 +133,9 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxjava:3.0.0'    
 }
 ```
-[![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot3.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.halfbit%22%20a%3A%22knot3%22)
 
-# RxJava2 Binaries
+# RxJava2 Binaries [![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.halfbit%22%20a%3A%22knot%22)
+
 ```kotlin
 allprojects {
     repositories {
@@ -151,7 +151,6 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.18'
 }
 ```
-[![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.halfbit%22%20a%3A%22knot%22)
 
 # Inspiration
 Knot was inspired by two awesome projects
