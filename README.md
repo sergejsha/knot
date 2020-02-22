@@ -138,8 +138,8 @@ dependencies {
 # RxJava Compatibility
 | Knot | RxJava |
 | ---- | ------ |
-| de.halfbit:knot:1.8.1 | RxJava2 |  
-| de.halfbit:knot3:3.0.1 | RxJava3 |  
+| de.halfbit:knot:<version> | RxJava2 |  
+| de.halfbit:knot3:<version> | RxJava3 |  
 
 # Inspiration
 Knot was inspired by two awesome projects
