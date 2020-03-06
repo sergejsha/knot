@@ -82,7 +82,7 @@ class KnotTest {
     }
 
     @Test
-    fun `Action transformer isn not invoked on initialization`() {
+    fun `Action transformer is not invoked on initialization`() {
         val actionTransformer: ActionTransformer<Action, Change> = mock {
             on { invoke(any()) }.thenAnswer { Observable.just(Change) }
         }
@@ -242,15 +242,13 @@ class KnotTest {
     }
 
     @Test
-    fun `Disposed Knot disposes running actions`() {
+    fun `Disposed Knot disposes subscribed actions`() {
         val scheduler = TestScheduler()
         val actions = PublishSubject.create<Unit>()
         var isDisposed = false
         val knot = knot<State, Change, Action> {
             state { initial = State("empty") }
-            changes {
-                reduce { this + Action }
-            }
+            changes { reduce { this + Action } }
             actions {
                 perform<Action> {
                     actions

@@ -144,7 +144,7 @@ class TestCompositeKnotTest {
     }
 
     @Test
-    fun `Disposed Knot disposes actions`() {
+    fun `Disposed Knot disposes subscribed actions`() {
         val scheduler = TestScheduler()
         val actions = PublishSubject.create<Unit>()
         var isDisposed = false
