@@ -3,6 +3,7 @@ package de.halfbit.knot3
 import com.google.common.truth.Truth.assertThat
 import de.halfbit.knot3.utils.SchedulerTester
 import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.TestScheduler
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 
@@ -1135,24 +1136,32 @@ class PrimeTest {
     }
 
     @Test
-    fun `Disposed Knot disposes actions`() {
+    fun `Disposed Knot disposes subscribed actions`() {
+        val scheduler = TestScheduler()
         val actions = PublishSubject.create<Unit>()
         var isDisposed = false
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
-            changes { reduce<Change.A> { only } }
+            changes {
+                reduce<Change.A> {
+                    this + Action.A
+                }
+            }
             actions {
                 perform<Action.A> {
                     actions
+                        .subscribeOn(scheduler)
                         .doOnDispose { isDisposed = true }
                         .map { Change.A }
                 }
             }
         }
         knot.compose()
+        knot.change.accept(Change.A)
         knot.dispose()
+
         assertThat(isDisposed).isTrue()
     }
 }

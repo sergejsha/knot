@@ -281,9 +281,8 @@ internal class TypedActionTransformer<Action : Any, Change : Any, A : Action>(
     private val type: Class<A>,
     private val transform: ActionTransformer<A, Change>
 ) : ActionTransformer<Action, Change> {
-    override fun invoke(action: Observable<Action>): Observable<Change> {
-        return transform(action.ofType(type))
-    }
+    override fun invoke(action: Observable<Action>): Observable<Change> =
+        action.ofType(type).flatMap { transform(Observable.just(it)) }
 }
 
 internal class WatchingInterceptor<T>(

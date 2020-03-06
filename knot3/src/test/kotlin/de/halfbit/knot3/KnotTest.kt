@@ -3,9 +3,11 @@ package de.halfbit.knot3
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.schedulers.TestScheduler
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 
@@ -80,7 +82,7 @@ class KnotTest {
     }
 
     @Test
-    fun `Action transformer gets invoked on initialization`() {
+    fun `Action transformer is not invoked on initialization`() {
         val actionTransformer: ActionTransformer<Action, Change> = mock {
             on { invoke(any()) }.thenAnswer { Observable.just(Change) }
         }
@@ -96,7 +98,7 @@ class KnotTest {
                 perform(actionTransformer)
             }
         }
-        verify(actionTransformer).invoke(any())
+        verify(actionTransformer, never()).invoke(any())
     }
 
     @Test
@@ -240,21 +242,28 @@ class KnotTest {
     }
 
     @Test
-    fun `Disposed Knot disposes actions`() {
+    fun `Disposed Knot disposes subscribed actions`() {
+        val scheduler = TestScheduler()
         val actions = PublishSubject.create<Unit>()
         var isDisposed = false
         val knot = knot<State, Change, Action> {
             state { initial = State("empty") }
-            changes { reduce { only } }
+            changes {
+                reduce { this + Action }
+            }
             actions {
                 perform<Action> {
                     actions
+                        .subscribeOn(scheduler)
                         .doOnDispose { isDisposed = true }
                         .map { Change }
                 }
             }
         }
+
+        knot.change.accept(Change)
         knot.dispose()
+
         assertThat(isDisposed).isTrue()
     }
 }
