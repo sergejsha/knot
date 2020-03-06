@@ -88,6 +88,46 @@ class KnotSingleActionTest {
     }
 
     @Test
+    fun `Execute Action with many single Failure change`() {
+        val knot = knot<State, Change, Action> {
+            state {
+                initial = State("empty")
+            }
+            changes {
+                reduce { change ->
+                    when (change) {
+                        is Change.Load -> copy(value = "loading") + Action.Load
+                        is Change.Load.Success -> copy(value = change.payload).only
+                        is Change.Load.Failure -> copy(value = "failed").only
+                    }
+                }
+            }
+            actions {
+                perform<Action.Load> {
+                    flatMapSingle<String> { Single.error(Exception()) }
+                        .map<Change> { Change.Load.Success(it) }
+                        .onErrorReturn { Change.Load.Failure(it) }
+                }
+            }
+        }
+
+        val observer = knot.state.test()
+        knot.change.accept(Change.Load)
+        knot.change.accept(Change.Load)
+        knot.change.accept(Change.Load)
+
+        observer.assertValues(
+            State("empty"),
+            State("loading"),
+            State("failed"),
+            State("loading"),
+            State("failed"),
+            State("loading"),
+            State("failed")
+        )
+    }
+
+    @Test
     fun `Execute Action with multiple changes`() {
         val knot = knot<State, Change, Action> {
             state {

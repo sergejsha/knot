@@ -13,7 +13,7 @@ fun <State : Any> compositeKnot(
     CompositeKnotBuilder<State>()
         .also(block)
         .build(
-            actionSubject = PublishSubject.create<Any>()
+            actionSubject = PublishSubject.create()
         )
 
 /** A configuration builder for a [CompositeKnot]. */
