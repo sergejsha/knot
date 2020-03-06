@@ -1,6 +1,7 @@
 package de.halfbit.knot
 
 import com.google.common.truth.Truth
+import io.reactivex.schedulers.TestScheduler
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -144,22 +145,27 @@ class TestCompositeKnotTest {
 
     @Test
     fun `Disposed Knot disposes actions`() {
+        val scheduler = TestScheduler()
         val actions = PublishSubject.create<Unit>()
         var isDisposed = false
         val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
         knot.registerPrime<Change, Action> {
-            changes { reduce<Change> { only } }
+            changes {
+                reduce<Change> { this + Action("do it") }
+            }
             actions {
                 perform<Action> {
                     actions
+                        .subscribeOn(scheduler)
                         .doOnDispose { isDisposed = true }
                         .map { Change("change") }
                 }
             }
         }
         knot.compose()
+        knot.change.accept(Change("action"))
         knot.dispose()
         Truth.assertThat(isDisposed).isTrue()
     }
