@@ -202,9 +202,11 @@ internal constructor(
      * ```
      *  actions {
      *      perform<Action.Load> {
-     *          flatMapSingle<Payload> { api.load() }
-     *              .map<Change> { Change.Load.Success(it) }
-     *              .onErrorReturn { Change.Load.Failure(it) }
+     *          flatMapSingle {
+     *              loadData()
+     *                  .map<Change> { Change.Load.Success(it) }
+     *                  .onErrorReturn { Change.Load.Failure(it) }
+     *          }
      *      }
      *  }
      * ```
@@ -282,7 +284,7 @@ internal class TypedActionTransformer<Action : Any, Change : Any, A : Action>(
     private val transform: ActionTransformer<A, Change>
 ) : ActionTransformer<Action, Change> {
     override fun invoke(action: Observable<Action>): Observable<Change> =
-        action.ofType(type).flatMap { transform(Observable.just(it)) }
+        transform(action.ofType(type)).doAfterTerminate { error(ACTIONS_MUST_NEVER_TERMINATE) }
 }
 
 internal class WatchingInterceptor<T>(
@@ -311,3 +313,7 @@ internal class TypedWatcher<Type : Any, T : Type>(
         }
     }
 }
+
+private const val ACTIONS_MUST_NEVER_TERMINATE =
+    "Action must never terminate. For more information see: " +
+            "https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section"
