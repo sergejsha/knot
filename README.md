@@ -70,9 +70,11 @@ val knot = knot<State, Change, Action> {
     }
     actions {
         perform<Action.Load> {
-            switchMapSingle<String> { api.load() }
-                .map<Change> { Change.Load.Success(it) }
-                .onErrorReturn { Change.Load.Failure(it) }
+            switchMapSingle<String> { 
+                loadData()
+                    .map<Change> { Change.Load.Success(it) }
+                    .onErrorReturn { Change.Load.Failure(it) }
+            }
         }
     }
     events {
