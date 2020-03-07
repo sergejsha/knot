@@ -3,7 +3,6 @@ package de.halfbit.knot
 import com.google.common.truth.Truth.assertThat
 import de.halfbit.knot.utils.SchedulerTester
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.schedulers.TestScheduler
 import io.reactivex.subjects.PublishSubject
 import org.junit.Test
 
@@ -1136,8 +1135,7 @@ class PrimeTest {
     }
 
     @Test
-    fun `Disposed Knot disposes subscribed actions`() {
-        val scheduler = TestScheduler()
+    fun `Disposed Knot disposes actions`() {
         val actions = PublishSubject.create<Unit>()
         var isDisposed = false
         val knot = compositeKnot<State> {
@@ -1148,7 +1146,6 @@ class PrimeTest {
             actions {
                 perform<Action.A> {
                     actions
-                        .subscribeOn(scheduler)
                         .doOnDispose { isDisposed = true }
                         .map { Change.A }
                 }

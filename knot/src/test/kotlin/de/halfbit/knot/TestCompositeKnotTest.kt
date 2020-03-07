@@ -144,8 +144,7 @@ class TestCompositeKnotTest {
     }
 
     @Test
-    fun `Disposed Knot disposes subscribed actions`() {
-        val scheduler = TestScheduler()
+    fun `Disposed Knot disposes actions`() {
         val actions = PublishSubject.create<Unit>()
         var isDisposed = false
         val knot = testCompositeKnot<State> {
@@ -158,7 +157,6 @@ class TestCompositeKnotTest {
             actions {
                 perform<Action> {
                     actions
-                        .subscribeOn(scheduler)
                         .doOnDispose { isDisposed = true }
                         .map { Change("change") }
                 }
