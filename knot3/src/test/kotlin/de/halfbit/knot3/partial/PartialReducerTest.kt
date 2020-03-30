@@ -1,6 +1,8 @@
-package de.halfbit.knot3
+package de.halfbit.knot3.partial
 
 import com.google.common.truth.Truth.assertThat
+import de.halfbit.knot3.Effect
+import de.halfbit.knot3.knot
 import org.junit.Test
 
 class PartialReducerTest {
@@ -16,14 +18,18 @@ class PartialReducerTest {
 
         val reducer1 = object : PartialReducer<State, String, Action> {
             override fun reduce(state: State, payload: String): Effect<State, Action> {
-                return state.copy(value = "${state.value}, $payload reducer1") + Action("reducer1")
+                return state.copy(value = "${state.value}, $payload reducer1") + Action(
+                    "reducer1"
+                )
             }
         }
 
         val reducer2 = object : PartialReducer<State, String, Action> {
             override fun reduce(state: State, payload: String): Effect<State, Action> {
                 return state.copy(value = "${state.value}, $payload reducer2") +
-                        Action("reducer2.1") + Action("reducer2.2")
+                        Action("reducer2.1") + Action(
+                    "reducer2.2"
+                )
             }
         }
 
@@ -40,22 +46,23 @@ class PartialReducerTest {
                 this += reducer3
             }
 
-        val knot = knot<State, Change, Action> {
-            state {
-                initial = State("initial")
-            }
-
-            changes {
-                reduce { change ->
-                    reducers.dispatch(this, change.value)
+        val knot =
+            knot<State, Change, Action> {
+                state {
+                    initial = State("initial")
                 }
-            }
 
-            actions {
-                watchAll { actions.add(it) }
-            }
+                changes {
+                    reduce { change ->
+                        reducers.dispatch(this, change.value)
+                    }
+                }
 
-        }
+                actions {
+                    watchAll { actions.add(it) }
+                }
+
+            }
 
         val states = knot.state.test()
         knot.change.accept(Change("one"))

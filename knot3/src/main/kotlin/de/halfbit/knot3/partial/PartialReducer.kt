@@ -1,4 +1,6 @@
-package de.halfbit.knot3
+package de.halfbit.knot3.partial
+
+import de.halfbit.knot3.Effect
 
 /**
  * Partial reducer is useful when the same change (or its payload data) needs to
@@ -49,18 +51,18 @@ fun <State : Any, Payload : Any, Action : Any> Collection<PartialReducer<State, 
     state: State, payload: Payload
 ): Effect<State, Action> {
     val actions = mutableListOf<Action>()
-    var newState = state
-    for (reducer in this) {
-        when (val effect = reducer.reduce(newState, payload)) {
+    val newState = fold(state) { partialState, reducer ->
+        when (val effect = reducer.reduce(partialState, payload)) {
             is Effect.WithAction -> {
-                newState = effect.state
                 effect.action?.let { actions += it }
+                effect.state
             }
             is Effect.WithActions -> {
-                newState = effect.state
                 actions += effect.actions
+                effect.state
             }
         }
     }
-    return if (actions.isEmpty()) Effect.WithAction(newState) else Effect.WithActions(newState, actions)
+    return if (actions.isEmpty()) Effect.WithAction(newState)
+    else Effect.WithActions(newState, actions)
 }
