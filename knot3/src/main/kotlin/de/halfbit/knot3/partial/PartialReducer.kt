@@ -4,7 +4,7 @@ import de.halfbit.knot3.Effect
 
 /**
  * Partial reducer is useful when the same change (or its payload) needs to be
- * provided to  multiple reducers. Such reducers should then implement the
+ * shared among multiple reducers. Such reducers should then implement the
  * `PartialReducer` interface and the main reducer, which initially receives the
  * change, should dispatch it (or its payload) to all partial reducers. Each
  * partial reducer should return a new state back, which will then be provided
