@@ -3,33 +3,17 @@ package de.halfbit.knot3.partial
 import de.halfbit.knot3.Effect
 
 /**
- * Partial reducer is useful when the same change (or its payload data) needs to
- * be reduced by multiple reducers. The reducers should then implement `PartialReducer`
- * interface and the main reducer, which receives the change, should dispatch it
- * (or its payload data) to all partial reducers. Each partial reducer should return
- * a new state back, which will be then provided to the next reducer in the list and
- * so on, until all partial reducers are processed. The resulting state should be
- * returned back from the main reducer.
+ * Partial reducer is useful when the same change (or its payload) needs to be
+ * provided to  multiple reducers. Such reducers should then implement the
+ * `PartialReducer` interface and the main reducer, which initially receives the
+ * change, should dispatch it (or its payload) to all partial reducers. Each
+ * partial reducer should return a new state back, which will then be provided
+ * to the next reducer in the list and so on until all partial reducers are
+ * processed. The resulting state can be returned back from the main reducer to
+ * knot.
  *
- * ```kotlin
- * val reducers: List<PartialReducer<State, Playback, Action>>
- *
- * knot<State, Change, Action> {
- *   state {
- *     initial = State("initial")
- *   }
- *   changes {
- *     reduce { change ->
- *       reducers.reduce(this, change.payload)
- *     }
- *   }
- * }
- * ```
- *
- * For example, when a media player dispatches playback data and it needs to be
- * distributed to multiple primes, then the primes should also implement `PartialReducer`
- * interfaces and the main prime responsible for receiving playback data should provide
- * it to all those partial reducers.
+ * Use [dispatch] extension function for dispatching the payload to partial
+ * reducers.
  */
 interface PartialReducer<State : Any, Payload : Any, Action : Any> {
     fun reduce(state: State, payload: Payload): Effect<State, Action>
@@ -42,10 +26,23 @@ interface PartialReducer<State : Any, Payload : Any, Action : Any> {
 }
 
 /**
- * This is a utility function iterating though the partial reducers in the list and
- * providing them with state and payload data. The state returned by the previous
- * partial reducer is provides to the next partial reducer. Resulting state can be
- * returned back from the main reducers.
+ * This extension function implements the contract between the main reducer
+ * and list of partial reducers as defined by [PartialReducer].
+ *
+ * ```kotlin
+ * val reducers: List<PartialReducer<State, Payload, Action>>
+ *
+ * knot<State, Change, Action> {
+ *   state {
+ *     initial = State.Initial
+ *   }
+ *   changes {
+ *     reduce { change ->
+ *       reducers.dispatch(this, change.payload)
+ *     }
+ *   }
+ * }
+ * ```
  */
 fun <State : Any, Payload : Any, Action : Any> Collection<PartialReducer<State, Payload, Action>>.dispatch(
     state: State, payload: Payload
