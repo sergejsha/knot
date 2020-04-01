@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "de.halfbit"
-    version = "3.1.0-alpha3"
+    version = "3.1.0"
 
     repositories {
         mavenCentral()
