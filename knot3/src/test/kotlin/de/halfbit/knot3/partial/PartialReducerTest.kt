@@ -50,7 +50,6 @@ class PartialReducerTest {
                 }
             }
 
-        val states = knot.state.test()
         knot.change.accept(Change("one"))
         assertThat(actions).isEmpty()
     }
@@ -93,7 +92,6 @@ class PartialReducerTest {
                 }
             }
 
-        val states = knot.state.test()
         knot.change.accept(Change("one"))
         assertThat(actions).containsExactly(
             Action("one"),
