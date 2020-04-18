@@ -1,11 +1,17 @@
 package de.halfbit.knot3
 
 import com.google.common.truth.Truth.assertThat
+import de.halfbit.knot3.utils.RxPluginsException
 import io.reactivex.rxjava3.subjects.PublishSubject
+import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicInteger
 
 class CompositeKnotColdSourceTest {
+
+    @Rule
+    @JvmField
+    var rxPluginsException: RxPluginsException = RxPluginsException.none()
 
     private data class State(val value: String)
     private sealed class Change {
@@ -263,11 +269,9 @@ class CompositeKnotColdSourceTest {
             }
         }
 
+        rxPluginsException.expect(givenError)
         knot.compose()
-
-        val observer = knot.state.test()
+        knot.state.test()
         source.onNext("event")
-
-        observer.assertError(givenError)
     }
 }
