@@ -28,7 +28,7 @@ In addition to that each Knot can subscribe to `Events` coming from external sou
 # Unique Features
 
 * **DSL**. Knot provides a concise and easy to understand DLS for writing state container logic.
-* **External events**. Knot can mix external events like "user location updates", "database table changes", "network state" etc. into the loop by design. All events go through the reducer first, to be processed in accordance with the current state. Thus the state handling is well synchronized and is localized at a single place - in the reducer.
+* **External events**. Knot can mix external events like user location updates, database triggers, network state updates etc. into the loop by design. All events go through the reducer first, to be processed in accordance with the current state. Thus the state handling is well synchronized and is localized at a single place - in the reducer.
 * **Actions as side-effects**. Common unanswered question of many state containers is how to handle side-effects in reducer, when the state does not reflect the change but the app, for instance, has to show a message to the user instead. Knot answers this by allowing to issue an `Action` from the reducer, which then can be processed outside. This keeps reducer a pure function and provides a structured way of handling side-effects.
 * **Decomposition**. Knot offers a convenient and structured way of splitting code into multiple parts when the code becomes complex.
 
