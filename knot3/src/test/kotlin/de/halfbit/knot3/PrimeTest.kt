@@ -1,12 +1,18 @@
 package de.halfbit.knot3
 
 import com.google.common.truth.Truth.assertThat
+import de.halfbit.knot3.utils.RxPluginsException
 import de.halfbit.knot3.utils.SchedulerTester
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
+import org.junit.Rule
 import org.junit.Test
 
 class PrimeTest {
+
+    @Rule
+    @JvmField
+    var rxPluginsException: RxPluginsException = RxPluginsException.none()
 
     private data class State(val value: String)
 
@@ -23,16 +29,26 @@ class PrimeTest {
     }
 
     @Test
-    fun `CompositeKnot emits IllegalStateException if reducer cannot be found`() {
+    fun `Exception thrown if reducer cannot be found when no state observers`() {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
 
-        val observer = knot.state.test()
+        rxPluginsException.expect(IllegalStateException::class)
         knot.compose()
         knot.change.accept(Change.A)
+    }
 
-        observer.assertError(IllegalStateException::class.java)
+    @Test
+    fun `Exception thrown if reducer cannot be found when one state observer`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+
+        rxPluginsException.expect(IllegalStateException::class)
+        knot.state.test()
+        knot.compose()
+        knot.change.accept(Change.A)
     }
 
     @Test
@@ -320,7 +336,7 @@ class PrimeTest {
     }
 
     @Test
-    fun `Reducer throws error on unexpected()`() {
+    fun `Exception throw in reducer gets propagated when no state observers`() {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
@@ -331,10 +347,27 @@ class PrimeTest {
             }
         }
 
-        val observer = knot.state.test()
+        rxPluginsException.expect(IllegalStateException::class)
         knot.compose()
         knot.change.accept(Change.A)
-        observer.assertError(IllegalStateException::class.java)
+    }
+
+    @Test
+    fun `Exception throw in reducer gets propagated when one state observer`() {
+        val knot = compositeKnot<State> {
+            state { initial = State("empty") }
+        }
+
+        knot.registerPrime<Change, Action> {
+            changes {
+                reduce<Change.A> { unexpected(it) }
+            }
+        }
+
+        rxPluginsException.expect(IllegalStateException::class)
+        knot.state.test()
+        knot.compose()
+        knot.change.accept(Change.A)
     }
 
     @Test
