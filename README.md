@@ -132,7 +132,7 @@ dependencies {
     // Becase Knot is not released for each and every RxJava version, 
     // it is recommended you also explicitly depend on RxJava's latest 
     // version for bug fixes and new features.
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.0'    
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.4'    
 }
 ```
 
@@ -150,7 +150,7 @@ dependencies {
     // Becase Knot is not released for each and every RxJava version, 
     // it is recommended you also explicitly depend on RxJava's latest 
     // version for bug fixes and new features.
-    implementation 'io.reactivex.rxjava2:rxjava:3.1.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
 }
 ```
 
