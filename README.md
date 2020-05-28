@@ -154,6 +154,38 @@ dependencies {
 }
 ```
 
+# Troubleshooting
+
+## JVM Target
+
+When I try to perform an action with 
+
+```
+perform<Action.MyAction> {
+   ...
+}
+```
+
+I get the following error:
+
+> Cannot inline bytecode built with JVM target 1.8 into bytecode that is being built with JVM target 1.6. Please specify proper '-jvm-target' option.
+
+You can fix it adding this to your `build.gradle`:
+
+```
+android {
+    ...
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+}
+```
+
 # Inspiration
 Knot was inspired by two awesome projects
 * Krate https://github.com/gustavkarlsson/krate
