@@ -105,7 +105,7 @@ If your knot becomes complex and you want to improve its readability and maintai
 
 <img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
 
-Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can be seen as a separate `Knot` working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided to `CompositeKnot` which implements standard `Knot` interface. For more information check out [PrimeTest](https://github.com/beworker/knot/blob/master/knot/src/test/kotlin/de/halfbit/knot/PrimeTest.kt) class.
+Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can be seen as a separate `Knot` working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided to `CompositeKnot` which implements standard `Knot` interface. For more information check out [PrimeTest](https://github.com/beworker/knot/blob/master/knot3/src/test/kotlin/de/halfbit/knot3/PrimeTest.kt) class.
 
 # Why Knot?
 
@@ -132,7 +132,7 @@ dependencies {
     // Becase Knot is not released for each and every RxJava version, 
     // it is recommended you also explicitly depend on RxJava's latest 
     // version for bug fixes and new features.
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.0'    
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.4'    
 }
 ```
 
@@ -150,7 +150,39 @@ dependencies {
     // Becase Knot is not released for each and every RxJava version, 
     // it is recommended you also explicitly depend on RxJava's latest 
     // version for bug fixes and new features.
-    implementation 'io.reactivex.rxjava2:rxjava:3.1.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
+}
+```
+
+# Troubleshooting
+
+## JVM Target
+
+When I try to perform an action with 
+
+```
+perform<Action.MyAction> {
+   ...
+}
+```
+
+I get the following error:
+
+> Cannot inline bytecode built with JVM target 1.8 into bytecode that is being built with JVM target 1.6. Please specify proper '-jvm-target' option.
+
+You can fix it adding this to your `build.gradle`:
+
+```
+android {
+    ...
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 }
 ```
 
