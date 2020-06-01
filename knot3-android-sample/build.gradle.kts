@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     kotlin("android")
-    kotlin("android.extensions")
     kotlin("kapt")
 }
 
@@ -32,7 +31,7 @@ android {
 dependencies {
     implementation(kotlin(Deps.kotlinJdk))
     implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation("androidx.core:core-ktx:1.2.0")
+    implementation("androidx.core:core-ktx:1.3.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
 
     val lifecycleVersion = "2.2.0"
@@ -40,7 +39,9 @@ dependencies {
     kapt("androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion")
 
     implementation(project(":knot3"))
+    implementation("io.reactivex.rxjava3:rxjava:3.0.4")
     implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
+    implementation("io.reactivex.rxjava3:rxkotlin:3.0.0")
 
     testImplementation(Deps.junit)
     testImplementation(Deps.truth)

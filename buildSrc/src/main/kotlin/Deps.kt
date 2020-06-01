@@ -4,10 +4,10 @@ object Deps {
         const val kotlin = "1.3.72"
         const val dokka = "0.9.17"
         const val jvmTarget = "1.8"
-        const val agp = "3.5.3"
+        const val agp = "4.0.0"
     }
 
-    const val rxJava = "io.reactivex.rxjava3:rxjava:3.0.0"
+    const val rxJava = "io.reactivex.rxjava3:rxjava:3.0.4"
     const val kotlinJdk = "stdlib-jdk8"
     const val junit = "junit:junit:4.12"
     const val truth = "com.google.truth:truth:0.44"
