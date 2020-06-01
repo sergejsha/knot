@@ -7,4 +7,6 @@ sealed class Change {
         data class Success(val books: List<Book>) : Change()
         data class Failure(val message: String) : Change()
     }
+
+    object Clean : Change()
 }

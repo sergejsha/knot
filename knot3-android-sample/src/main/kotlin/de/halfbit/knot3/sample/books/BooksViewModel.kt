@@ -32,14 +32,14 @@ internal class DefaultBooksViewModel(
 
     private val knot = knot<State, Change, Action> {
         state {
-            initial = State.Initial
+            initial = State.Empty
             observeOn = observeOnScheduler
         }
         changes {
             reduce { change ->
                 when (change) {
                     Change.Load -> when (this) {
-                        State.Initial,
+                        State.Empty,
                         is State.Content,
                         is State.Error -> State.Loading + Action.Load
                         else -> only
@@ -52,6 +52,12 @@ internal class DefaultBooksViewModel(
 
                     is Change.Load.Failure -> when (this) {
                         State.Loading -> State.Error(change.message).only
+                        else -> unexpected(change)
+                    }
+
+                    Change.Clean -> when (this) {
+                        is State.Content -> State.Empty.only
+                        is State.Empty -> only
                         else -> unexpected(change)
                     }
                 }
@@ -70,6 +76,7 @@ internal class DefaultBooksViewModel(
 
 private fun Event.toChange(): Change = when (this) {
     is Event.Refresh -> Change.Load
+    Event.Clear -> Change.Clean
 }
 
 private fun LoadBooksAction.Result.toChange() =
@@ -79,7 +86,7 @@ private fun LoadBooksAction.Result.toChange() =
         is LoadBooksAction.Result.Failure.Network ->
             Change.Load.Failure("Network error. Check Internet connection and try again.")
         LoadBooksAction.Result.Failure.Generic ->
-            Change.Load.Failure("Generic error, please try again")
+            Change.Load.Failure("Generic error, please try again.")
     }
 
 private fun LoadBooksAction.Book.toBook() = Book(title, year)

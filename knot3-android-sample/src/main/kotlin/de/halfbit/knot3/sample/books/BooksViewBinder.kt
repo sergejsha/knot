@@ -22,9 +22,12 @@ internal class BooksViewBinder(
 
     private fun BooksViewModel.bindState(disposable: CompositeDisposable) {
         disposable += state
-            .map { it is State.Loading }
-            .distinctUntilChanged()
-            .subscribe(view::showLoading)
+            .ofType<State.Loading>()
+            .subscribe { view.showLoading() }
+
+        disposable += state
+            .ofType<State.Empty>()
+            .subscribe { view.showEmpty() }
 
         disposable += state
             .ofType<State.Content>()

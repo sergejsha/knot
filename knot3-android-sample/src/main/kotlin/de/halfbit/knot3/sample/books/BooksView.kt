@@ -12,14 +12,15 @@ import io.reactivex.rxjava3.subjects.Subject
 interface BooksView {
     val event: Observable<Event>
 
-    fun showLoading(loading: Boolean)
+    fun showEmpty()
+    fun showLoading()
     fun showBooks(books: List<Book>)
     fun showError(message: String)
 }
 
 internal class DefaultBookView(rootView: View) : BooksView {
 
-    private val pageInitial: View = rootView.findViewById(R.id.pageInitial)
+    private val pageEmpty: View = rootView.findViewById(R.id.pageEmpty)
     private val pageLoading: View = rootView.findViewById(R.id.pageLoading)
     private val pageContent: View = rootView.findViewById(R.id.pageContent)
     private val pageError: View = rootView.findViewById(R.id.pageError)
@@ -27,21 +28,27 @@ internal class DefaultBookView(rootView: View) : BooksView {
     private val errorMessage: TextView = rootView.findViewById(R.id.errorMessage)
 
     init {
-        val onClickListener = View.OnClickListener { event.onNext(Event.Refresh) }
-        rootView.findViewById<View>(R.id.tryAgainButton).setOnClickListener(onClickListener)
-        rootView.findViewById<View>(R.id.reloadButton).setOnClickListener(onClickListener)
-        rootView.findViewById<View>(R.id.loadButton).setOnClickListener(onClickListener)
+        val refreshListener = View.OnClickListener { event.onNext(Event.Refresh) }
+        rootView.findViewById<View>(R.id.tryAgainButton).setOnClickListener(refreshListener)
+        rootView.findViewById<View>(R.id.reloadButton).setOnClickListener(refreshListener)
+        rootView.findViewById<View>(R.id.loadButton).setOnClickListener(refreshListener)
+
+        val clearListener = View.OnClickListener { event.onNext(Event.Clear) }
+        rootView.findViewById<View>(R.id.clearButton).setOnClickListener(clearListener)
     }
 
     override val event: Subject<Event> = PublishSubject.create()
 
-    override fun showLoading(loading: Boolean) {
-        if (loading) Page.Loading.show()
-        else Page.Loading.hide()
+    override fun showEmpty() {
+        pageEmpty.show()
+    }
+
+    override fun showLoading() {
+        pageLoading.show()
     }
 
     override fun showBooks(books: List<Book>) {
-        Page.Content.show()
+        pageContent.show()
         val text = books.joinToString(separator = "\n") {
             "${it.title} (${it.year})"
         }
@@ -49,52 +56,23 @@ internal class DefaultBookView(rootView: View) : BooksView {
     }
 
     override fun showError(message: String) {
-        Page.Error.show()
+        pageError.show()
         errorMessage.text = message
-    }
-
-    private fun Page.show() {
-        when (this) {
-            Page.Loading -> {
-                pageLoading.show()
-                pageContent.hide()
-                pageError.hide()
-                pageInitial.hide()
-            }
-            Page.Content -> {
-                pageLoading.hide()
-                pageContent.show()
-                pageError.hide()
-                pageInitial.hide()
-            }
-            Page.Error -> {
-                pageLoading.hide()
-                pageContent.hide()
-                pageError.show()
-                pageInitial.hide()
-            }
-        }
-    }
-
-    private fun Page.hide() {
-        when (this) {
-            Page.Loading -> pageLoading.hide()
-            Page.Content -> pageContent.hide()
-            Page.Error -> pageError.hide()
-        }
     }
 
     private fun View.show() {
         if (visibility != View.VISIBLE) {
             visibility = View.VISIBLE
         }
+        if (this != pageContent) pageContent.hide()
+        if (this != pageLoading) pageLoading.hide()
+        if (this != pageError) pageError.hide()
+        if (this != pageEmpty) pageEmpty.hide()
     }
 
     private fun View.hide() {
-        if (visibility != View.GONE) {
+        if (visibility != View.INVISIBLE) {
             visibility = View.INVISIBLE
         }
     }
 }
-
-private enum class Page { Loading, Content, Error }
