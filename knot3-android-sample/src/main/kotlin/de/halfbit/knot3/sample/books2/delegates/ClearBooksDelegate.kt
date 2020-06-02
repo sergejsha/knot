@@ -26,9 +26,6 @@ class ClearBooksDelegate : Delegate {
         }
     }
 
-    // Sealed class is used for adding some structure the changes.
-    // It can also be omitted.
-
     private sealed class Change {
         object Clear : Change()
     }

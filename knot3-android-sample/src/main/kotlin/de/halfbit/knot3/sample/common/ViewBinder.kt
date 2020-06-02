@@ -1,4 +1,4 @@
-package de.halfbit.knot3.sample.common.mvi
+package de.halfbit.knot3.sample.common
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 

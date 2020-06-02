@@ -1,4 +1,4 @@
-package de.halfbit.knot3.sample.common.actions
+package de.halfbit.knot3.sample.books.actions
 
 import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single

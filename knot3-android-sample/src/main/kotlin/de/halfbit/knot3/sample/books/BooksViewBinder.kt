@@ -1,7 +1,7 @@
 package de.halfbit.knot3.sample.books
 
 import de.halfbit.knot3.sample.books.model.State
-import de.halfbit.knot3.sample.common.mvi.ViewBinder
+import de.halfbit.knot3.sample.common.ViewBinder
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.ofType
 import io.reactivex.rxjava3.kotlin.plusAssign

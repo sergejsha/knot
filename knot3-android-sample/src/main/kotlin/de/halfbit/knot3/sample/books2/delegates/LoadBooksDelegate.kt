@@ -2,12 +2,12 @@ package de.halfbit.knot3.sample.books2.delegates
 
 import de.halfbit.knot3.CompositeKnot
 import de.halfbit.knot3.sample.books2.Delegate
+import de.halfbit.knot3.sample.books2.actions.DefaultLoadBooksAction
+import de.halfbit.knot3.sample.books2.actions.LoadBooksAction
 import de.halfbit.knot3.sample.books2.model.Action
 import de.halfbit.knot3.sample.books2.model.Event
 import de.halfbit.knot3.sample.books2.model.State
 import de.halfbit.knot3.sample.books2.model.types.Book
-import de.halfbit.knot3.sample.common.actions.DefaultLoadBooksAction
-import de.halfbit.knot3.sample.common.actions.LoadBooksAction
 
 class LoadBooksDelegate(
     private val loadBooksAction: LoadBooksAction = DefaultLoadBooksAction()
@@ -54,7 +54,6 @@ class LoadBooksDelegate(
         }
     }
 
-    // Changes are implementation details, which are always private to delegates
     private sealed class Change {
         object Load : Change() {
             data class Success(val books: List<Book>) : Change()

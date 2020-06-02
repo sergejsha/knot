@@ -2,13 +2,13 @@ package de.halfbit.knot3.sample.books
 
 import androidx.lifecycle.ViewModel
 import de.halfbit.knot3.knot
+import de.halfbit.knot3.sample.books.actions.DefaultLoadBooksAction
+import de.halfbit.knot3.sample.books.actions.LoadBooksAction
 import de.halfbit.knot3.sample.books.model.Action
 import de.halfbit.knot3.sample.books.model.Change
 import de.halfbit.knot3.sample.books.model.Event
 import de.halfbit.knot3.sample.books.model.State
 import de.halfbit.knot3.sample.books.model.types.Book
-import de.halfbit.knot3.sample.common.actions.DefaultLoadBooksAction
-import de.halfbit.knot3.sample.common.actions.LoadBooksAction
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Scheduler

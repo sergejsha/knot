@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import de.halfbit.knot3.sample.R
-import de.halfbit.knot3.sample.common.mvi.ViewBinder
+import de.halfbit.knot3.sample.common.ViewBinder
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class BooksFragment : Fragment() {
