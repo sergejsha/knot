@@ -2,7 +2,7 @@ package de.halfbit.knot3.sample
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import de.halfbit.knot3.sample.books.BooksFragment
+import de.halfbit.knot3.sample.books2.BooksFragment
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

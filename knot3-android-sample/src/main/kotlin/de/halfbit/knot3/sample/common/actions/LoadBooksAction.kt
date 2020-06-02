@@ -19,7 +19,7 @@ interface LoadBooksAction {
     data class Book(val title: String, val year: String)
 }
 
-internal class DefaultLoadBooksAction(
+class DefaultLoadBooksAction(
     private val ioScheduler: Scheduler = Schedulers.io()
 ) : LoadBooksAction {
     override fun perform(): Single<LoadBooksAction.Result> =
