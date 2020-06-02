@@ -26,7 +26,14 @@ class DefaultLoadBooksAction(
         Single.just(books)
             .delay(4, TimeUnit.SECONDS)
             .subscribeOn(ioScheduler)
-            .map { LoadBooksAction.Result.Success(it) }
+            .map {
+                val failure = Math.random() < .35
+                if (failure) {
+                    val network = Math.random() < .5
+                    if (network) LoadBooksAction.Result.Failure.Network
+                    else LoadBooksAction.Result.Failure.Generic
+                } else LoadBooksAction.Result.Success(it)
+            }
 }
 
 private val books = listOf(
