@@ -20,11 +20,11 @@ class ClearBooksDelegate : Delegate {
         }
     }
 
-    override fun CompositeKnot<State>.onEvent(event: Event) {
-        if (event is Event.Clear) {
+    override fun CompositeKnot<State>.onEvent(event: Event) =
+        if (event == Event.Clear) {
             change.accept(Change.Clear)
-        }
-    }
+            true
+        } else false
 
     private sealed class Change {
         object Clear : Change()
