@@ -9,7 +9,7 @@ import de.halfbit.knot3.sample.books2.model.Event
 import de.halfbit.knot3.sample.books2.model.State
 import de.halfbit.knot3.sample.books2.model.types.Book
 
-class LoadBooksDelegate(
+class LoadButtonDelegate(
     private val loadBooksAction: LoadBooksAction = DefaultLoadBooksAction()
 ) : Delegate {
 

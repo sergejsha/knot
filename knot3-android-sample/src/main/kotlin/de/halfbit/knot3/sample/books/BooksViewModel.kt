@@ -55,7 +55,7 @@ internal class DefaultBooksViewModel(
                         else -> unexpected(change)
                     }
 
-                    Change.Clean -> when (this) {
+                    Change.Clear -> when (this) {
                         is State.Content -> State.Empty.only
                         is State.Empty -> only
                         else -> unexpected(change)
@@ -76,7 +76,7 @@ internal class DefaultBooksViewModel(
 
 private fun Event.toChange(): Change = when (this) {
     is Event.Load -> Change.Load
-    Event.Clear -> Change.Clean
+    Event.Clear -> Change.Clear
 }
 
 private fun LoadBooksAction.Result.toChange() =

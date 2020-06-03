@@ -5,7 +5,7 @@ import de.halfbit.knot3.sample.books2.Delegate
 import de.halfbit.knot3.sample.books2.model.Event
 import de.halfbit.knot3.sample.books2.model.State
 
-class ClearBooksDelegate : Delegate {
+class ClearButtonDelegate : Delegate {
     override fun register(knot: CompositeKnot<State>) {
         knot.registerPrime<Change, Nothing> {
             changes {

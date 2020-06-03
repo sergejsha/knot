@@ -8,5 +8,5 @@ sealed class Change {
         data class Failure(val message: String) : Change()
     }
 
-    object Clean : Change()
+    object Clear : Change()
 }

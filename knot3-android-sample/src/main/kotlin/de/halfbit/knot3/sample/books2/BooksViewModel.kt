@@ -3,8 +3,8 @@ package de.halfbit.knot3.sample.books2
 import androidx.lifecycle.ViewModel
 import de.halfbit.knot3.CompositeKnot
 import de.halfbit.knot3.compositeKnot
-import de.halfbit.knot3.sample.books2.delegates.ClearBooksDelegate
-import de.halfbit.knot3.sample.books2.delegates.LoadBooksDelegate
+import de.halfbit.knot3.sample.books2.delegates.ClearButtonDelegate
+import de.halfbit.knot3.sample.books2.delegates.LoadButtonDelegate
 import de.halfbit.knot3.sample.books2.model.Event
 import de.halfbit.knot3.sample.books2.model.State
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -24,8 +24,8 @@ interface Delegate {
 
 class DefaultBooksViewModel(
     private val delegates: List<Delegate> = listOf(
-        LoadBooksDelegate(),
-        ClearBooksDelegate()
+        LoadButtonDelegate(),
+        ClearButtonDelegate()
     ),
     private val observeOnScheduler: Scheduler = AndroidSchedulers.mainThread()
 ) : BooksViewModel() {
