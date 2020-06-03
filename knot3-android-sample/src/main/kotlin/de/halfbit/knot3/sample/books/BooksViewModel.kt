@@ -75,7 +75,7 @@ internal class DefaultBooksViewModel(
 }
 
 private fun Event.toChange(): Change = when (this) {
-    is Event.Refresh -> Change.Load
+    is Event.Load -> Change.Load
     Event.Clear -> Change.Clean
 }
 

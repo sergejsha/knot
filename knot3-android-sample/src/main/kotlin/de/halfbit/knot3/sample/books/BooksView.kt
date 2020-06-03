@@ -28,10 +28,10 @@ internal class DefaultBookView(rootView: View) : BooksView {
     private val errorMessage: TextView = rootView.findViewById(R.id.errorMessage)
 
     init {
-        val refreshListener = View.OnClickListener { event.onNext(Event.Refresh) }
-        rootView.findViewById<View>(R.id.tryAgainButton).setOnClickListener(refreshListener)
-        rootView.findViewById<View>(R.id.reloadButton).setOnClickListener(refreshListener)
-        rootView.findViewById<View>(R.id.loadButton).setOnClickListener(refreshListener)
+        val loadListener = View.OnClickListener { event.onNext(Event.Load) }
+        rootView.findViewById<View>(R.id.tryAgainButton).setOnClickListener(loadListener)
+        rootView.findViewById<View>(R.id.reloadButton).setOnClickListener(loadListener)
+        rootView.findViewById<View>(R.id.loadButton).setOnClickListener(loadListener)
 
         val clearListener = View.OnClickListener { event.onNext(Event.Clear) }
         rootView.findViewById<View>(R.id.clearButton).setOnClickListener(clearListener)

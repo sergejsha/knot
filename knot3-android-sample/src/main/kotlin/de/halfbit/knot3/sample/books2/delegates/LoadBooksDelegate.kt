@@ -49,7 +49,7 @@ class LoadBooksDelegate(
     }
 
     override fun CompositeKnot<State>.onEvent(event: Event) =
-        if (event == Event.Refresh) {
+        if (event == Event.Load) {
             change.accept(Change.Load)
             true
         } else false
