@@ -13,8 +13,8 @@ class LoadButtonDelegate(
     private val loadBooksAction: LoadBooksAction = DefaultLoadBooksAction()
 ) : Delegate {
 
-    override fun register(knot: CompositeKnot<State>) {
-        knot.registerPrime<Change, Action> {
+    override fun CompositeKnot<State>.register() {
+        registerPrime<Change, Action> {
             changes {
                 reduce<Change.Load> {
                     when (this) {

@@ -18,7 +18,7 @@ abstract class BooksViewModel : ViewModel() {
 }
 
 interface Delegate {
-    fun register(knot: CompositeKnot<State>)
+    fun CompositeKnot<State>.register()
     fun CompositeKnot<State>.onEvent(event: Event): Boolean = false
 }
 
@@ -36,9 +36,7 @@ class DefaultBooksViewModel(
     override val event: Consumer<Event> =
         Consumer<Event> { event ->
             delegates.any {
-                with(it) {
-                    knot.onEvent(event)
-                }
+                with(it) { knot.onEvent(event) }
             }
         }
 
@@ -51,7 +49,7 @@ class DefaultBooksViewModel(
 
     init {
         for (delegate in delegates) {
-            delegate.register(knot)
+            with(delegate) { knot.register() }
         }
         knot.compose()
     }
