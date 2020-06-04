@@ -95,9 +95,10 @@ states.assertValues(
 
 Notice how inside the `reduce` function a new `State` can be combined with an `Action` using `+` operator. If only the `State` value should be returned from the reducer, the `.only` suffix is added to the `State`.
 
-# Examples
-1. [Knot sample app](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample), `books2` is the same screen as `books` but implemented with composite knot.
+# Examples & Documentation
+1. [Knot Sample App](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample), `books2` is the same screen as `books` but implemented with composite knot.
 2. [Co2Monitor sample app](https://github.com/beworker/co2monitor/blob/master/android-client/main-dashboard/src/main/java/de/halfbit/co2monitor/main/dashboard/DashboardViewModel.kt)
+3. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
 
 # Composition
 
@@ -151,38 +152,6 @@ dependencies {
     // it is recommended you also explicitly depend on RxJava's latest 
     // version for bug fixes and new features.
     implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
-}
-```
-
-# Troubleshooting
-
-## JVM Target
-
-When I try to perform an action with 
-
-```
-perform<Action.MyAction> {
-   ...
-}
-```
-
-I get the following error:
-
-> Cannot inline bytecode built with JVM target 1.8 into bytecode that is being built with JVM target 1.6. Please specify proper '-jvm-target' option.
-
-You can fix it adding this to your `build.gradle`:
-
-```
-android {
-    ...
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
 }
 ```
 
