@@ -88,6 +88,7 @@ val states = knot.state.test()
 knot.change.accept(Change.Load)
 
 states.assertValues(
+    State.Initial,
     State.Loading,
     State.Content("data")
 )
