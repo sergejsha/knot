@@ -96,10 +96,14 @@ states.assertValues(
 
 Notice how inside the `reduce` function a new `State` can be combined with an `Action` using `+` operator. If only the `State` value should be returned from the reducer, the `.only` suffix is added to the `State`.
 
-# Examples & Documentation
+# Documentation
 1. [Knot Sample App](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample), `books2` is the same screen as `books` but implemented with composite knot.
-2. [Co2Monitor sample app](https://github.com/beworker/co2monitor/blob/master/android-client/main-dashboard/src/main/java/de/halfbit/co2monitor/main/dashboard/DashboardViewModel.kt)
-3. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
+2. [Terminal events in Actions section](https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section)
+3. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/#declaring-viewmodel)
+4. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
+
+# Other examples
+- [Co2Monitor sample app](https://github.com/beworker/co2monitor/blob/master/android-client/main-dashboard/src/main/java/de/halfbit/co2monitor/main/dashboard/DashboardViewModel.kt)
 
 # Composition
 
