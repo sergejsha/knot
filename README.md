@@ -13,7 +13,7 @@ Knot helps managing application state by reacting on events and performing async
 
 <img src="docs/diagrams/flowchart-knot.png" height="480" />
 
-`State` represents an immutable partial state of an application. It can be a state of a screen or a state of an internal statefull headless component.
+`State` represents an immutable state of an application. It can be a state of a screen or a state of an internal statefull headless component.
 
 `Change` is an immutable data object with an optional payload intended for changing the `State`. A `Change` can be produced from an external source or be a result of execution of an `Action`.
 
