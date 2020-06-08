@@ -99,7 +99,7 @@ Notice how inside the `reduce` function a new `State` can be combined with an `A
 # Documentation
 1. [Knot Sample App](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample), `books2` is the same screen as `books` but implemented with composite knot.
 2. [Terminal events in Actions section](https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section)
-3. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/#declaring-viewmodel)
+3. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/)
 4. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
 
 # Other examples
