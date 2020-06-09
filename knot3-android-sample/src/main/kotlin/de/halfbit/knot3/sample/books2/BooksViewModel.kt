@@ -53,4 +53,9 @@ class DefaultBooksViewModel(
         }
         knot.compose()
     }
+
+    override fun onCleared() {
+        knot.dispose()
+        super.onCleared()
+    }
 }

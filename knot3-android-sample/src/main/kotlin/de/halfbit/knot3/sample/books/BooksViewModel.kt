@@ -72,6 +72,11 @@ internal class DefaultBooksViewModel(
             }
         }
     }
+
+    override fun onCleared() {
+        knot.dispose()
+        super.onCleared()
+    }
 }
 
 private fun Event.toChange(): Change = when (this) {
