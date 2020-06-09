@@ -13,7 +13,7 @@ Knot helps managing application state by reacting on events and performing async
 
 <img src="docs/diagrams/flowchart-knot.png" height="480" />
 
-`State` represents an immutable partial state of an application. It can be a state of a screen or a state of an internal statefull headless component.
+`State` represents an immutable state of an application. It can be a state of a screen or a state of an internal statefull headless component.
 
 `Change` is an immutable data object with an optional payload intended for changing the `State`. A `Change` can be produced from an external source or be a result of execution of an `Action`.
 
@@ -25,12 +25,12 @@ Knot helps managing application state by reacting on events and performing async
 
 In addition to that each Knot can subscribe to `Events` coming from external sources and turn them into `Changes` for further processing.
 
-# Unique Features
+# Main features
 
-* **DSL**. Knot provides a concise and easy to understand DLS for writing state container logic.
-* **External events**. Knot can mix external events like user location updates, database triggers, network state updates etc. into the loop by design. All events go through the reducer first, to be processed in accordance with the current state. Thus the state handling is well synchronized and is localized at a single place - in the reducer.
-* **Actions as side-effects**. Common unanswered question of many state containers is how to handle side-effects in reducer, when the state does not reflect the change but the app, for instance, has to show a message to the user instead. Knot answers this by allowing to issue an `Action` from the reducer, which then can be processed outside. This keeps reducer a pure function and provides a structured way of handling side-effects.
-* **Decomposition**. Knot offers a convenient and structured way of splitting code into multiple parts when the code becomes complex.
+- **Clean DSL**. Knot provides a concise and easy to read DLS for declaring state container logic.
+- **Actions as side-effects**. Common unanswered question of many state containers is how to handle side-effects in reducer, when the state does not reflect the change but the app, for instance, has to show a message to the user instead. Knot answers this by allowing to issue an `Action` from the reducer, which then can be processed outside. This keeps reducer a pure function and provides a structured way of handling side-effects.
+- **Sources for external events**. Knot can mix external events like user location updates, database triggers, network state updates etc. into the loop by design. All events go through the reducer first, to be processed in accordance with the current state. Thus, the state handling is well synchronized and is localized at a single place - in the reducer.
+- **Composition**. Knot offers a convenient and a structured way of splitting once big redicer into multiple smaller reducers when the code becomes complex.
 
 # Getting Started
 
@@ -88,6 +88,7 @@ val states = knot.state.test()
 knot.change.accept(Change.Load)
 
 states.assertValues(
+    State.Initial,
     State.Loading,
     State.Content("data")
 )
@@ -95,9 +96,14 @@ states.assertValues(
 
 Notice how inside the `reduce` function a new `State` can be combined with an `Action` using `+` operator. If only the `State` value should be returned from the reducer, the `.only` suffix is added to the `State`.
 
-# Examples
-1. [Knot sample app](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample), `books2` is the same screen as `books` but implemented with composite knot.
-2. [Co2Monitor sample app](https://github.com/beworker/co2monitor/blob/master/android-client/main-dashboard/src/main/java/de/halfbit/co2monitor/main/dashboard/DashboardViewModel.kt)
+# Documentation
+1. [Knot Sample App](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample) the first place to look.
+2. [Terminal events in Actions section](https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section)
+3. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/)
+4. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
+
+# Other examples
+- [Co2Monitor sample app](https://github.com/beworker/co2monitor/blob/master/android-client/main-dashboard/src/main/java/de/halfbit/co2monitor/main/dashboard/DashboardViewModel.kt)
 
 # Composition
 
@@ -151,38 +157,6 @@ dependencies {
     // it is recommended you also explicitly depend on RxJava's latest 
     // version for bug fixes and new features.
     implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
-}
-```
-
-# Troubleshooting
-
-## JVM Target
-
-When I try to perform an action with 
-
-```
-perform<Action.MyAction> {
-   ...
-}
-```
-
-I get the following error:
-
-> Cannot inline bytecode built with JVM target 1.8 into bytecode that is being built with JVM target 1.6. Please specify proper '-jvm-target' option.
-
-You can fix it adding this to your `build.gradle`:
-
-```
-android {
-    ...
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
 }
 ```
 
