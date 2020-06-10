@@ -25,13 +25,6 @@ Knot helps managing application state by reacting on events and performing async
 
 In addition to that each Knot can subscribe to `Events` coming from external sources and turn them into `Changes` for further processing.
 
-# Main features
-
-- **Clean DSL**. Knot provides a concise and easy to read DLS for declaring state container logic.
-- **Actions as side-effects**. Common unanswered question of many state containers is how to handle side-effects in reducer, when the state does not reflect the change but the app, for instance, has to show a message to the user instead. Knot answers this by allowing to issue an `Action` from the reducer, which then can be processed outside. This keeps reducer a pure function and provides a structured way of handling side-effects.
-- **Sources for external events**. Knot can mix external events like user location updates, database triggers, network state updates etc. into the loop by design. All events go through the reducer first, to be processed in accordance with the current state. Thus, the state handling is well synchronized and is localized at a single place - in the reducer.
-- **Composition**. Knot offers a convenient and a structured way of splitting once big redicer into multiple smaller reducers when the code becomes complex.
-
 # Getting Started
 
 The example below declares a Knot capable of loading data, handling *Success* and *Failure* loading results and reloading data automatically when an external *"data changed"* signal gets received. It also logs all `State` mutations as well as all processed `Changes` and `Actions` in console.
