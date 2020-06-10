@@ -89,15 +89,6 @@ states.assertValues(
 
 Notice how inside the `reduce` function a new `State` can be combined with an `Action` using `+` operator. If only the `State` value should be returned from the reducer, the `.only` suffix is added to the `State`.
 
-# Documentation
-1. [Knot Sample App](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample) is the first place to look at.
-2. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/) is you want to learn more about composion.
-3. [Terminal events in Actions section](https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section)
-4. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
-
-# Other examples
-- [Co2Monitor sample app](https://github.com/beworker/co2monitor/blob/master/android-client/main-dashboard/src/main/java/de/halfbit/co2monitor/main/dashboard/DashboardViewModel.kt)
-
 # Composition
 
 If your knot becomes complex and you want to improve its readability and maintainability, you may consider to write a composite knot. You start composition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
@@ -105,6 +96,15 @@ If your knot becomes complex and you want to improve its readability and maintai
 <img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
 
 Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can be seen as a separate `Knot` working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided to `CompositeKnot` which implements standard `Knot` interface. For more information check out [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/) post.
+
+# Documentation
+1. [Knot Sample App](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample) is the first place to look at.
+2. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/) to learn more about composion.
+3. [Terminal events in Actions section](https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section)
+4. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
+
+# Other examples
+- [Co2Monitor sample app](https://github.com/beworker/co2monitor/blob/master/android-client/main-dashboard/src/main/java/de/halfbit/co2monitor/main/dashboard/DashboardViewModel.kt)
 
 # Why Knot?
 
