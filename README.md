@@ -99,7 +99,7 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 
 # Documentation
 1. [Knot Sample App](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample) is the first place to look at.
-2. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/) to learn more about composion.
+2. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/) to learn more about composition.
 3. [Terminal events in Actions section](https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section)
 4. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
 
