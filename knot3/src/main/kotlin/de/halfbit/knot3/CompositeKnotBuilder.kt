@@ -288,6 +288,33 @@ internal constructor(
         ): Effect<State, Action> =
             if (this is WhenState) block()
             else unexpected(change)
+
+        inline fun <State : Any, Action : Any, Reducer : Partial<State, Action>> Collection<Reducer>.dispatch(
+            state: State, block: (reducer: Reducer, partialState: State) -> Effect<State, Action>
+        ): Effect<State, Action> {
+            val actions = mutableListOf<Action>()
+            val newState = fold(state) { partialState, reducer ->
+                when (val effect = block(reducer, partialState)) {
+                    is Effect.WithAction -> {
+                        effect.action?.let { actions += it }
+                        effect.state
+                    }
+                    is Effect.WithActions -> {
+                        actions += effect.actions
+                        effect.state
+                    }
+                }
+            }
+            return if (actions.isEmpty()) Effect.WithAction(newState)
+            else Effect.WithActions(newState, actions)
+        }
+
+        inline fun <State : Any, Reducer : Any> Collection<Reducer>.dispatchStateOnly(
+            state: State, block: (reducer: Reducer, partialState: State) -> State
+        ): State =
+            fold(state) { partialState, reducer ->
+                block(reducer, partialState)
+            }
     }
 }
 
@@ -302,4 +329,15 @@ internal class TypedInterceptor<Type : Any, T : Type>(
                 if (type.isInstance(change)) interceptor.invoke(it) else it
             }
         }
+}
+
+/**
+ * Marker interface for partial reducers. Partial reducer is fixme
+ */
+interface Partial<State : Any, Action : Any> {
+    val State.only: Effect<State, Action>
+        get() = Effect.WithAction(this)
+
+    operator fun State.plus(action: Action?): Effect<State, Action> =
+        Effect.WithAction(this, action)
 }
