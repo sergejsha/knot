@@ -124,6 +124,31 @@ class PartialStateWithActionsTest {
         )
     }
 
+    private class PartialStateWithManyActionsReducer : PartialReducer {
+        override fun onStateChanged(partialState: State): Effect<State, Action> {
+            return partialState + Action.One + Action.Two + Action.Three
+        }
+    }
+
+    @Test
+    fun `Partial state with many actions get dispatched`() {
+        val actionsObserver = BehaviorSubject.create<Action>()
+        val knot = createKnot(
+            partialReducers = listOf(PartialStateWithManyActionsReducer()),
+            actionsObserver = actionsObserver
+        )
+
+        knot.state.test()
+        val actions = actionsObserver.test()
+        knot.change.accept(Change.Ignite)
+
+        actions.assertValues(
+            Action.One,
+            Action.Two,
+            Action.Three
+        )
+    }
+
     private fun createKnot(
         partialReducers: List<PartialReducer>,
         actionsObserver: Subject<Action>? = null
