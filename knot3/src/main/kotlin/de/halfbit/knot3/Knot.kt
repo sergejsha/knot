@@ -5,6 +5,7 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.functions.Consumer
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import io.reactivex.rxjava3.subjects.PublishSubject
 import io.reactivex.rxjava3.subjects.Subject
 
@@ -182,6 +183,7 @@ internal class DefaultKnot<State : Any, Change : Any, Action : Any>(
             disposables.add(it.connect())
         }
         .doOnSubscribe(::doOnSubscribe)
+        .doOnError(RxJavaPlugins::onError)
         .doFinally(::doFinally)
 
     @Synchronized

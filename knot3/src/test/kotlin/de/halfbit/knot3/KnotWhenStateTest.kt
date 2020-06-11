@@ -4,7 +4,7 @@ import de.halfbit.knot3.utils.RxPluginsException
 import org.junit.Rule
 import org.junit.Test
 
-class CompositeKnotRequireStateTest {
+class KnotWhenStateTest {
 
     @Rule
     @JvmField
@@ -27,7 +27,7 @@ class CompositeKnotRequireStateTest {
     }
 
     @Test
-    fun `requireState lets known change through`() {
+    fun `whenState lets known change through`() {
         val knot = createKnot(initialState = State.Empty)
         val states = knot.state.test()
         knot.change.accept(Change.Load)
@@ -39,35 +39,30 @@ class CompositeKnotRequireStateTest {
     }
 
     @Test
-    fun `requireState throws when unknown change received`() {
-        rxPluginsException.expect(IllegalStateException::class)
-
+    fun `whenState ignores unknown change through`() {
         val knot = createKnot(initialState = State.Loading)
-        knot.state.test()
+        val states = knot.state.test()
         knot.change.accept(Change.Load)
+        states.assertValues(State.Loading)
     }
 
-    private fun createKnot(initialState: State): CompositeKnot<State> =
-        compositeKnot<State> {
+    private fun createKnot(initialState: State): Knot<State, Change> =
+        knot<State, Change, Action> {
             state { initial = initialState }
-        }.apply {
-            registerDelegate<Change, Action> {
-                changes {
-                    reduce<Change.Load> { change ->
-                        requireState<State.Empty>(change) {
+            changes {
+                reduce { change ->
+                    when (change) {
+                        Change.Load -> whenState<State.Empty> {
                             State.Loading + Action.Load
                         }
-                    }
-                    reduce<Change.Load.Success> { change ->
-                        State.Content(change.data).only
-                    }
-                }
-                actions {
-                    perform<Action.Load> {
-                        map { Change.Load.Success("ok") }
+                        is Change.Load.Success -> State.Content(change.data).only
                     }
                 }
             }
-            compose()
+            actions {
+                perform<Action.Load> {
+                    map { Change.Load.Success("ok") }
+                }
+            }
         }
 }

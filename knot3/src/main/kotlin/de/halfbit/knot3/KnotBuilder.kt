@@ -137,6 +137,60 @@ internal constructor() {
 
         /** Throws [IllegalStateException] with current [State] and given [Change] in its message. */
         fun State.unexpected(change: Change): Nothing = error("Unexpected $change in $this")
+
+        /**
+         * Executes given block if the knot is in the given state or
+         * ignores the change in any other states.
+         *
+         * ```
+         * reduce<Change> {
+         *    whenState<State.Content> {
+         *       ...
+         *    }
+         * }
+         * ```
+         * is a better readable alternative to
+         * ```
+         * reduce<Change> {
+         *    when(this) {
+         *       is State.Content -> ...
+         *       else -> only
+         *    }
+         * }
+         * ```
+         */
+        inline fun <reified WhenState : State> State.whenState(
+            block: WhenState.() -> Effect<State, Action>
+        ): Effect<State, Action> =
+            if (this is WhenState) block()
+            else Effect.WithAction(this, null)
+
+        /**
+         * Executes given block if the knot is in the given state or
+         * throws [IllegalStateException] for the change in any other state.
+         *
+         * ```
+         * reduce<Change> { change ->
+         *    requireState<State.Content>(change) {
+         *       ...
+         *    }
+         * }
+         * ```
+         * is a better readable alternative to
+         * ```
+         * reduce<Change> { change ->
+         *    when(this) {
+         *       is State.Content -> ...
+         *       else -> unexpected(change)
+         *    }
+         * }
+         * ```
+         */
+        inline fun <reified WhenState : State> State.requireState(
+            change: Change, block: WhenState.() -> Effect<State, Action>
+        ): Effect<State, Action> =
+            if (this is WhenState) block()
+            else unexpected(change)
     }
 }
 
