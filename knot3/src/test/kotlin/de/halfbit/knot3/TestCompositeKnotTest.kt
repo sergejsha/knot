@@ -71,6 +71,20 @@ class TestCompositeKnotTest {
     }
 
     @Test
+    fun `TestCompositeKnot can register delegate using deprecated api`() {
+        val watcher = PublishSubject.create<Any>()
+        val observer = watcher.test()
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerPrime<Any, Any> {
+            state { watchAll { watcher.onNext(it) } }
+        }
+        knot.compose()
+        observer.assertValues(State("empty"))
+    }
+
+    @Test
     fun `TestCompositeKnot can emmit change`() {
         val watcher = PublishSubject.create<Any>()
         val observer = watcher.test()
