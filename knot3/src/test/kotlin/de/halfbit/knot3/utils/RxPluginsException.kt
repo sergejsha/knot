@@ -47,6 +47,9 @@ class RxPluginsException private constructor() : TestRule {
                     val observedType = observedException?.let { it::class }
                     Assert.assertThat(observedType, IsEqual(expectedType))
                 }
+                else -> {
+                    observedException?.let { throw it }
+                }
             }
         }
     }
