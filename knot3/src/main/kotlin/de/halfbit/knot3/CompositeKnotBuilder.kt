@@ -106,9 +106,9 @@ internal constructor() {
     }
 }
 
-/** A configuration builder for a `Prime`. */
+/** A configuration builder for a `Delegate`. */
 @KnotDsl
-class PrimeBuilder<State : Any, Change : Any, Action : Any>
+class DelegateBuilder<State : Any, Change : Any, Action : Any>
 internal constructor(
     private val reducers: MutableMap<KClass<out Change>, Reducer<State, Change, Action>>,
     private val eventSources: MutableList<EventSource<Change>>,

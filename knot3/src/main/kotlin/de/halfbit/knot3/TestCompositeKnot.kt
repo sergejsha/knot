@@ -25,8 +25,8 @@ fun <State : Any> testCompositeKnot(
 }
 
 /**
- * `TestCompositeKnot` is used for testing knot primes in isolation. Create test composition
- * knot, add a knot `Prime` to it you want to test and start testing it. In addition to standard
+ * `TestCompositeKnot` is used for testing knot delegates in isolation. Create test composition
+ * knot, add a knot `Delegate` to it you want to test and start testing it. In addition to standard
  * `CompositeKnot` functionality `TestCompositeKnot` lets you observe and emit actions.
  */
 interface TestCompositeKnot<State : Any> : CompositeKnot<State> {
@@ -52,8 +52,12 @@ internal class DefaultTestCompositeKnot<State : Any>(
     }
 
     override fun <Change : Any, Action : Any> registerPrime(
-        block: PrimeBuilder<State, Change, Action>.() -> Unit
-    ) = compositeKnot.registerPrime(block)
+        block: DelegateBuilder<State, Change, Action>.() -> Unit
+    ) = compositeKnot.registerDelegate(block)
+
+    override fun <Change : Any, Action : Any> registerDelegate(
+        block: DelegateBuilder<State, Change, Action>.() -> Unit
+    ) = compositeKnot.registerDelegate(block)
 
     override fun compose() {
         compositeKnot.compose()

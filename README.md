@@ -91,11 +91,11 @@ Notice how inside the `reduce` function a new `State` can be combined with an `A
 
 # Composition
 
-If your knot becomes complex and you want to improve its readability and maintainability, you may consider to write a composite knot. You start composition by grouping related functionality into, in a certain sense, indecomposable pieces called `Primes`. 
+If your knot becomes complex and you want to improve its readability and maintainability, you may consider to write a composite knot. You start composition by grouping related functionality into, in a certain sense, indecomposable pieces called `Delegates`. 
 
 <img src="docs/diagrams/flowchart-composite-knot.png" width="625" />
 
-Each `Prime` is isolated from the other `Primes`. It defines its own set of `Changes`, `Actions` and `Reducers`. It's only the `State`, what is shared between the `Primes`. In that respect each `Prime` can be seen as a separate `Knot` working on a shared `State`. Once all `Primes` are defined, they can be composed together and provided to `CompositeKnot` which implements standard `Knot` interface. For more information check out [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/) post.
+Each `Delegate` is isolated from the other `Delegates`. It defines its own set of `Changes`, `Actions` and `Reducers`. It's only the `State`, what is shared between the `Delegates`. In that respect each `Delegate` can be seen as a separate `Knot` working on a shared `State`. Once all `Delegates` are defined, they can be composed together and provided to `CompositeKnot` which implements standard `Knot` interface. For more information check out [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/) post.
 
 # Documentation
 1. [Knot Sample App](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample) is the first place to look at.
@@ -111,7 +111,7 @@ Each `Prime` is isolated from the other `Primes`. It defines its own set of `Cha
 * Predictable - state is the single source of truth.
 * Side-effect free reducer - by design.
 * Scalable - single knots can be combined together to build more complex application logic.
-* Decomposable - complex knots can be decomposed into primes by related functionality.
+* Composable - complex knots can be composed out of delegates grouped by related functionality.
 * Structured - easy to read and write DSL for writing better structured and less buggy code.
 * Concise - it has minimalistic API and compact implementation.
 * Testable - reducers and transformers are easy to test.

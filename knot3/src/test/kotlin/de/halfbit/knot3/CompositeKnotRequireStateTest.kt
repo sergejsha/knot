@@ -52,7 +52,7 @@ class CompositeKnotRequireStateTest {
         compositeKnot<State> {
             state { initial = initialState }
         }.apply {
-            registerPrime<Change, Action> {
+            registerDelegate<Change, Action> {
                 changes {
                     reduce<Change.Load> { change ->
                         requireState<State.Empty>(change) {

@@ -1,14 +1,17 @@
 package de.halfbit.knot3
 
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.verify
 import de.halfbit.knot3.utils.RxPluginsException
 import de.halfbit.knot3.utils.SchedulerTester
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito
 
-class PrimeTest {
+class DelegateTest {
 
     @Rule
     @JvmField
@@ -26,6 +29,17 @@ class PrimeTest {
     private sealed class Action {
         object A : Action()
         object B : Action()
+    }
+
+    @Test
+    fun `Deprecated registerPrime calls registerDelegate method`() {
+        val knot = Mockito.spy(
+            compositeKnot<State> {
+                state { initial = State("empty") }
+            }
+        )
+        knot.registerPrime<Change, Action> {}
+        verify(knot).registerDelegate<Change, Action>(any())
     }
 
     @Test
@@ -57,7 +71,7 @@ class PrimeTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { copy(value = it.value).only }
                 reduce<Change.B> { copy(value = it.value).only }
@@ -86,7 +100,7 @@ class PrimeTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { copy(value = it.value).only }
                 reduce<Change.B> { copy(value = it.value).only }
@@ -116,7 +130,7 @@ class PrimeTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { copy(value = it.value) + Action.A }
                 reduce<Change.ADone> { copy(value = it.value).only }
@@ -159,7 +173,7 @@ class PrimeTest {
                 reduceOn = scheduler
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { only }
             }
@@ -182,7 +196,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { only }
             }
@@ -203,7 +217,7 @@ class PrimeTest {
                 assertThat(watchOn).isNull()
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { only }
             }
@@ -223,7 +237,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { only }
             }
@@ -241,7 +255,7 @@ class PrimeTest {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { copy(value = it.value).only }
             }
@@ -266,7 +280,7 @@ class PrimeTest {
         }
 
         val eventSource = PublishSubject.create<Unit>()
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { copy(value = it.value).only }
             }
@@ -296,7 +310,7 @@ class PrimeTest {
         }
 
         val eventSource = PublishSubject.create<Unit>()
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { only }
             }
@@ -319,7 +333,7 @@ class PrimeTest {
         }
 
         val eventSource = PublishSubject.create<Unit>()
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { only }
             }
@@ -341,7 +355,7 @@ class PrimeTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { unexpected(it) }
             }
@@ -358,7 +372,7 @@ class PrimeTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { unexpected(it) }
             }
@@ -371,13 +385,13 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime actions { watchAll } receives Action`() {
+    fun `Delegate actions { watchAll } receives Action`() {
         val watcher = PublishSubject.create<Action>()
         val observer = watcher.test()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -393,13 +407,13 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime actions { watch } receives Action`() {
+    fun `Delegate actions { watch } receives Action`() {
         val watcher = PublishSubject.create<Action>()
         val observer = watcher.test()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -415,13 +429,13 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime actions { watchOn } gets applied`() {
+    fun `Delegate actions { watchOn } gets applied`() {
         var visited = false
         val scheduler = Schedulers.from { visited = true; it.run() }
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -436,11 +450,11 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime actions { watchOn } is null by default`() {
+    fun `Delegate actions { watchOn } is null by default`() {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -453,12 +467,12 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime actions { watchOn } gets applied before each watcher`() {
+    fun `Delegate actions { watchOn } gets applied before each watcher`() {
         val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -475,13 +489,13 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime actions { intercept } receives Action`() {
+    fun `Delegate actions { intercept } receives Action`() {
         val watcher = PublishSubject.create<Action>()
         val observer = watcher.test()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -497,13 +511,13 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime changes { watchAll } receives Change`() {
+    fun `Delegate changes { watchAll } receives Change`() {
         val watcher = PublishSubject.create<Change>()
         val observer = watcher.test()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
                 watchAll { watcher.onNext(it) }
@@ -517,13 +531,13 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime changes { watch } receives Change`() {
+    fun `Delegate changes { watch } receives Change`() {
         val watcher = PublishSubject.create<Change>()
         val observer = watcher.test()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
                 watch<Change.A> { watcher.onNext(it) }
@@ -537,13 +551,13 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime changes { watchOn } gets applied`() {
+    fun `Delegate changes { watchOn } gets applied`() {
         var visited = false
         val scheduler = Schedulers.from { visited = true; it.run() }
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
                 watchOn = scheduler
@@ -556,11 +570,11 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime changes { watchOn } is null by default`() {
+    fun `Delegate changes { watchOn } is null by default`() {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
                 assertThat(watchOn).isNull()
@@ -571,12 +585,12 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime changes { watchOn } gets applied before each watcher`() {
+    fun `Delegate changes { watchOn } gets applied before each watcher`() {
         val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
                 watchOn = schedulerTester.scheduler("one")
@@ -591,7 +605,7 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime state { intercept } intercepts after distinctUntilChanged`() {
+    fun `Delegate state { intercept } intercepts after distinctUntilChanged`() {
         val interceptor = PublishSubject.create<State>()
         val observer = interceptor.test()
         val knot = compositeKnot<State> {
@@ -602,7 +616,7 @@ class PrimeTest {
                 }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> {
                     if (value == "empty") State("changed").only else only
@@ -627,7 +641,7 @@ class PrimeTest {
                 watchAll { watcher.onNext(it) }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { State("one").only }
             }
@@ -654,7 +668,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { State("one").only }
             }
@@ -673,7 +687,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { State("one").only }
             }
@@ -693,7 +707,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { State("one").only }
             }
@@ -716,7 +730,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -727,7 +741,7 @@ class PrimeTest {
     }
 
     @Test
-    fun `CompositeKnot actions { watchOn } in knot gets applied in prime`() {
+    fun `CompositeKnot actions { watchOn } in knot gets applied in delegate`() {
         val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state {
@@ -737,7 +751,7 @@ class PrimeTest {
                 watchOn = schedulerTester.scheduler("knot")
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -751,7 +765,7 @@ class PrimeTest {
     }
 
     @Test
-    fun `CompositeKnot actions { watchOn } in knot can be overrided in prime`() {
+    fun `CompositeKnot actions { watchOn } in knot can be overridden in delegate`() {
         val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state {
@@ -761,18 +775,18 @@ class PrimeTest {
                 watchOn = schedulerTester.scheduler("knot")
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
             actions {
-                watchOn = schedulerTester.scheduler("prime")
+                watchOn = schedulerTester.scheduler("delegate")
                 watchAll { }
             }
         }
         knot.compose()
         knot.change.accept(Change.A)
-        schedulerTester.assertSchedulers("knot", "prime")
+        schedulerTester.assertSchedulers("knot", "delegate")
     }
 
     @Test
@@ -784,7 +798,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -806,7 +820,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -827,7 +841,7 @@ class PrimeTest {
                 watchAll { watcher.onNext(it) }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { State("one").only }
             }
@@ -855,7 +869,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { only }
             }
@@ -866,7 +880,7 @@ class PrimeTest {
     }
 
     @Test
-    fun `CompositeKnot changes { watchOn } in knot gets applied in prime`() {
+    fun `CompositeKnot changes { watchOn } in knot gets applied in delegate`() {
         val schedulerTester = SchedulerTester()
         val knot = compositeKnot<State> {
             state {
@@ -876,7 +890,7 @@ class PrimeTest {
                 watchOn = schedulerTester.scheduler("one")
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { only }
                 watchAll { }
@@ -896,7 +910,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { only }
             }
@@ -918,7 +932,7 @@ class PrimeTest {
                 watchAll { }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { this + Action.A }
             }
@@ -939,7 +953,7 @@ class PrimeTest {
                 watchAll { watcher.onNext(it) }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { State("one") + Action.A }
             }
@@ -963,7 +977,7 @@ class PrimeTest {
                 watch<State> { watcher.onNext(it) }
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> { State("one").only }
             }
@@ -986,7 +1000,7 @@ class PrimeTest {
                 initial = State("empty")
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> {
                     if (value == "empty") State("one").only else only
@@ -1013,7 +1027,7 @@ class PrimeTest {
                 initial = State("empty")
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> {
                     State("one").only
@@ -1036,14 +1050,14 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime state { watchAll } receives State`() {
+    fun `Delegate state { watchAll } receives State`() {
         val watcher = PublishSubject.create<State>()
         val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             state {
                 watchAll { watcher.onNext(it) }
             }
@@ -1063,14 +1077,14 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime state { watch } receives State`() {
+    fun `Delegate state { watch } receives State`() {
         val watcher = PublishSubject.create<State>()
         val knot = compositeKnot<State> {
             state {
                 initial = State("empty")
             }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             state {
                 watch<State> { watcher.onNext(it) }
             }
@@ -1090,7 +1104,7 @@ class PrimeTest {
     }
 
     @Test
-    fun `Prime receives updates when listens to state updates inside events { } section`() {
+    fun `Delegate receives updates when listens to state updates inside events { } section`() {
 
         val knot = compositeKnot<State> {
             state {
@@ -1099,7 +1113,7 @@ class PrimeTest {
         }
 
         val stateObserver = knot.state.test()
-        knot.registerPrime<Change, Unit> {
+        knot.registerDelegate<Change, Unit> {
             changes {
                 reduce<Change.A> {
                     State("one").only
@@ -1126,7 +1140,7 @@ class PrimeTest {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Unit> {
+        knot.registerDelegate<Change, Unit> {
             changes { reduce<Change> { only } }
         }
         assertThat(knot.isDisposed).isFalse()
@@ -1137,7 +1151,7 @@ class PrimeTest {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Unit> {
+        knot.registerDelegate<Change, Unit> {
             changes { reduce<Change> { only } }
         }
         knot.compose()
@@ -1152,7 +1166,7 @@ class PrimeTest {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes { reduce<Change.A> { only } }
             events {
                 source {
@@ -1174,7 +1188,7 @@ class PrimeTest {
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> {
                     this + Action.A

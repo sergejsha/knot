@@ -56,14 +56,14 @@ class CompositeKnotTest {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `When composed, knot fails to access new primes`() {
+    fun `When composed, knot fails to access new delegates`() {
         val knot = compositeKnot<State> {
             state {
                 initial = State
             }
         }
         knot.compose()
-        knot.registerPrime<Unit, Unit> { }
+        knot.registerDelegate<Unit, Unit> { }
     }
 
     @Test

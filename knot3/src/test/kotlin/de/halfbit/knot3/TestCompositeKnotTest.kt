@@ -57,7 +57,21 @@ class TestCompositeKnotTest {
     }
 
     @Test
-    fun `TestCompositeKnot can register prime`() {
+    fun `TestCompositeKnot can register delegate`() {
+        val watcher = PublishSubject.create<Any>()
+        val observer = watcher.test()
+        val knot = testCompositeKnot<State> {
+            state { initial = State("empty") }
+        }
+        knot.registerDelegate<Any, Any> {
+            state { watchAll { watcher.onNext(it) } }
+        }
+        knot.compose()
+        observer.assertValues(State("empty"))
+    }
+
+    @Test
+    fun `TestCompositeKnot can register delegate using deprecated api`() {
         val watcher = PublishSubject.create<Any>()
         val observer = watcher.test()
         val knot = testCompositeKnot<State> {
@@ -78,7 +92,7 @@ class TestCompositeKnotTest {
             state { initial = State("empty") }
             changes { watchAll { watcher.onNext(it) } }
         }
-        knot.registerPrime<Any, Any> {
+        knot.registerDelegate<Any, Any> {
             changes {
                 reduce<Change> { only }
             }
@@ -101,7 +115,7 @@ class TestCompositeKnotTest {
         val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Unit> {
+        knot.registerDelegate<Change, Unit> {
             changes { reduce<Change> { only } }
         }
         Truth.assertThat(knot.isDisposed).isFalse()
@@ -112,7 +126,7 @@ class TestCompositeKnotTest {
         val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Unit> {
+        knot.registerDelegate<Change, Unit> {
             changes { reduce<Change> { only } }
         }
         knot.compose()
@@ -127,7 +141,7 @@ class TestCompositeKnotTest {
         val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes { reduce<Change> { only } }
             events {
                 source {
@@ -149,7 +163,7 @@ class TestCompositeKnotTest {
         val knot = testCompositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { this + Action("action") }
             }

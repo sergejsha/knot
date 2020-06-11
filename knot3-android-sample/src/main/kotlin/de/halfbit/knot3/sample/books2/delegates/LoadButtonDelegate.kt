@@ -14,7 +14,7 @@ class LoadButtonDelegate(
 ) : Delegate {
 
     override fun CompositeKnot<State>.register() {
-        registerPrime<Change, Action> {
+        registerDelegate<Change, Action> {
             changes {
                 reduce<Change.Load> {
                     when (this) {

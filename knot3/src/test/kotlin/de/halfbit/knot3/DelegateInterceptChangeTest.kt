@@ -3,7 +3,7 @@ package de.halfbit.knot3
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 
-class PrimeInterceptChangeTest {
+class DelegateInterceptChangeTest {
 
     private data class State(val value: String)
     private data class ChangeA(val value: String)
@@ -11,13 +11,13 @@ class PrimeInterceptChangeTest {
     private object Action
 
     @Test
-    fun `Prime (single) changes { intercept } receives Change`() {
+    fun `Delegate (single) changes { intercept } receives Change`() {
         val watcher = PublishSubject.create<ChangeA>()
         val observer = watcher.test()
         val knot = compositeKnot<State> {
             state { initial = State("empty") }
         }
-        knot.registerPrime<ChangeA, Action> {
+        knot.registerDelegate<ChangeA, Action> {
             changes {
                 reduce<ChangeA> { this + Action }
                 intercept<ChangeA> { change ->
@@ -33,7 +33,7 @@ class PrimeInterceptChangeTest {
     }
 
     @Test
-    fun `Prime (many) changes { intercept } receives Change`() {
+    fun `Delegate (many) changes { intercept } receives Change`() {
         val watcher = PublishSubject.create<Any>()
         val observer = watcher.test()
 
@@ -41,7 +41,7 @@ class PrimeInterceptChangeTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<ChangeA, Action> {
+        knot.registerDelegate<ChangeA, Action> {
             changes {
                 reduce<ChangeA> { only }
                 intercept<ChangeA> { change ->
@@ -54,7 +54,7 @@ class PrimeInterceptChangeTest {
             }
         }
 
-        knot.registerPrime<ChangeB, Action> {
+        knot.registerDelegate<ChangeB, Action> {
             changes {
                 reduce<ChangeB> { only }
                 intercept<ChangeB> { change ->
