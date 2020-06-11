@@ -241,6 +241,12 @@ internal constructor(
         ): Effect<State, Action> =
             if (this is WhenState) block()
             else Effect.WithAction(this, null)
+
+        inline fun <reified WhenState : State> State.requireState(
+            change: Change, block: WhenState.() -> Effect<State, Action>
+        ): Effect<State, Action> =
+            if (this is WhenState) block()
+            else unexpected(change)
     }
 }
 

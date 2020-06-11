@@ -161,7 +161,7 @@ class PrimeTest {
         }
         knot.registerPrime<Change, Action> {
             changes {
-                reduce<Change> { only }
+                reduce<Change.A> { only }
             }
         }
 
@@ -184,7 +184,7 @@ class PrimeTest {
         }
         knot.registerPrime<Change, Action> {
             changes {
-                reduce<Change> { only }
+                reduce<Change.A> { only }
             }
         }
 
@@ -225,7 +225,7 @@ class PrimeTest {
         }
         knot.registerPrime<Change, Action> {
             changes {
-                reduce<Change> { only }
+                reduce<Change.A> { only }
             }
         }
         knot.compose()

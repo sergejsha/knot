@@ -4,7 +4,7 @@ import de.halfbit.knot3.utils.RxPluginsException
 import org.junit.Rule
 import org.junit.Test
 
-class CompositeKnotWhenStateTest {
+class CompositeKnotRequireStateTest {
 
     @Rule
     @JvmField
@@ -27,7 +27,7 @@ class CompositeKnotWhenStateTest {
     }
 
     @Test
-    fun `whenState lets known change through`() {
+    fun `requireState lets known change through`() {
         val knot = createKnot(initialState = State.Empty)
         val states = knot.state.test()
         knot.change.accept(Change.Load)
@@ -39,7 +39,9 @@ class CompositeKnotWhenStateTest {
     }
 
     @Test
-    fun `whenState ignores unknown change through`() {
+    fun `requireState throws when unknown change received`() {
+        rxPluginsException.expect(IllegalStateException::class)
+
         val knot = createKnot(initialState = State.Loading)
         val states = knot.state.test()
         knot.change.accept(Change.Load)
@@ -52,8 +54,8 @@ class CompositeKnotWhenStateTest {
         }.apply {
             registerPrime<Change, Action> {
                 changes {
-                    reduce<Change.Load> {
-                        whenState<State.Empty> {
+                    reduce<Change.Load> { change ->
+                        requireState<State.Empty>(change) {
                             State.Loading + Action.Load
                         }
                     }
