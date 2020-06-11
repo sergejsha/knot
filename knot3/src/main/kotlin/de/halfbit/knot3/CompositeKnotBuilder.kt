@@ -234,6 +234,13 @@ internal constructor(
 
         /** Throws [IllegalStateException] with current [State] and given [Change] in its message. */
         fun State.unexpected(change: Change): Nothing = error("Unexpected $change in $this")
+
+        /** Executes given block if the knot is in the given state and ignores all the other changes. **/
+        inline fun <reified WhenState : State> State.whenState(
+            block: WhenState.() -> Effect<State, Action>
+        ): Effect<State, Action> =
+            if (this is WhenState) block()
+            else Effect.WithAction(this, null)
     }
 }
 
