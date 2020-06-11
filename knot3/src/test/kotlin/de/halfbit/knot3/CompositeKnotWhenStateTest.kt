@@ -50,7 +50,7 @@ class CompositeKnotWhenStateTest {
         compositeKnot<State> {
             state { initial = initialState }
         }.apply {
-            registerPrime<Change, Action> {
+            registerDelegate<Change, Action> {
                 changes {
                     reduce<Change.Load> {
                         whenState<State.Empty> {

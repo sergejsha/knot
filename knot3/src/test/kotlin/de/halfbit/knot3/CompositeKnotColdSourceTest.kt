@@ -38,13 +38,13 @@ class CompositeKnotColdSourceTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             events {
                 coldSource { changeA.map { Change.A } }
             }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             events {
                 coldSource { changeB.map { Change.B } }
             }
@@ -73,13 +73,13 @@ class CompositeKnotColdSourceTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             events {
                 coldSource { changeA.map { Change.A } }
             }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             events {
                 coldSource { changeB.map { Change.B } }
             }
@@ -109,13 +109,13 @@ class CompositeKnotColdSourceTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             events {
                 coldSource { changeA.map { Change.A } }
             }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             events {
                 coldSource { changeB.map { Change.B } }
             }
@@ -146,13 +146,13 @@ class CompositeKnotColdSourceTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             events {
                 coldSource { changeA.map { Change.A } }
             }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             events {
                 coldSource { changeB.map { Change.B } }
             }
@@ -184,13 +184,13 @@ class CompositeKnotColdSourceTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             events {
                 coldSource { changeA.map { Change.A } }
             }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             events {
                 coldSource { changeB.map { Change.B } }
             }
@@ -220,7 +220,7 @@ class CompositeKnotColdSourceTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> {
                     State("event").only
@@ -254,7 +254,7 @@ class CompositeKnotColdSourceTest {
             state { initial = State("empty") }
         }
 
-        knot.registerPrime<Change, Action> {
+        knot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change.A> {
                     only

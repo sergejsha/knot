@@ -198,7 +198,7 @@ class KnotEffectTest {
                 initial = State
             }
         }
-        compositeKnot.registerPrime<Change, Action> {
+        compositeKnot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { only }
             }
@@ -220,7 +220,7 @@ class KnotEffectTest {
                 initial = State
             }
         }
-        compositeKnot.registerPrime<Change, Action> {
+        compositeKnot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { only + null }
             }
@@ -242,7 +242,7 @@ class KnotEffectTest {
                 initial = State
             }
         }
-        compositeKnot.registerPrime<Change, Action> {
+        compositeKnot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { this + null }
             }
@@ -264,7 +264,7 @@ class KnotEffectTest {
                 initial = State
             }
         }
-        compositeKnot.registerPrime<Change, Action> {
+        compositeKnot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { this + Action.One }
             }
@@ -288,7 +288,7 @@ class KnotEffectTest {
                 initial = State
             }
         }
-        compositeKnot.registerPrime<Change, Action> {
+        compositeKnot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { this + Action.One + null }
             }
@@ -312,7 +312,7 @@ class KnotEffectTest {
                 initial = State
             }
         }
-        compositeKnot.registerPrime<Change, Action> {
+        compositeKnot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { only + Action.One }
             }
@@ -336,7 +336,7 @@ class KnotEffectTest {
                 initial = State
             }
         }
-        compositeKnot.registerPrime<Change, Action> {
+        compositeKnot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { this + Action.One + Action.Two }
             }
@@ -360,7 +360,7 @@ class KnotEffectTest {
                 initial = State
             }
         }
-        compositeKnot.registerPrime<Change, Action> {
+        compositeKnot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { this + Action.One + Action.Two + null }
             }
@@ -384,7 +384,7 @@ class KnotEffectTest {
                 initial = State
             }
         }
-        compositeKnot.registerPrime<Change, Action> {
+        compositeKnot.registerDelegate<Change, Action> {
             changes {
                 reduce<Change> { this + Action.One + Action.Two + Action.Three }
             }
