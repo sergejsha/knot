@@ -289,6 +289,21 @@ internal constructor(
             if (this is WhenState) block()
             else unexpected(change)
 
+        /**
+         * Dispatches partial state to each partial reducer in the collection.
+         *
+         * @param state is the initial partial state.
+         * @param block declares the actual call to the partial reducer.
+         * @return the effect with the final state and the list of actions to perform.
+         *
+         * ```
+         * reduce<Change.Ignite> {
+         *    partialReducers.dispatch(this) { reducer, partialState ->
+         *       reducer.onStateChanged(partialState)
+         *    }
+         * }
+         * See [Partial] for more details.
+         */
         inline fun <State : Any, Action : Any, Reducer : Partial<State, Action>> Collection<Reducer>.dispatch(
             state: State, block: (reducer: Reducer, partialState: State) -> Effect<State, Action>
         ): Effect<State, Action> {
@@ -309,6 +324,22 @@ internal constructor(
             else Effect.WithActions(newState, actions)
         }
 
+        /**
+         * Dispatches partial state to each partial reducer in the collection.
+         *
+         * @param state is the initial partial state.
+         * @param block declares the actual call to the partial reducer.
+         * @return the final state.
+         *
+         * ```
+         * reduce<Change.Ignite> {
+         *    partialReducers.dispatchStateOnly(this) { reducer, partialState ->
+         *       reducer.onStateChanged(partialState)
+         *    }.only
+         * }
+         * ```
+         * See `PartialStateOnlyTest` for more details.
+         */
         inline fun <State : Any, Reducer : Any> Collection<Reducer>.dispatchStateOnly(
             state: State, block: (reducer: Reducer, partialState: State) -> State
         ): State =
@@ -332,7 +363,20 @@ internal class TypedInterceptor<Type : Any, T : Type>(
 }
 
 /**
- * Marker interface for partial reducers. Partial reducer is fixme
+ * Marker interface for partial reducers. Partial reducer is used when multiple delegates
+ * need to participate in handling of a single change.
+ *
+ * For example, you have a delegate responsible for handling a large data structure coming
+ * from a backend. Each delegate should be able to use that structure for updating the part
+ * of the shared state, related to each delegate's concern only. Partial delegation can be
+ * implemented as follows:
+ * - Create a delegate responsible for handling the structure in the first place.
+ * - Declare a partial reducer interface to that delegate.
+ * - Let other delegates involved in the handling implement the partial reducer interface.
+ * - Collect all partial reducers in the main delegate and dispatch the state and the
+ * structure though out all collected partial reducers.
+ *
+ * See `PartialStateWithActionsTest` to see the partial reducers in action.
  */
 interface Partial<State : Any, Action : Any> {
     val State.only: Effect<State, Action>

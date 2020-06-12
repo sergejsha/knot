@@ -15,6 +15,11 @@ import de.halfbit.knot3.Effect
  * Use [dispatch] extension function for dispatching the payload to partial
  * reducers.
  */
+@Deprecated(
+    "The interface is deprecated in favour of more open [de.halfbit.knot3.Partial].",
+    ReplaceWith("Partial<State, Action>"),
+    level = DeprecationLevel.WARNING
+)
 interface PartialReducer<State : Any, Payload : Any, Action : Any> {
     fun reduce(state: State, payload: Payload): Effect<State, Action>
 
@@ -44,6 +49,11 @@ interface PartialReducer<State : Any, Payload : Any, Action : Any> {
  * }
  * ```
  */
+@Deprecated(
+    "Use Collection<Reducer>.dispatch(state, block) with new [de.halfbit.knot3.Partial].",
+    ReplaceWith("dispatch(state, block)"),
+    level = DeprecationLevel.WARNING
+)
 fun <State : Any, Payload : Any, Action : Any> Collection<PartialReducer<State, Payload, Action>>.dispatch(
     state: State, payload: Payload
 ): Effect<State, Action> {
