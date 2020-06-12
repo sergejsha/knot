@@ -7,6 +7,7 @@ package de.halfbit.knot3.partial
  * Use [dispatch] extension function for dispatching the payload to partial
  * reducers.
  */
+@Deprecated("Use free style implementation instead of this interface.")
 interface StateOnlyPartialReducer<State : Any, Payload : Any> {
     fun reduce(state: State, payload: Payload): State
 }
@@ -30,6 +31,11 @@ interface StateOnlyPartialReducer<State : Any, Payload : Any> {
  * }
  * ```
  */
+@Deprecated(
+    "Use Collection<Reducer>.dispatchStateOnly(state, block) with new [de.halfbit.knot3.Partial].",
+    ReplaceWith("dispatchStateOnly(state, block)"),
+    level = DeprecationLevel.WARNING
+)
 fun <State : Any, Payload : Any> Collection<StateOnlyPartialReducer<State, Payload>>.dispatch(
     state: State, payload: Payload
 ): State = fold(state) { partialState, reducer -> reducer.reduce(partialState, payload) }
