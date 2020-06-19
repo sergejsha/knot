@@ -100,8 +100,9 @@ Each `Delegate` is isolated from the other `Delegates`. It defines its own set o
 # Documentation
 1. [Knot Sample App](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample) is the first place to look at.
 2. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/) to learn more about composition.
-3. [Terminal events in Actions section](https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section)
-4. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
+3. [Async Actions](https://www.halfbit.de/posts/async-actions-in-knot/) to learn more about performing and cancelling asynchronous actions.
+4. [Terminal events in Actions section](https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section)
+5. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
 
 # Other examples
 - [Co2Monitor sample app](https://github.com/beworker/co2monitor/blob/master/android-client/main-dashboard/src/main/java/de/halfbit/co2monitor/main/dashboard/DashboardViewModel.kt)
