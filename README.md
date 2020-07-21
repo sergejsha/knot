@@ -99,10 +99,10 @@ Each `Delegate` is isolated from the other `Delegates`. It defines its own set o
 
 # Documentation
 1. [Knot Sample App](https://github.com/beworker/knot/tree/master/knot3-android-sample/src/main/kotlin/de/halfbit/knot3/sample) is the first place to look at.
-2. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/) to learn more about composition.
-3. [Async Actions](https://www.halfbit.de/posts/async-actions-in-knot/) to learn how to perform and cancel asynchronous actions.
-4. [External Events](https://www.halfbit.de/posts/external-events-in-knot/) to learn how to observe and handle external events.
-5. [Terminal events in Actions section](https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section)
+2. [Async Actions](https://www.halfbit.de/posts/async-actions-in-knot/) to learn how to perform and cancel asynchronous actions.
+3. [External Events](https://www.halfbit.de/posts/external-events-in-knot/) to learn how to observe and handle external events.
+4. [Terminal events in Actions section](https://github.com/beworker/knot/wiki/Terminal-events-in-Actions-section)
+5. [Composite ViewModel](https://www.halfbit.de/posts/composite-viewmodel/) to learn more about composition.
 6. [Troubleshooting](https://github.com/beworker/knot/wiki/Troubleshooting)
 
 # Other examples
