@@ -55,9 +55,7 @@ val knot = knot<State, Change, Action> {
     changes {
         reduce { change ->
             when (change) {
-                is Change.Load -> 
-                     if (this == State.Loadng) this.only // do nothing, return the current state
-                     else State.Loading + Action.Load    // move to State.Loading and issue the loading action
+                is Change.Load -> State.Loading + Action.Load
                 is Change.Load.Success -> State.Content(data).only
                 is Change.Load.Failure -> State.Failed(error).only
             }
