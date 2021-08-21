@@ -130,7 +130,7 @@ allprojects {
 dependencies {
     implementation "de.halfbit:knot3:<version>"
     
-    // Becase Knot is not released for each and every RxJava version, 
+    // Because Knot is not released for each and every RxJava version, 
     // it is recommended you also explicitly depend on RxJava's latest 
     // version for bug fixes and new features.
     implementation 'io.reactivex.rxjava3:rxjava:3.0.4'    
