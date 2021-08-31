@@ -7,7 +7,7 @@
 
 Concise reactive state container library for Android applications.
 
-If you are looking for a coroutine based state machine library, you might want to look at [comachine](https://github.com/beworker/comachine).
+If you are looking for a coroutine based state machine library, you might want to look at my new [comachine](https://github.com/beworker/comachine) library.
 
 # Concept
 
