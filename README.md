@@ -7,6 +7,8 @@
 
 Concise reactive state container library for Android applications.
 
+If you are looking for a coroutine based state machine library, you might want to look at [comachine](https://github.com/beworker/comachine).
+
 # Concept
 
 Knot helps managing application state by reacting on events and performing asynchronous actions in a structured way. There are five core concepts Knot defines: `State`, `Change`, `Action`, `Reducer` and `Effect`.
