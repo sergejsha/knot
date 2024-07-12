@@ -1,6 +1,5 @@
 ![](https://img.shields.io/badge/production-ready-brightgreen.svg)
-[![Build Status](https://travis-ci.org/beworker/knot.svg?branch=master)](https://travis-ci.org/beworker/knot)
-[![codecov](https://codecov.io/gh/beworker/knot/branch/master/graph/badge.svg)](https://codecov.io/gh/beworker/knot)
+![maintenance-status](https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 # 🧶 Knot
