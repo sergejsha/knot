@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/production-ready-brightgreen.svg)
+[![Maven Central](http://img.shields.io/maven-central/v/de.halfbit/knot.svg)](https://central.sonatype.com/artifact/de.halfbit/knot3)
 ![maintenance-status](https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
